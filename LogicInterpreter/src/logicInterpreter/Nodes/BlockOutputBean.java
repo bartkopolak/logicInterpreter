@@ -10,15 +10,24 @@ public class BlockOutputBean extends OutputBean {
 		this.formula = formula;
 		this.parent = parent;
 	}
-
+	/**
+	 * 
+	 * @return  funkcja logiczna
+	 */
 	public String getFormula() {
 		return formula;
 	}
-
+	/**
+	 * Ustawia funkcję logiczną wyjścia
+	 * @param formula
+	 */
 	public void setFormula(String formula) {
 		this.formula = formula;
 	}
-
+	/**
+	 * 
+	 * @return blok podłączony do tego wyjścia
+	 */
 	public BlockBean getParent() {
 		return parent;
 	}

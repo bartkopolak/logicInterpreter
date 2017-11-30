@@ -11,7 +11,10 @@ public class BlockInputBean extends InputBean{
 		super(name);
 		this.parent = parent;
 	}
-
+	/**
+	 * 
+	 * @return blok podłączony do wejścia
+	 */
 	public BlockBean getParent() {
 		return parent;
 	}

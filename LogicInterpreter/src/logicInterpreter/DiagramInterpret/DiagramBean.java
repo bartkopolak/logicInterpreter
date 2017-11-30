@@ -91,10 +91,13 @@ public class DiagramBean {
 	public List<BlockBean> getBlocksList(){
 		return blocks;
 	}
+	
+	
 	/**
 	 * Tworzy liste przeplywu bloczkow. Wymagane jest to aby zależne bloczki od poprzednich do wejść otrzymały właściwą wartość logiczną <br>
+	 * Zapobiega to także zapętleniu się sygnału, dzzięki tej funkcji evaluate() wykonuje tylko 1 cykl w układzie logicznym.<br>
 	 * Lista podzielona jest na poziomy. Poziomy oznaczają kolejność wykonywań fukcji logicznej bloczków (0- jako pierwsza, są to wejścia układu, 1 - bloczki połączone bezpośrednio z wejściami, 2-bloczki połączone z bloczkami z poprzedniego poziomu)
-	 * 
+	 * Ostatni element listy jest zawsze pusty.
 	 * 
 	 * *algorytm ustalenia przepływu
 	 *
@@ -191,7 +194,10 @@ public class DiagramBean {
 				}
 		}
 	}
-	//TODO:
+	/* 
+	 * Wysyła sygnał z wejść układu poprzez wszystkie bloczki do wyjść układu.
+	 * 
+	 */
 	public void evaluate(){
 		if(flowList.isEmpty()) createFlowList();
 		//ostatni element flowListy jest zawsze pusty - oznacza to kuniec listy i to, ze jesli flowlist zawiera tylko pusty element, to znaczy ze flowlist zostal wygenerowany i nie musi byc juz tworzony raz jezcze

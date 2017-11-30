@@ -9,11 +9,16 @@ public class BoolInterpreter {
 	
 	//ABC + A'B'C -> A*B*C + A'*B'*C
 	//algorytm:
-	/*
-	 * 1.wydziel grupy zmiennych ("ABC + A'B'C" -> {"ABC", "A'B'C"}
-	 * 2 kazda grupe podziel na 2 czesci, dzielac ja w miejscu wystapienia zmiennej
+	/** Zamienia zapis z bezznakowym mnożeniem na zapis z znakowym mnożeniem:<br> 
+	 * ABC + A'B'C -> A*B*C + A'*B'*C<br>
+	 * <br>Algorytm:<br>
+	 * 1.wydziel grupy zmiennych ("ABC + A'B'C" -> {"ABC", "A'B'C"}<br>
+	 * 2 kazda grupe podziel na 2 czesci, dzielac ja w miejscu wystapienia zmiennej<br>
+	 * 3.jeśli występuje operator negacji ', przenieś go do 1 czesci
+	 * 
+	 * @param formula - wejściowa funkcja logiczna
+	 * @param variables - lista zmiennych występująca w funkcji logicznej
 	 */
-	
 	private static String splitOperator(String formula, String[] variables) {
 		String result = "";
 		String[] spl = formula.split("\\+|\\^|\\*");
@@ -59,7 +64,13 @@ public class BoolInterpreter {
 		if(result.endsWith("\\+|\\^|\\*")) result = result.substring(0, result.length()-1);
 		return result;
 	}
-
+/**
+ * Zamienia zapis z bezznakowym mnożeniem na zapis z znakowym mnożeniem:<br> 
+ * ABC + A'B'C -> A*B*C + A'*B'*C<br>
+ * @param formula - wejściowa funkcja logiczna
+ * @param variables - lista zmiennych występująca w funkcji logicznej
+ * @return fukcja logiczna zapisana z ze znakowym mnożeniem
+ */
 	  public static String InsertMultiplyOperators(String formula, String[] variables){
 			String formulaTemp = formula;
 			//splitting - delete spaces

@@ -25,18 +25,37 @@ public class OutputBean {
 	public void setName(String name) {
 		this.name = name;
 	}
+	/**
+	 * 
+	 * @return stan tego wyjścia 
+	 */
 	public boolean getState() {
 		return state;
 	}
+	/**
+	 * Ustawia stan logiczny wyjścia układu
+	 * @param state
+	 */
 	public void setState(boolean state) {
 		this.state = state;
 	}
+	/**
+	 * Dodaje połaczenie z podanym wejściem
+	 * @param toInput
+	 */
 	public void addLink(InputBean toInput){
 		wire.addToInput(toInput);
 	}
+	/**
+	 * Zrywa połączenie z wszystkimi wejściami układu
+	 */
 	public void resetLinks(){
 		wire.resetLinks();
 	}
+	/**
+	 * Zwraca obiekt połączenia z wejściami
+	 * @return
+	 */
 	public Wire getWire(){
 		return wire;
 	}

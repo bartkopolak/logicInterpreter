@@ -21,6 +21,11 @@ public class BlockBean {
 	public BlockBean(){
 	}
 	
+	/**
+	 * Zwraca diagram przypisany do bloczka, jeśli typ bloczka = diagram<br>
+	 * Jeśli blok jest innego typu, zwraca null<br>
+	 * @return obiekt diagramu przypisany do bloczka, null jeśli typ jest inny od diagram
+	 */
 	public DiagramBean getDiagram() {
 		if(type.equals("diagram")){
 			return diagram;
@@ -29,36 +34,73 @@ public class BlockBean {
 			return null;
 		}
 	}
-
+	/**
+	 * Przypisuje obiekt diagramu do bloczka, jeśli typ = diagram<br>
+	 * Jeśli blok jest innego typu, nic się nie dzieje.
+	 * @param diagram
+	 */
 	public void setDiagram(DiagramBean diagram) {
 		if(type.equals("diagram")){
 			this.diagram = diagram;
 		}
 
 	}
-
+	/**
+	 * 
+	 * @return typ bloczka
+	 */
 	public String getType() {
 		return type;
 	}
-
+	/**
+	 * Ustawia typ bloczka. Typ można ustawić tylko 1 raz, gdy typ jest null.<br>
+	 * Typy:
+	 * <ul>
+	 * <li>formula - przechowuje funkcję boolowską</li>
+	 * <li>diagram - przechowuje układ logiczny</li>
+	 * </ul> 
+	 * @param type - typ
+	 */
 	public void setType(String type) { //pozwalaj tylko na jednokrotne ustawienie typu bloczka
 		if(this.type == null)
 			this.type = type;
 	}
-
+	/**
+	 * 
+	 * @return nazwa bloczka
+	 */
 	public String getName() {
 		return name;
 	}
+	/**
+	 * Ustawia nazwę bloczka
+	 * @param name - nazwa bloczka
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 	
 	
-	
+	/**
+	 * Zwraca obiekt wejścia bloczka po indeksie w liscie wejsc.<br>
+	 * Jesli indeks > wielkosc listy, zwraca null
+	 * @param index
+	 * @return obiekt wejscia bloczka
+	 */
 	public BlockInputBean getInput(int index){
-		return inputs.get(index);
+		try {
+			return inputs.get(index);
+		}
+		catch(IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
-	
+	/**
+	 * Zwraca obiekt wejścia bloczka po nazwie<br>
+	 * Jeśli obiekt o podanej nazwie nie istnieje, zwraca null
+	 * @param name - nazwa
+	 * @return obiekt wejścia
+	 */
 	public BlockInputBean getInput(String name){
 		for(int i=0; i<inputs.size(); i++){
 			BlockInputBean in = inputs.get(i);
@@ -68,19 +110,43 @@ public class BlockBean {
 		}
 		return null;
 	}
+	/**
+	 * Dodaje wejscie bloczka do listy
+	 * @param name - nazwa wejscia
+	 */
 	public void addInput(String name){
 		BlockInputBean o = new BlockInputBean(this, name);
 		inputs.add(o);
 	}
 	//dla leniwych cala lista za fryko
+	/**
+	 * Zwraca listę bloczkow.
+	 * @return
+	 */
 	public List<BlockInputBean> getInputList(){
 		return inputs;
 	}
 	
-	
+	/**
+	 * Zwraca obiekt wyjścia bloczka po indeksie w liscie wejsc.<br>
+	 * Jesli indeks > wielkosc listy, zwraca null
+	 * @param index
+	 * @return obiekt wyjscia bloczka
+	 */
 	public BlockOutputBean getOutput(int index){
-		return outputs.get(index);
+		try {
+			return outputs.get(index);
+		}
+		catch(IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
+	/**
+	 * Zwraca obiekt wyjścia bloczka po nazwie<br>
+	 * Jeśli obiekt o podanej nazwie nie istnieje, zwraca null
+	 * @param name - nazwa
+	 * @return obiekt wyjścia
+	 */
 	public BlockOutputBean getOutput(String name){
 		for(int i=0; i<outputs.size(); i++){
 			BlockOutputBean o = outputs.get(i);
@@ -90,6 +156,12 @@ public class BlockBean {
 		}
 		return null;
 	}
+	/**
+	 * Dodaje obiekt wyjścia bloczka<br>
+	 * Jeśli typ = diagram, fukcja logiczna powinna być równa null
+	 * @param name - nazwa bloczka
+	 * @param formula - funkcja logiczna (typ=formula)
+	 */
 	public void addOutput(String name, String formula){
 		BlockOutputBean o = new BlockOutputBean(this, name, formula);
 		outputs.add(o);
