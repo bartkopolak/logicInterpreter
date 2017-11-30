@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<diagram name="test">
+<blocks>
+	<block>
+		<id>and2</id>
+		<src>and.xml</src>
+	</block>
+	<block>
+		<id>or2</id>
+		<src>or.xml</src>
+	</block>	
+</blocks>
+
+<outputs>
+	<output>X</output>
+</outputs>
+
+<inputs>
+	<input>
+		<name>A</name>
+		<links>
+			<link to="and2.A" />
+		</links>
+	</input>
+	<input>
+		<name>B</name>
+		<links>
+			<link to="and2.B"/>
+		</links>
+	</input>
+	<input>
+		<name>C</name>
+		<links>
+			<link to="or2.A"/>
+		</links>
+	</input>
+</inputs>
+
+<wires>
+	<wire>
+		<id>wire1</id>
+		<from>and2.X</from>
+		<to>or2.B</to>
+	</wire>
+	<wire>
+		<id>or2.x_To_and2.b</id>
+		<from>or2.X</from>
+		<to>outputs.X</to>
+	</wire>
+</wires>
+
+</diagram>
+
+<!--
+01010111
+-->

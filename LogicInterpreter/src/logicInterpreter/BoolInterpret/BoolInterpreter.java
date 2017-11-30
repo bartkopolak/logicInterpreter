@@ -1,0 +1,115 @@
+package logicInterpreter.BoolInterpret;
+
+import com.fathzer.soft.javaluator.*;
+
+public class BoolInterpreter {
+	
+	
+	
+	
+	//ABC + A'B'C -> A*B*C + A'*B'*C
+	//algorytm:
+	/*
+	 * 1.wydziel grupy zmiennych ("ABC + A'B'C" -> {"ABC", "A'B'C"}
+	 * 2 kazda grupe podziel na 2 czesci, dzielac ja w miejscu wystapienia zmiennej
+	 */
+	
+	private static String splitOperator(String formula, String[] variables) {
+		String result = "";
+		String[] spl = formula.split("\\+|\\^|\\*");
+		// get operators
+		int index = 0;
+		String[] operators = new String[spl.length - 1];
+		for (int i = 0; i < spl.length - 1; i++) {
+			index += spl[i].length();
+			operators[i] = formula.substring(index, index + 1);
+			index++;
+		}
+		
+			
+		for (int i = 0; i < spl.length; i++) {
+			String s = spl[i];
+			// negations first
+			for (int j = 0; j < variables.length; j++) {
+				String[] cos = s.split(variables[j], 2);
+				if (cos.length > 1) {
+					if (cos[1].isEmpty() || cos[1].matches("[(]|[)]")) {
+						cos[0] += variables[j];
+					} else if (cos[1].charAt(0) == '\'') {
+						cos[0] += variables[j] + "'";
+						cos[1] = cos[1].substring(1);
+					} else {
+						cos[0] += variables[j];
+					}
+					if (!(cos[1].isEmpty() || cos[1].matches("[(]|[)]|[)][']"))) {
+						if (!(cos[1].charAt(0) == '*')) {
+							if (j < variables.length)
+								s = cos[0] + "*" + cos[1];
+						}
+					}
+				} else {
+					cos[0] += variables[j];
+				}
+			}
+			if(operators.length > 0 && i < spl.length - 1)
+				result += s + operators[i];
+			else
+				result += s;
+		}
+		if(result.endsWith("\\+|\\^|\\*")) result = result.substring(0, result.length()-1);
+		return result;
+	}
+
+	  public static String InsertMultiplyOperators(String formula, String[] variables){
+			String formulaTemp = formula;
+			//splitting - delete spaces
+			formulaTemp = formulaTemp.replaceAll(" ", "");
+			formulaTemp = splitOperator(formulaTemp,variables);
+			return formulaTemp;
+		}
+	/*
+	public static void testdeleteme(){
+		String t = "(A*B)'+C'(AB)'"; 
+		String[] vars = {"A", "B", "C"};
+		String t2 = InsertMultiplyOperators(t, vars);
+		System.out.println(t);
+		System.out.println(t2);
+		 BoolEval eval = new BoolEval();
+		StaticVariableSet<Boolean> variables = new StaticVariableSet<Boolean>();
+		variables.set("A", true);
+		variables.set("B", false);
+		variables.set("C", true);
+		Boolean rt = eval.evaluate(t2, variables);
+		System.out.println("" + String.valueOf(rt));	
+	}
+	
+	public static void main(String[] args){
+		//JAVALUATOR!!!!!!!
+		//http://javaluator.sourceforge.net/en/doc/tutorial.php?chapter=creatingSimple
+		//
+		//do zrobienia: przerzutniki d,t,jk
+		//uklady 7447, bin->hex te dziwne,
+		//multipleksery, itp
+		//
+		
+		testdeleteme();
+	}
+	*/
+	
+	
+}
+
+//TODO
+/*
+ * W STRUKTURZE DRZEWA
+ * MAJA BYC POSZCZEGOLNE BLOCZKI
+ * STWORZ GRAF POLACZEN
+ * JESLI W GRAFIE POLACZENIE IDZIE DO RODZICA, TO MA SIE NIE WYKONYWAC OD RAZU!
+ * IDZIEMY OD KORZENIA W DOL!
+ * 
+ * + ogarnij z xorem - wejscie 1 oraz wyjscie xora 
+ * wyjscie powinno byc 0, ale bedie 101010101010
+ * jak co to co kazdy krok bedzie oscylowac
+ * jesli nie bedzie zegara, to po prostu przejdz cale drzewo do konca, czyi tylko 1 przebieg.
+ * jesli zegar bedzie, cos sie wykombinuje....
+ */ 

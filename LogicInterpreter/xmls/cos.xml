@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<block name="and2" type="formula">
+	<inputs>
+		<input>A</input>
+		<input>B</input>
+		<input>C</input>
+	</inputs>
+	<outputs>
+		<output function="B'C+BC'+AC">X</output>
+	</outputs>
+</block>
+<!--
+0
+1
+1
+0
+0
+1
+1
+1
+
+-->
