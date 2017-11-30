@@ -13,7 +13,7 @@ public class BlockInputBean extends InputBean{
 	}
 	/**
 	 * 
-	 * @return blok podłączony do wejścia
+	 * @return blok podłączony do tego wejścia
 	 */
 	public BlockBean getParent() {
 		return parent;

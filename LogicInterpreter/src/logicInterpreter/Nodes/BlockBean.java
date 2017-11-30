@@ -37,7 +37,7 @@ public class BlockBean {
 	/**
 	 * Przypisuje obiekt diagramu do bloczka, jeśli typ = diagram<br>
 	 * Jeśli blok jest innego typu, nic się nie dzieje.
-	 * @param diagram
+	 * @param diagram - obiekt układu logicznego
 	 */
 	public void setDiagram(DiagramBean diagram) {
 		if(type.equals("diagram")){
@@ -171,7 +171,7 @@ public class BlockBean {
 		return outputs;
 	}
 	/**
-	 * Zwraca wynik funkcji boolowskiej dla 1 wyjscia bloczku <br> Stan wyjscia zapisywany jest w wlaciwosci state wyjscia OutputBean
+	 * Zwraca wynik funkcji boolowskiej dla wszystkich wyjść bloczku <br> Stan wyjsc zapisywany jest w wlaciwosci state wyjsc OutputBean
 	 * @param output - obiekt wyjscia
 	 * @param inputStates - tablica wartosci wejsc
 	 * @return
@@ -216,10 +216,13 @@ public class BlockBean {
 			
 		}
 		
-		//TODO:dodaj ewaluacje typu diagram
 		
 	}
-	
+	/**
+	 * Drukuje do wyznaczonego strumienia tablice prawdy dla danego wyjścia bloczka.
+	 * @param outputNode - wyjście bloczka
+	 * @param outputStream - strumień w którym zostanie wydrukowana tablica prawdy
+	 */
 	public void printTruthTable(BlockOutputBean outputNode, OutputStream outputStream){
 		int size = inputs.size();
 		
