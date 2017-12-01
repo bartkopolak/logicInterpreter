@@ -3,7 +3,7 @@ package logicInterpreter.Nodes;
 public class InputBean {
 	protected String name;
 	protected boolean state;
-	protected OutputBean from;
+	protected OutputBean from = null;
 	
 	/**
 	 * Klasa abstrakcyjna wejścia w układzie logicznym

@@ -1,6 +1,7 @@
 package logicInterpreter.Nodes;
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.fathzer.soft.javaluator.StaticVariableSet;
 import logicInterpreter.BoolInterpret.BoolEval;
 import logicInterpreter.BoolInterpret.BoolInterpreter;
 import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.RecurrentLoopException;
 
 public class BlockBean {
 
@@ -176,7 +178,7 @@ public class BlockBean {
 	 * @param inputStates - tablica wartosci wejsc
 	 * @return
 	 */
-	public void evaluate(){
+	public void evaluate() throws RecurrentLoopException{
 		//typ:formula
 		if(type.equals("formula")){
 				boolean resultState = false;
@@ -223,25 +225,29 @@ public class BlockBean {
 	 * @param outputNode - wyjście bloczka
 	 * @param outputStream - strumień w którym zostanie wydrukowana tablica prawdy
 	 */
-	public void printTruthTable(BlockOutputBean outputNode, OutputStream outputStream){
+	public void printTruthTable(BlockOutputBean outputNode, PrintStream outputStream){
 		int size = inputs.size();
 		
 		//System.out.println(x.getFormula());
 		for(int j=0; j<size; j++){
 			
-			System.out.print(getInput(j).getName() + "\t");
+			outputStream.print(getInput(j).getName() + "\t");
 		}
-		System.out.print(outputNode.getName());
-		System.out.println();
+		outputStream.print(outputNode.getName());
+		outputStream.println();
 		for(int i=0; i<Math.pow(2, size); i++){
 			
 			Boolean[] states = new Boolean[size];
 			for(int j=0; j<size; j++){
 				states[j] = ((i & (int)Math.pow(2, size-j-1)) == 0)?false:true;
-				System.out.print(states[j] + "\t");
+				outputStream.print(states[j] + "\t");
 				getInput(j).setState(states[j]);
 			}
-			evaluate();
+			try {
+				evaluate();
+			} catch (RecurrentLoopException e) {
+				outputStream.println("\n" + e.getMessage());
+			}
 			System.out.println(outputNode.getState());
 		}
 	}

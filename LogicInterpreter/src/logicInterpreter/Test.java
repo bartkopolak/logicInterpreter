@@ -22,7 +22,7 @@ public class Test {
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {
-			blok = XMLparse.parseXMLBlock(new File("xmls/diagram2block.xml"));
+			blok = XMLparse.parseXMLBlock(new File("xmls/test/diagram3block.xml"));
 			System.out.println(blok.getName());
 			BlockOutputBean x = blok.getOutput("X");
 			blok.printTruthTable(x, System.out);

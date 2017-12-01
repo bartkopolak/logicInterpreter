@@ -2,6 +2,8 @@ package logicInterpreter.Tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -16,7 +18,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.MultipleOutputsInInputException;
+import logicInterpreter.Exceptions.NoInputFoundException;
 import logicInterpreter.Exceptions.NoSuchTypeException;
+import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
@@ -128,6 +133,8 @@ public class XMLparse {
 		return block;
 	}
 
+	
+	static List<String> antiRecurrencyList = new ArrayList<String>();
 	//TODO: wyjątki
 	public static DiagramBean parseXMLDiagram(File file) throws Exception{
 		DiagramBean diagram = new DiagramBean();
@@ -138,10 +145,12 @@ public class XMLparse {
 			Document doc;
 			doc = dBuilder.parse(file);
 			doc.getDocumentElement().normalize();
-
 			Element rootElem = doc.getDocumentElement();
 			diagram.setName(rootElem.getAttribute("name"));
-
+			
+			if(antiRecurrencyList.indexOf(file.getAbsolutePath()) != -1)
+				throw new RecurrentLoopException();
+			antiRecurrencyList.add(file.getAbsolutePath());
 			if (!doc.getDocumentElement().getNodeName().equals("diagram"))
 				return null;
 			// tworzenie bloków
@@ -159,7 +168,7 @@ public class XMLparse {
 					}
 				}
 			}
-
+			antiRecurrencyList.clear();
 			// tworzenie wyjsc diagramu
 			Element outputs = (Element) doc.getElementsByTagName("outputs").item(0);
 			if (outputs != null) {
@@ -240,11 +249,23 @@ public class XMLparse {
 								String[] toSplit = toStr.split("[.]");
 								if (toSplit[0].equals("outputs")) {
 									DiagramOutputBean output = diagram.getOutput(toSplit[1]);
-									fromNode.addLink(output);
+									if(output.getFrom() == null)
+										fromNode.addLink(output);
+									else
+										throw new MultipleOutputsInInputException(diagram.getName(), output.toString());
 								} else {
 									BlockBean block = diagram.getBlock(toSplit[0]);
 									InputBean toInput = block.getInput(toSplit[1]);
-									fromNode.addLink(toInput);
+									if(toInput != null) {
+										if(toInput.getFrom() == null)
+											fromNode.addLink(toInput);
+										else
+											throw new MultipleOutputsInInputException(diagram.getName(), toInput.toString());
+									}
+									else {
+										throw new NoInputFoundException(diagram.getName(), toSplit[1]);
+									}
+									
 								}
 							}
 						}

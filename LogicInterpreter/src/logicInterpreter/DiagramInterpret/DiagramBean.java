@@ -3,6 +3,7 @@ package logicInterpreter.DiagramInterpret;
 import java.util.ArrayList;
 import java.util.List;
 
+import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
@@ -194,12 +195,40 @@ public class DiagramBean {
 				}
 		}
 	}
+	/**
+	 * Rekurencyjnie sprawdza wszystkie bloki typu diagram, w celu znalezienia nieskończonej pętli referencji<br>
+	 * np. diagram A posiada w sobie blok, który odnosi się do diagramu B, który to w sobie ma blok odnoszący się do diagramu A
+	 * @return true - jeśli występuje zapętlenie
+	 */
+	public boolean checkRecurrentLoops(List<DiagramBean> prevDiagrams) {
+		if(prevDiagrams == null)
+			prevDiagrams = new ArrayList<DiagramBean>();
+		prevDiagrams.add(this);
+		for(BlockBean b : blocks) {
+			DiagramBean blockDiagram = b.getDiagram();
+			if(blockDiagram != null) {
+				if(prevDiagrams.indexOf(blockDiagram) != -1)
+					return true;
+				else
+					blockDiagram.checkRecurrentLoops(prevDiagrams);
+			}
+
+		}
+		return false;
+		
+	}
+	
 	/* 
 	 * Wysyła sygnał z wejść układu poprzez wszystkie bloczki do wyjść układu.
 	 * 
 	 */
-	public void evaluate(){
-		if(flowList.isEmpty()) createFlowList();
+	public void evaluate() throws RecurrentLoopException{
+		//sprwadz czy nie dochodzi do zapetlenia bloczkow, jesli nie to stworz flow liste.
+		if(flowList.isEmpty()) {
+			if(checkRecurrentLoops(null)) 
+				throw new RecurrentLoopException();
+			createFlowList();
+		}
 		//ostatni element flowListy jest zawsze pusty - oznacza to kuniec listy i to, ze jesli flowlist zawiera tylko pusty element, to znaczy ze flowlist zostal wygenerowany i nie musi byc juz tworzony raz jezcze
 		if(flowList.size() > 1){//jesli lista jest pusta, oznacza to polaczenie bezposrednie z wejsc ukladu do wyjsc ukladu.
 			List<BlockBean> firstLevelBlocks = flowList.get(0);
