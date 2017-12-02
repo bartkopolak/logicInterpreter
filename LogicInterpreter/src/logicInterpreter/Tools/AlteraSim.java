@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
@@ -28,6 +29,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JTabbedPane;
 import java.awt.Dimension;
@@ -40,6 +43,8 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.awt.event.ActionEvent;
 import com.jgoodies.forms.layout.FormLayout;
@@ -60,9 +65,13 @@ public class AlteraSim extends JFrame {
 	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();
 	List<JComboBox<JCheckBox>> selectedOutputs = new ArrayList<JComboBox<JCheckBox>>();
 	JTabbedPane tabbedPane;
+	JSlider clockSpeedSlider;
+	JCheckBox onOffClock;
+	JPanel clockSettingsPanel;
 	final List<Switch> switchesList = new ArrayList<Switch>();
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
-	final JCheckBox falseCB  = new JCheckBox() {
+	
+	final JCheckBox falseCB  = new JCheckBox() { //wejscie logiczne 0
 
 		private static final long serialVersionUID = 1L;
 		
@@ -72,7 +81,7 @@ public class AlteraSim extends JFrame {
 		}
 		
 	};
-	final JCheckBox trueCB = new JCheckBox() {
+	final JCheckBox trueCB = new JCheckBox() {	//wejscie logiczne 1
 
 		private static final long serialVersionUID = 1L;
 
@@ -82,7 +91,19 @@ public class AlteraSim extends JFrame {
 		}
 		
 	};
-	final JCheckBox noCB = new JCheckBox() {
+	
+	final JCheckBox clockCB = new JCheckBox() {	//wejscie logiczne zegara
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString() {
+			return getName();
+		}
+		
+	};
+	
+	final JCheckBox noCB = new JCheckBox() { //wejscie logiczne puste - void
 
 		private static final long serialVersionUID = 1L;
 
@@ -102,6 +123,7 @@ public class AlteraSim extends JFrame {
 				try {
 					AlteraSim frame = new AlteraSim();
 					frame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -160,19 +182,83 @@ public class AlteraSim extends JFrame {
 			
 		}
 	};
+	
+	private void setClockPanelVisibility() {
+		boolean show = false;
+		for(JComboBox<JCheckBox> inputCB : selectedInputs) {
+			JComboBox<JCheckBox> source = inputCB;
+			JCheckBox cb = (JCheckBox) source.getSelectedItem();
+			if(cb.equals(clockCB)) {
+				show = true;
+			}
+			
+		}
+		clockSettingsPanel.setVisible(show);
+	}
+	
 	AbstractAction inputListListener = new AbstractAction() {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			setClockPanelVisibility();
 			evaluate();
-			
 		}
 	};
+	
+
+	boolean clockSpeedSliderChanging = false;	
+
+	MouseAdapter sliderMouseAdapter = new MouseAdapter() {
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			super.mousePressed(e);
+			clockSpeedSliderChanging = true;
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			super.mouseReleased(e);
+			clockSpeedSliderChanging = false;
+		}
+		
+	};
+	
+	private void clock() {
+		try {
+
+			if(onOffClock != null && !clockSpeedSliderChanging) {
+				if(onOffClock.isSelected()) {	
+					clockCB.setSelected(!clockCB.isSelected());
+					//System.out.println(clockCB.isSelected());
+					evaluate();
+					
+				}
+			}
+			Thread.sleep(10 * clockSpeedSlider.getValue());
+		}
+		catch (InterruptedException e) {
+				
+		}
+
+	}
+	
+	Thread clockThread = new Thread(new Runnable() {
+		
+		@Override
+		public void run() {
+			while(true) {
+				clock();
+			}	
+		}
+	});
+	private JLabel hertzLabel;
 	
 	private Vector<JCheckBox> getInputsList(){
 		Vector<JCheckBox> list = new Vector<JCheckBox>();
 		list.add(falseCB);
 		list.add(trueCB);
+		list.add(clockCB);
 		list.addAll(switchesList);
 		return list;	
 	}
@@ -258,6 +344,7 @@ public class AlteraSim extends JFrame {
 			for(int i=0; i<diagram.getInputList().size(); i++) {
 				DiagramInputBean input = diagram.getInput(i);
 				JPanel inpUnitPanel = new JPanel();
+				inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				JLabel inputLabel = new JLabel(input.getName() + ":");
 				JComboBox<JCheckBox> inputList = new JComboBox<JCheckBox>();
 				selectedInputs.add(inputList);
@@ -267,12 +354,34 @@ public class AlteraSim extends JFrame {
 				inpUnitPanel.add(inputLabel);
 				inpUnitPanel.add(inputList);
 				inputsPanelInner.add(inpUnitPanel);
+				
 			}
+			
+			clockSettingsPanel = new JPanel();
+			onOffClock = new JCheckBox("Włącz zegar");
+			clockSpeedSlider = new JSlider();
+			clockSpeedSlider.setMaximum(500);	//najwieksza szybkosc - 10ms
+			clockSpeedSlider.setMinimum(1); //majmniejsza szybkosc ma byc 5s
+			clockSpeedSlider.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					hertzLabel.setText(String.valueOf((double)((10*clockSpeedSlider.getValue())/1000.0)) + " Hz");
+				}	
+			});
+			clockSpeedSlider.addMouseListener(sliderMouseAdapter);
+			hertzLabel = new JLabel("");
+			hertzLabel.setText(String.valueOf((double)((10*clockSpeedSlider.getValue())/1000.0)) + " Hz");
+			clockSettingsPanel.add(onOffClock);
+			clockSettingsPanel.add(clockSpeedSlider);
+			clockSettingsPanel.add(hertzLabel);
+			inputsPanelInner.add(clockSettingsPanel);
+			clockSettingsPanel.setVisible(false);
 			inputsPanel.add(inputsPanelInner, BorderLayout.WEST);
 			
 			for(int i=0; i<diagram.getOutputList().size(); i++) {
 				DiagramOutputBean output = diagram.getOutput(i);
 				JPanel outUnitPanel = new JPanel();
+				outUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				JLabel outputLabel = new JLabel(output.getName() + ":");
 				JComboBox<JCheckBox> outputList = new JComboBox<JCheckBox>();
 				selectedOutputs.add(outputList);
@@ -301,7 +410,7 @@ public class AlteraSim extends JFrame {
 				| UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 		
 		falseCB.setSelected(false);
 		falseCB.setName("stan logiczny 0");
@@ -310,6 +419,8 @@ public class AlteraSim extends JFrame {
 		trueCB.setName("stan logiczny 1");
 
 		noCB.setName("brak wyjścia");
+		clockCB.setName("zegar");
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 686, 531);
 		
@@ -352,14 +463,11 @@ public class AlteraSim extends JFrame {
 		contentPane.add(panel, BorderLayout.WEST);
 		panel.setLayout(null);
 		
-		
+		//panel 
 		for(int i = 0; i<18; i++) {
 			
 			JPanel switchLedPanelUnit = new JPanel();
 			switchLedPanelUnit.setLayout(new BorderLayout(10,10));
-			
-			
-		
 			
 			RedLED redLED = new RedLED();
 			redLED.setName("LEDR" + String.valueOf(17-i));
@@ -387,7 +495,7 @@ public class AlteraSim extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		clockThread.start();
 
 	}
 }
