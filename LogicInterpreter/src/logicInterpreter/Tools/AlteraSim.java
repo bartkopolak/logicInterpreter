@@ -18,6 +18,7 @@ import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Tools.AlteraSimItems.RedLED;
+import logicInterpreter.Tools.AlteraSimItems.SevenSegmentDisplay;
 import logicInterpreter.Tools.AlteraSimItems.Switch;
 
 import java.awt.FlowLayout;
@@ -62,14 +63,15 @@ public class AlteraSim extends JFrame {
 
 	private JPanel contentPane;
 	DiagramBean diagram;
-	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();
-	List<JComboBox<JCheckBox>> selectedOutputs = new ArrayList<JComboBox<JCheckBox>>();
+	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();	//wybrana metoda wejscia na plytce z listy combobox
+	List<JComboBox<JCheckBox>> selectedOutputs = new ArrayList<JComboBox<JCheckBox>>(); //wybrana metoda wyjscia na plytce z listy combobox
 	JTabbedPane tabbedPane;
 	JSlider clockSpeedSlider;
 	JCheckBox onOffClock;
 	JPanel clockSettingsPanel;
 	final List<Switch> switchesList = new ArrayList<Switch>();
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
+	final List<SevenSegmentDisplay> HEXDisplayList = new ArrayList<SevenSegmentDisplay>();
 	
 	final JCheckBox falseCB  = new JCheckBox() { //wejscie logiczne 0
 
@@ -267,6 +269,10 @@ public class AlteraSim extends JFrame {
 		Vector<JCheckBox> list = new Vector<JCheckBox>();
 		list.add(noCB);
 		list.addAll(redLEDsList);
+		for(SevenSegmentDisplay hex: HEXDisplayList) {
+			list.addAll(hex.getSegmentList());
+		}
+		
 		return list;	
 	}
 	
@@ -451,6 +457,30 @@ public class AlteraSim extends JFrame {
 		switchLedPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 		switchLedPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 2));
 		
+		JPanel hexAndLedsPanel = new JPanel();
+		panel_1.add(hexAndLedsPanel, BorderLayout.NORTH);
+		hexAndLedsPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel hexPanel = new JPanel();
+		hexPanel.setBorder(new EmptyBorder(15, 15, 0, 15));
+		hexAndLedsPanel.add(hexPanel, BorderLayout.WEST);
+		for(int i=7; i>=0; i--) {
+			SevenSegmentDisplay HEX = new SevenSegmentDisplay();
+			HEX.setName("HEX"+String.valueOf(i));
+			HEX.setToolTipText(HEX.getName());
+			hexPanel.add(HEX);
+			HEXDisplayList.add(HEX);
+		}
+		
+		
+		
+		JPanel ledsPanel = new JPanel();
+
+		hexAndLedsPanel.add(ledsPanel, BorderLayout.EAST);
+		
+		
+		
+		
 		JPanel optionsPanel = new JPanel();
 		contentPane.add(optionsPanel, BorderLayout.NORTH);
 		optionsPanel.setLayout(new BorderLayout(0, 0));
@@ -485,6 +515,8 @@ public class AlteraSim extends JFrame {
 			
 			switchLedPanel.add(switchLedPanelUnit);
 		}
+		
+		
 			
 		
 		//TEST
