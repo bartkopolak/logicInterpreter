@@ -22,10 +22,17 @@ public class Test {
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {
-			blok = XMLparse.parseXMLBlock(new File("xmls/test/diagram3block.xml"));
+			blok = XMLparse.parseXMLBlock(new File("xmls/rsblok.xml"));
 			System.out.println(blok.getName());
-			BlockOutputBean x = blok.getOutput("X");
-			blok.printTruthTable(x, System.out);
+			BlockOutputBean x = blok.getOutput("Q");
+			blok.getInput(0).setState(false);
+			blok.getInput(1).setState(true);
+			blok.evaluate();
+			System.out.println(blok.getOutput(0).getState());
+			blok.evaluate();
+			System.out.println(blok.getOutput(0).getState());
+			blok.evaluate();
+			System.out.println(blok.getOutput(0).getState());
 			
 		} 
 		catch(FileNotFoundException e){

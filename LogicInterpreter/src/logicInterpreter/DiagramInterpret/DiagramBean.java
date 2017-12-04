@@ -130,6 +130,16 @@ public class DiagramBean {
 	 * 
 	 */
 
+	/*
+	 * TODO:
+	 * 1. skopiuj listę wszystkich bloków diagramu
+	 * 2. usun bloki które nie są w żaden sposób podłączone do wejścia:
+	 * 		2.1 jesli blok nie ma wejsc lub wszystkie wejscia są podłączone do wyjść
+	 * 3. najpierw stworz flow liste z first levelem tworzonym od bloczkow podlaczzonych bezposrednio do wejsc i stworz kolejne poziomy az do konca
+	 * 4. jesli lista pozostalych blokow nie jest pusta, musisz okreslic, ktore z pozostalych blokow nalezy do 1 poziomu
+	 * 5. stworz wyznacznik odleglosci od wejścia, te bloczki ktore sa najblizej wejscia sa pierwszego poziomu.
+	 *  
+	 */
 	public void createFlowList(){
 		boolean stop = false;
 		//poziomu 0 nie tworze, bo wiadomo, ze są pierwsze, i ze wszystkie wejscia są juz ustalone

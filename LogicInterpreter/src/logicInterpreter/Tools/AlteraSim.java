@@ -300,11 +300,13 @@ public class AlteraSim extends JFrame {
 
 	}
 
+	private String lastPath = "";
+	
 	private void openDiagram() {
 		String sciezka = "";
 		boolean fileSelected = true;
 		try{
-			JFileChooser dialog = new JFileChooser(); //stworzenie okienka dialogowego do wyboru pliku do przeszukania
+			JFileChooser dialog = new JFileChooser(lastPath); //stworzenie okienka dialogowego do wyboru pliku do przeszukania
 			FileNameExtensionFilter filterXML = new FileNameExtensionFilter("Plik diagramu XML", "xml"); //filtr
 			    dialog.setFileFilter(filterXML); //dodanie filtru do dialogu
 			    int returnVal = dialog.showOpenDialog(this); //wyśw. okno dialogowe
@@ -319,7 +321,9 @@ public class AlteraSim extends JFrame {
 		}
 		if(fileSelected) {
 			try {
-				diagram = XMLparse.parseXMLDiagram(new File(sciezka));
+				File diagrFile = new File(sciezka);
+				diagram = XMLparse.parseXMLDiagram(diagrFile);
+				lastPath = diagrFile.getParent();
 				loadSettings();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
