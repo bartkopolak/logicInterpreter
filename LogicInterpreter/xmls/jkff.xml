@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<diagram name="jkff">
+<blocks>
+	<block>
+		<id>1and3</id>
+		<src>and3.xml</src>
+	</block>
+	<block>
+		<id>2and3</id>
+		<src>and3.xml</src>
+	</block>
+	<block>
+		<id>3nor2</id>
+		<src>nor.xml</src>
+	</block>	
+	<block>
+		<id>4nor2</id>
+		<src>nor.xml</src>
+	</block>
+</blocks>
+
+<outputs>
+	<output>Q</output>
+	<output>NQ</output>
+</outputs>
+
+<inputs>
+	<input>
+		<name>J</name>
+		<links>
+			<link to="2and3.B" />
+		</links>
+	</input>
+	<input>
+		<name>K</name>
+		<links>
+			<link to="1and3.B"/>
+		</links>
+	</input>
+	<input>
+		<name>CLK</name>
+		<links>
+			<link to="1and3.C"/>
+			<link to="2and3.A" />
+		</links>
+	</input>
+</inputs>
+
+<wires>
+	<wire>
+		<id>w1</id>
+		<from>1and3.X</from>
+		<to>3nor2.A</to>
+	</wire>
+	<wire>
+		<id>w2</id>
+		<from>2and3.X</from>
+		<to>4nor2.B</to>
+	</wire>
+	<wire>
+		<id>w3</id>
+		<from>3nor2.X</from>
+		<to>outputs.Q</to>
+		<to>1and3.A</to>
+		<to>4nor2.A</to>
+	</wire>
+	<wire>
+		<id>w4</id>
+		<from>4nor2.X</from>
+		<to>outputs.NQ</to>
+		<to>2and3.C</to>
+		<to>3nor2.B</to>
+	</wire>
+</wires>
+
+</diagram>

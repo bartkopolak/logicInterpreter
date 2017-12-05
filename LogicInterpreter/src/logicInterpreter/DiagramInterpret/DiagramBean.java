@@ -138,8 +138,87 @@ public class DiagramBean {
 	 * 3. najpierw stworz flow liste z first levelem tworzonym od bloczkow podlaczzonych bezposrednio do wejsc i stworz kolejne poziomy az do konca
 	 * 4. jesli lista pozostalych blokow nie jest pusta, musisz okreslic, ktore z pozostalych blokow nalezy do 1 poziomu
 	 * 5. stworz wyznacznik odleglosci od wejścia, te bloczki ktore sa najblizej wejscia sa pierwszego poziomu.
+	 * 
+	 * 
+	 * 
+	 * TODO 2:
+	 * Nowy sposob robienia flowlisty
+	 * 1.pobierz liste blokow
+	 * 2.kazdemu blokowi przydziel najwieksza odleglosc od wejscia, funkcja z 2 argumentami(lista odwiedzonych blokow, dotychczasowy stan licznika), zwraca zmieniony stan licznika?
+	 * 		a. dodaj aktualny blok do listy odwiedzonych blokow
+	 * 
+	 * 		b. ustaw flage kontynuowania sprawdzania na false
+	 * 		c. dla kazdego wejscia bloku sprawdz, czy jest on polaczony z wejsciem ukladu OR polaczony z blokiem z listy odwiedzonych
+	 * 			-jesli nie jest flaga = true 
+	 * 		d1. jesli flaga kontynuowania jest false,  (TUTAJ DOSTAJEMY WYLICZONĄ ODLEGLOSC) przydziel odleglosc oryg. blokowi (przypisz licznik) i zakoncz algorytm obliczania odleglosci
+	 * 		d2. jesli flaga kontynuowania jest true, przejdz do blokow, ktorych wyjscie jest polaczne z jednym z wejsc
+	 * 				zrob to przekazujac wartosc aktualna licznika do funkcji sprawdzania blokow oraz liste odwiedzonych bloczkow( przejdz do pktu a)
 	 *  
+	 *  TODO ver3
+	 *  ponizej funkcja wyliczajaca dlugosc polaczen pomiedzy blokami z wejscia ukladu do wejscia bloku. wtedy flowliste tworzymy sortujac dystanse rosnąco 
 	 */
+	
+	private int calculateDistanceToDiagramInputs(BlockBean currentBlock, List<BlockBean> visitedBlocks, int currDist){
+		int maxDistance = currDist;
+		for(InputBean input : currentBlock.getInputList()){
+			int distance;
+			if(!(input.getFrom() instanceof DiagramInputBean) && visitedBlocks.indexOf(((BlockOutputBean)input.getFrom()).getParent()) == -1){
+				
+				BlockBean nextBlock = ((BlockOutputBean)input.getFrom()).getParent();
+				visitedBlocks.add(nextBlock);	
+				distance = calculateDistanceToDiagramInputs(nextBlock, visitedBlocks,maxDistance + 1);
+			}
+			else{
+				distance = maxDistance;
+			}
+			if(distance > maxDistance)
+				maxDistance = distance;
+		}
+		return maxDistance;
+	}
+	
+	public void createFlowList(){
+		List<DistanceToInputBean> blocksList = new ArrayList<DistanceToInputBean>();
+		for(int i=0; i<blocks.size(); i++){
+			BlockBean currentBlock = blocks.get(i);
+			List<BlockBean> visitedBlocks = new ArrayList<BlockBean>();
+			DistanceToInputBean block = new DistanceToInputBean();
+			block.setBlock(currentBlock);
+			visitedBlocks.add(currentBlock);
+			block.setDistance(calculateDistanceToDiagramInputs(currentBlock, visitedBlocks, 0));
+			blocksList.add(block);
+		}
+		blocksList.sort(null);
+		int currDist = 0;
+		int i=0;
+		while(i<blocksList.size()){
+			List<BlockBean> level = new ArrayList<BlockBean>();
+			
+			if(i == 0) {
+				currDist = blocksList.get(0).getDistance();
+			}
+			try{
+				while(blocksList.get(i).getDistance() == currDist){
+					level.add(blocksList.get(i).getBlock());
+					i++;
+				}
+			}catch(IndexOutOfBoundsException e)
+			{ 
+				flowList.add(level);
+				break;
+			}
+			
+			flowList.add(level);
+			currDist = blocksList.get(i).getDistance();
+			
+		}
+		List<BlockBean> emptyLevel = new ArrayList<BlockBean>();
+		flowList.add(emptyLevel);
+		
+	}
+		
+	
+/*
 	public void createFlowList(){
 		boolean stop = false;
 		//poziomu 0 nie tworze, bo wiadomo, ze są pierwsze, i ze wszystkie wejscia są juz ustalone
@@ -205,6 +284,8 @@ public class DiagramBean {
 				}
 		}
 	}
+	
+	*/
 	/**
 	 * Rekurencyjnie sprawdza wszystkie bloki typu diagram, w celu znalezienia nieskończonej pętli referencji<br>
 	 * np. diagram A posiada w sobie blok, który odnosi się do diagramu B, który to w sobie ma blok odnoszący się do diagramu A

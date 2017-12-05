@@ -254,6 +254,18 @@ public class AlteraSim extends JFrame {
 			}	
 		}
 	});
+	
+
+	Thread boardThread = new Thread(new Runnable() {
+		
+		@Override
+		public void run() {
+			while(true) {
+				evaluate();
+			}	
+		}
+	});
+	
 	private JLabel hertzLabel;
 	
 	private Vector<JCheckBox> getInputsList(){
@@ -525,7 +537,7 @@ public class AlteraSim extends JFrame {
 		
 		//TEST
 		try {
-			diagram = XMLparse.parseXMLDiagram(new File("xmls/diagram.xml"));
+			diagram = XMLparse.parseXMLDiagram(new File("xmls/jkff.xml"));
 			loadSettings();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

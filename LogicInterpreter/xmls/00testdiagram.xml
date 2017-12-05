@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<diagram name="test">
+<blocks>
+	<block>
+		<id>xor2</id>
+		<src>nor.xml</src>
+	</block>
+	
+</blocks>
+
+<outputs>
+	<output>X</output>
+</outputs>
+
+<inputs>
+	<input>
+		<name>A</name>
+		<links>
+			<link to="xor2.A" />
+		</links>
+	</input>
+	<input>
+		<name>B</name>
+		<links>
+			<link to="xor2.B" />
+		</links>
+	</input>
+</inputs>
+
+<wires>
+	<wire>
+		<id>wire2</id>
+		<from>xor2.X</from>
+		<to>outputs.X</to>
+	</wire>
+</wires>
+
+</diagram>
