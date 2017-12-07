@@ -191,29 +191,78 @@ public class DiagramBean {
 		blocksList.sort(null);
 		int currDist = 0;
 		int i=0;
+		
+		
 		while(i<blocksList.size()){
-			List<BlockBean> level = new ArrayList<BlockBean>();
+			List<BlockBean> firstlevel = new ArrayList<BlockBean>();
 			
 			if(i == 0) {
 				currDist = blocksList.get(0).getDistance();
 			}
 			try{
 				while(blocksList.get(i).getDistance() == currDist){
-					level.add(blocksList.get(i).getBlock());
+					BlockBean block = blocksList.get(i).getBlock();
+					boolean isFirstLevel = false;
+					for(BlockInputBean bi : block.getInputList()){
+						if(bi.getFrom() instanceof DiagramInputBean){ //jesli wejscie nie jest polaczone z wejsciem diagramu lub wejscie nie jest polaczone z wyjsciem tego samego bloczka
+							isFirstLevel = true;
+							break;
+						}
+							
+					}
+					if(isFirstLevel)
+						firstlevel.add(blocksList.get(i).getBlock());
 					i++;
 				}
 			}catch(IndexOutOfBoundsException e)
 			{ 
-				flowList.add(level);
+				flowList.add(firstlevel);
 				break;
 			}
 			
-			flowList.add(level);
-			currDist = blocksList.get(i).getDistance();
+			flowList.add(firstlevel);
+			//currDist = blocksList.get(i).getDistance();
+			break;
 			
 		}
-		List<BlockBean> emptyLevel = new ArrayList<BlockBean>();
-		flowList.add(emptyLevel);
+		//List<BlockBean> emptyLevel = new ArrayList<BlockBean>();
+		//flowList.add(emptyLevel);
+		
+		boolean stop = false;
+		int currLevel = 1; //zaczynajac od zera ofc, wiec 1 = 2 
+				
+				while(!stop){
+						if(flowList.get(currLevel-1).isEmpty()){
+							stop = true;
+						}
+						else{
+							List<BlockBean> prevLevel = flowList.get(currLevel-1);
+							List<BlockBean> thisLevel = new ArrayList<BlockBean>();
+							for(BlockBean b : prevLevel){	//dla kazdego bloczka z poprz poziomu
+								List<BlockOutputBean> outputList = b.getOutputList();
+								for(BlockOutputBean output : outputList){	//dla kazdego wyjscia bloczka z poprz poziomu
+									List<InputBean> linkedInputList = output.getWire().getToList();
+									for(InputBean linkedInput : linkedInputList){	//sprawdz kazde wejscie polaczone z wyjsciem bloczka
+										if(linkedInput instanceof BlockInputBean){
+											BlockInputBean inputB = ((BlockInputBean) linkedInput);	
+											BlockBean parent = inputB.getParent(); //pobierz bloczek
+											//sprawdz, czy w jakimkolwiek poprzednim poziomie bloczek sie pojawil
+											boolean existsInPrevLevel = false;
+											for(int x=0; x<flowList.size(); x++){
+												if(flowList.get(x).indexOf(parent) != -1)
+													existsInPrevLevel = true;
+											}
+											if(thisLevel.indexOf(parent) == -1 && !existsInPrevLevel){	//jesli bloczek nie istnieje w liscie, dodaj go
+												thisLevel.add(parent);
+											}
+										}
+									}
+								}
+							}
+							flowList.add(thisLevel);
+							currLevel++;
+						}
+				}
 		
 	}
 		

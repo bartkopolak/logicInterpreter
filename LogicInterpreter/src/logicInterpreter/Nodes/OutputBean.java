@@ -5,13 +5,13 @@ package logicInterpreter.Nodes;
 public class OutputBean {
 	
 	protected String name;
-	protected boolean state;
+	protected Boolean state;
 	protected Wire wire;
 	
 	
 	public OutputBean(String name){
 		this.name = name;
-		state = false;
+		state = null;
 		wire = new Wire(this);
 	}
 	

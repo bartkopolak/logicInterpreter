@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<diagram name="ns flip flop">
+<diagram name="rsff">
 <blocks>
 	<block>
-		<id>nand1</id>
-		<src>nand.xml</src>
+		<id>nor1</id>
+		<src>nor.xml</src>
 	</block>	
 	<block>
-		<id>nand2</id>
-		<src>nand.xml</src>
+		<id>nor2</id>
+		<src>nor.xml</src>
 	</block>
 </blocks>
 
@@ -20,13 +20,13 @@
 	<input>
 		<name>R</name>
 		<links>
-			<link to="nand2.B" />
+			<link to="nor2.B" />
 		</links>
 	</input>
 	<input>
 		<name>S</name>
 		<links>
-			<link to="nand1.A"/>
+			<link to="nor1.A"/>
 		</links>
 	</input>
 </inputs>
@@ -34,16 +34,16 @@
 <wires>
 	<wire>
 		<id>w1</id>
-		<from>nand1.X</from>
+		<from>nor1.X</from>
 		<to>outputs.Q</to>
-		<to>nand2.A</to>
+		<to>nor2.A</to>
 
 	</wire>
 	<wire>
 		<id>w2</id>
-		<from>nand2.X</from>
+		<from>nor2.X</from>
 		<to>outputs.NQ</to>
-		<to>nand1.B</to>
+		<to>nor1.B</to>
 
 	</wire>
 </wires>

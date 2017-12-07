@@ -2,7 +2,7 @@ package logicInterpreter.Nodes;
 
 public class InputBean {
 	protected String name;
-	protected boolean state;
+	protected Boolean state;
 	protected OutputBean from = null;
 	
 	/**

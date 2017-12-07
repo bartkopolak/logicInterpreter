@@ -3,19 +3,19 @@
 <blocks>
 	<block>
 		<id>1and3</id>
-		<src>and3.xml</src>
+		<src>nand3.xml</src>
 	</block>
 	<block>
 		<id>2and3</id>
-		<src>and3.xml</src>
+		<src>nand3.xml</src>
 	</block>
 	<block>
 		<id>3nor2</id>
-		<src>nor.xml</src>
+		<src>nand.xml</src>
 	</block>	
 	<block>
 		<id>4nor2</id>
-		<src>nor.xml</src>
+		<src>nand.xml</src>
 	</block>
 </blocks>
 

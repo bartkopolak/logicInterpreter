@@ -19,6 +19,10 @@ import logicInterpreter.Tools.XMLparse;
 public class Test {
 
 	public static void main(String[] args){
+		Boolean a = null;
+		Boolean b = true;
+		System.out.println(String.valueOf(a & b));
+		
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {

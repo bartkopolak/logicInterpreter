@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<block name="nand2" type="formula">
+<block name="nand3" type="formula">
 	<inputs>
 		<input>A</input>
 		<input>B</input>
+		<input>C</input>
 	</inputs>
 	<outputs>
-		<output function="(A*B)'">X</output>
+		<output function="(A*B*C)'">X</output>
 	</outputs>
 </block>
