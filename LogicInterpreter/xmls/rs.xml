@@ -20,13 +20,13 @@
 	<input>
 		<name>R</name>
 		<links>
-			<link to="nor2.B" />
+			<link to="nor1.A" />
 		</links>
 	</input>
 	<input>
 		<name>S</name>
 		<links>
-			<link to="nor1.A"/>
+			<link to="nor2.B"/>
 		</links>
 	</input>
 </inputs>

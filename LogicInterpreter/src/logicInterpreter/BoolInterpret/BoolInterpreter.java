@@ -2,6 +2,8 @@ package logicInterpreter.BoolInterpret;
 
 import com.fathzer.soft.javaluator.*;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean.State;
+
 public class BoolInterpreter {
 	
 	
@@ -78,20 +80,21 @@ public class BoolInterpreter {
 			formulaTemp = splitOperator(formulaTemp,variables);
 			return formulaTemp;
 		}
-	/*
+	
 	public static void testdeleteme(){
-		String t = "(A*B)'+C'(AB)'"; 
+		String t = "A^B"; 
 		String[] vars = {"A", "B", "C"};
 		String t2 = InsertMultiplyOperators(t, vars);
 		System.out.println(t);
 		System.out.println(t2);
 		 BoolEval eval = new BoolEval();
-		StaticVariableSet<Boolean> variables = new StaticVariableSet<Boolean>();
-		variables.set("A", true);
-		variables.set("B", false);
-		variables.set("C", true);
-		Boolean rt = eval.evaluate(t2, variables);
+		StaticVariableSet<ThreeStateBoolean> variables = new StaticVariableSet<ThreeStateBoolean>();
+		variables.set("A", new ThreeStateBoolean(false));
+		variables.set("B", new ThreeStateBoolean(null));
+		variables.set("C", new ThreeStateBoolean(false));
+		ThreeStateBoolean rt = eval.evaluate(t2, variables);
 		System.out.println("" + String.valueOf(rt));	
+		//wynik ma byc undef
 	}
 	
 	public static void main(String[] args){
@@ -105,7 +108,7 @@ public class BoolInterpreter {
 		
 		testdeleteme();
 	}
-	*/
+	
 	
 	
 }

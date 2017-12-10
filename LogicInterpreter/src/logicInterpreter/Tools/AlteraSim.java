@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockInputBean;
@@ -294,7 +295,7 @@ public class AlteraSim extends JFrame {
 			for(int i = 0; i<diagram.getInputList().size(); i++){
 				JComboBox<JCheckBox> inputComboBox = selectedInputs.get(i);
 				JCheckBox input = (JCheckBox) inputComboBox.getSelectedItem();
-				diagram.getInput(i).setState(input.isSelected());
+				diagram.getInput(i).setState(new ThreeStateBoolean(input.isSelected()));
 			}
 			diagram.evaluate();
 			for(JCheckBox output : getOutputsList()) {
@@ -303,7 +304,7 @@ public class AlteraSim extends JFrame {
 			for(int i = 0; i<diagram.getOutputList().size(); i++){
 				JComboBox<JCheckBox> outputComboBox = selectedOutputs.get(i);
 				JCheckBox output = (JCheckBox) outputComboBox.getSelectedItem();
-				output.setSelected(diagram.getOutput(i).getState());
+				output.setSelected(diagram.getOutput(i).getState().toBoolean());
 			}
 		} catch (RecurrentLoopException e) {
 			e.printStackTrace();

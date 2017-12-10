@@ -17,12 +17,12 @@ import javax.xml.validation.Validator;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.NoInputFoundException;
 import logicInterpreter.Exceptions.NoSuchTypeException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
-import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.InputBean;

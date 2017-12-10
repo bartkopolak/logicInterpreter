@@ -10,12 +10,8 @@
 		<src>nand3.xml</src>
 	</block>
 	<block>
-		<id>3nor2</id>
-		<src>nand.xml</src>
-	</block>	
-	<block>
-		<id>4nor2</id>
-		<src>nand.xml</src>
+		<id>rs</id>
+		<src>rsblok.xml</src>
 	</block>
 </blocks>
 
@@ -28,13 +24,13 @@
 	<input>
 		<name>J</name>
 		<links>
-			<link to="2and3.B" />
+			<link to="1and3.B" />
 		</links>
 	</input>
 	<input>
 		<name>K</name>
 		<links>
-			<link to="1and3.B"/>
+			<link to="2and3.B"/>
 		</links>
 	</input>
 	<input>
@@ -50,26 +46,24 @@
 	<wire>
 		<id>w1</id>
 		<from>1and3.X</from>
-		<to>3nor2.A</to>
+		<to>rs.S</to>
 	</wire>
 	<wire>
 		<id>w2</id>
 		<from>2and3.X</from>
-		<to>4nor2.B</to>
+		<to>rs.R</to>
 	</wire>
 	<wire>
 		<id>w3</id>
-		<from>3nor2.X</from>
+		<from>rs.Q</from>
 		<to>outputs.Q</to>
 		<to>1and3.A</to>
-		<to>4nor2.A</to>
 	</wire>
 	<wire>
 		<id>w4</id>
-		<from>4nor2.X</from>
+		<from>rs.NQ</from>
 		<to>outputs.NQ</to>
 		<to>2and3.C</to>
-		<to>3nor2.B</to>
 	</wire>
 </wires>
 

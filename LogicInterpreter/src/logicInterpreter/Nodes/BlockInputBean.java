@@ -1,5 +1,7 @@
 package logicInterpreter.Nodes;
 
+import logicInterpreter.DiagramInterpret.BlockBean;
+
 public class BlockInputBean extends InputBean{
 	private BlockBean parent;
 	

@@ -5,8 +5,9 @@ import java.io.FileNotFoundException;
 
 import org.xml.sax.SAXException;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
+import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
-import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Tools.XMLparse;
 
@@ -19,9 +20,6 @@ import logicInterpreter.Tools.XMLparse;
 public class Test {
 
 	public static void main(String[] args){
-		Boolean a = null;
-		Boolean b = true;
-		System.out.println(String.valueOf(a & b));
 		
 		//test bloczka - tablica prawdy
 		BlockBean blok;
@@ -29,8 +27,8 @@ public class Test {
 			blok = XMLparse.parseXMLBlock(new File("xmls/rsblok.xml"));
 			System.out.println(blok.getName());
 			BlockOutputBean x = blok.getOutput("Q");
-			blok.getInput(0).setState(false);
-			blok.getInput(1).setState(true);
+			blok.getInput(0).setState(new ThreeStateBoolean(false));
+			blok.getInput(1).setState(new ThreeStateBoolean(false));
 			blok.evaluate();
 			System.out.println(blok.getOutput(0).getState());
 			blok.evaluate();

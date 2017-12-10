@@ -1,17 +1,17 @@
 package logicInterpreter.Nodes;
 
-
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 
 public class OutputBean {
 	
 	protected String name;
-	protected Boolean state;
+	protected ThreeStateBoolean state;
 	protected Wire wire;
 	
 	
 	public OutputBean(String name){
 		this.name = name;
-		state = null;
+		state = new ThreeStateBoolean(false);
 		wire = new Wire(this);
 	}
 	
@@ -29,14 +29,14 @@ public class OutputBean {
 	 * 
 	 * @return stan tego wyjścia 
 	 */
-	public boolean getState() {
+	public ThreeStateBoolean getState() {
 		return state;
 	}
 	/**
 	 * Ustawia stan logiczny wyjścia układu
 	 * @param state
 	 */
-	public void setState(boolean state) {
+	public void setState(ThreeStateBoolean state) {
 		this.state = state;
 	}
 	/**

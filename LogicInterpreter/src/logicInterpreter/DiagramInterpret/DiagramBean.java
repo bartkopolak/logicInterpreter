@@ -3,8 +3,8 @@ package logicInterpreter.DiagramInterpret;
 import java.util.ArrayList;
 import java.util.List;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
-import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
@@ -161,16 +161,19 @@ public class DiagramBean {
 	private int calculateDistanceToDiagramInputs(BlockBean currentBlock, List<BlockBean> visitedBlocks, int currDist){
 		int maxDistance = currDist;
 		for(InputBean input : currentBlock.getInputList()){
-			int distance;
-			if(!(input.getFrom() instanceof DiagramInputBean) && visitedBlocks.indexOf(((BlockOutputBean)input.getFrom()).getParent()) == -1){
-				
-				BlockBean nextBlock = ((BlockOutputBean)input.getFrom()).getParent();
-				visitedBlocks.add(nextBlock);	
-				distance = calculateDistanceToDiagramInputs(nextBlock, visitedBlocks,maxDistance + 1);
+			int distance = maxDistance;
+			if(input.getFrom() != null) {
+				if(!(input.getFrom() instanceof DiagramInputBean) && visitedBlocks.indexOf(((BlockOutputBean)input.getFrom()).getParent()) == -1){
+					
+					BlockBean nextBlock = ((BlockOutputBean)input.getFrom()).getParent();
+					visitedBlocks.add(nextBlock);	
+					distance = calculateDistanceToDiagramInputs(nextBlock, visitedBlocks,maxDistance + 1);
+				}
+				else{
+					distance = maxDistance;
+				}
 			}
-			else{
-				distance = maxDistance;
-			}
+			
 			if(distance > maxDistance)
 				maxDistance = distance;
 		}
@@ -363,6 +366,13 @@ public class DiagramBean {
 	 * 
 	 */
 	public void evaluate() throws RecurrentLoopException{
+		List<DiagramOutputBean> prevOutputs = new ArrayList<DiagramOutputBean>();
+		for(DiagramOutputBean output : outputs){
+			DiagramOutputBean prevOutput = new DiagramOutputBean();
+			prevOutput.setState(output.getState());
+			prevOutputs.add(prevOutput);
+		}
+	
 		//sprwadz czy nie dochodzi do zapetlenia bloczkow, jesli nie to stworz flow liste.
 		if(flowList.isEmpty()) {
 			if(checkRecurrentLoops(null)) 
@@ -371,21 +381,10 @@ public class DiagramBean {
 		}
 		//ostatni element flowListy jest zawsze pusty - oznacza to kuniec listy i to, ze jesli flowlist zawiera tylko pusty element, to znaczy ze flowlist zostal wygenerowany i nie musi byc juz tworzony raz jezcze
 		if(flowList.size() > 1){//jesli lista jest pusta, oznacza to polaczenie bezposrednie z wejsc ukladu do wyjsc ukladu.
-			List<BlockBean> firstLevelBlocks = flowList.get(0);
-			for(BlockBean b : firstLevelBlocks){
-				//ustaw wejscia bloczkow 1. poziomu - wartosci podlaczonego do wejsc bloczka wejscia ukladu
-				List<BlockInputBean> blockInputs = b.getInputList(); 
-				for(BlockInputBean input : blockInputs){
-					input.setState(input.getFrom().getState());
-				}
-				//wykonaj funkcje
-				b.evaluate();
-				
-			}
-			for(int i = 1; i<flowList.size(); i++){
+			for(int i = 0; i<flowList.size(); i++){
 				List<BlockBean> nextLevelBlocks = flowList.get(i);
 				for(BlockBean b : nextLevelBlocks){
-					//ustaw wejscia bloczkow 1. poziomu - wartosci podlaczonego do wejsc bloczka wejscia ukladu
+					//ustaw wejscia bloczkow danego poziomu - wartosci podlaczonego do wejsc bloczka wejscia ukladu
 					List<BlockInputBean> blockInputs = b.getInputList();
 					for(BlockInputBean input : blockInputs){
 						input.setState(input.getFrom().getState());
@@ -399,6 +398,15 @@ public class DiagramBean {
 
 		for(DiagramOutputBean output : outputs){
 			output.setState(output.getFrom().getState());
+		}
+		for(int i=0; i<outputs.size(); i++) {
+			ThreeStateBoolean prevOutput = prevOutputs.get(i).getState();
+			ThreeStateBoolean curOutput = outputs.get(i).getState();
+			if(!curOutput.equals(prevOutput)) {
+				evaluate();
+				break;
+			}
+			
 		}
 	
 	}

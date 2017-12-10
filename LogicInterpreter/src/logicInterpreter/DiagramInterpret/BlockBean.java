@@ -1,4 +1,4 @@
-package logicInterpreter.Nodes;
+package logicInterpreter.DiagramInterpret;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -9,8 +9,10 @@ import com.fathzer.soft.javaluator.StaticVariableSet;
 
 import logicInterpreter.BoolInterpret.BoolEval;
 import logicInterpreter.BoolInterpret.BoolInterpreter;
-import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.Nodes.BlockInputBean;
+import logicInterpreter.Nodes.BlockOutputBean;
 
 public class BlockBean {
 
@@ -181,7 +183,7 @@ public class BlockBean {
 	public void evaluate() throws RecurrentLoopException{
 		//typ:formula
 		if(type.equals("formula")){
-				boolean resultState = false;
+			ThreeStateBoolean resultState = new ThreeStateBoolean(null);
 			//pobierz nazwy wejsc w celu zdefinowania zmiennych
 			String[] inputNames = new String[inputs.size()];
 			for(int i=0; i<inputs.size(); i++){
@@ -190,7 +192,7 @@ public class BlockBean {
 			
 			BoolEval eval = new BoolEval();
 			//definowanie zmiennych
-			StaticVariableSet<Boolean> variables = new StaticVariableSet<Boolean>();
+			StaticVariableSet<ThreeStateBoolean> variables = new StaticVariableSet<ThreeStateBoolean>();
 			for(int i=0; i<inputs.size(); i++){
 				BlockInputBean input = inputs.get(i);
 				variables.set(input.getName(), input.getState());
@@ -198,6 +200,7 @@ public class BlockBean {
 			//wykonaj funkcje logiczna dla kazdego wyjscia
 			for(BlockOutputBean output : outputs){
 				String func = BoolInterpreter.InsertMultiplyOperators(output.getFormula(), inputNames);
+				ThreeStateBoolean prevCycleState = null;
 				resultState = eval.evaluate(func, variables);
 				output.setState(resultState);
 			}
@@ -237,9 +240,9 @@ public class BlockBean {
 		outputStream.println();
 		for(int i=0; i<Math.pow(2, size); i++){
 			
-			Boolean[] states = new Boolean[size];
+			ThreeStateBoolean[] states = new ThreeStateBoolean[size];
 			for(int j=0; j<size; j++){
-				states[j] = ((i & (int)Math.pow(2, size-j-1)) == 0)?false:true;
+				states[j] = ((i & (int)Math.pow(2, size-j-1)) == 0)?new ThreeStateBoolean(false):new ThreeStateBoolean(true);
 				outputStream.print(states[j] + "\t");
 				getInput(j).setState(states[j]);
 			}

@@ -1,8 +1,10 @@
 package logicInterpreter.Nodes;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
+
 public class InputBean {
 	protected String name;
-	protected Boolean state;
+	protected ThreeStateBoolean state;
 	protected OutputBean from = null;
 	
 	/**
@@ -11,7 +13,7 @@ public class InputBean {
 	 */
 	public InputBean(String name){
 		this.name = name;
-		state = false;
+		state = new ThreeStateBoolean(null);
 	}
 	
 	public InputBean(){
@@ -29,14 +31,14 @@ public class InputBean {
 	 * 
 	 * @return stan logiczny wejścia
 	 */
-	public boolean getState() {
+	public ThreeStateBoolean getState() {
 		return state;
 	}
 	/**
 	 * Ustawia stan logiczny wejścia
 	 * @param state
 	 */
-	public void setState(boolean state) {
+	public void setState(ThreeStateBoolean state) {
 		this.state = state;
 	}
 	@Override

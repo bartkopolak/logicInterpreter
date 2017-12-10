@@ -1,6 +1,5 @@
 package logicInterpreter.DiagramInterpret;
 
-import logicInterpreter.Nodes.BlockBean;
 import logicInterpreter.Nodes.InputBean;
 
 public class DistanceToInputBean implements Comparable<DistanceToInputBean> {
