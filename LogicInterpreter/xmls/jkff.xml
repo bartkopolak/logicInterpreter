@@ -3,11 +3,11 @@
 <blocks>
 	<block>
 		<id>1and3</id>
-		<src>nand3.xml</src>
+		<src>and3.xml</src>
 	</block>
 	<block>
 		<id>2and3</id>
-		<src>nand3.xml</src>
+		<src>and3.xml</src>
 	</block>
 	<block>
 		<id>rs</id>
@@ -57,13 +57,13 @@
 		<id>w3</id>
 		<from>rs.Q</from>
 		<to>outputs.Q</to>
-		<to>1and3.A</to>
+		<to>2and3.C</to>
 	</wire>
 	<wire>
 		<id>w4</id>
 		<from>rs.NQ</from>
 		<to>outputs.NQ</to>
-		<to>2and3.C</to>
+		<to>1and3.A</to>
 	</wire>
 </wires>
 

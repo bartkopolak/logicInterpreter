@@ -20,6 +20,12 @@ public class DiagramBean {
 	private final List<BlockBean> blocks = new ArrayList<BlockBean>();
 	private final List<List<BlockBean>> flowList = new ArrayList<List<BlockBean>>();
 	
+	
+	
+	public List<List<BlockBean>> getFlowList() {
+		return flowList;
+	}
+
 	public DiagramBean(){
 		
 	}
@@ -366,11 +372,21 @@ public class DiagramBean {
 	 * 
 	 */
 	public void evaluate() throws RecurrentLoopException{
+		//lista stanów wyjśc układu z poprzedniego cyklu
 		List<DiagramOutputBean> prevOutputs = new ArrayList<DiagramOutputBean>();
 		for(DiagramOutputBean output : outputs){
 			DiagramOutputBean prevOutput = new DiagramOutputBean();
 			prevOutput.setState(output.getState());
 			prevOutputs.add(prevOutput);
+		}
+		//lista stanów wyjść wszystkich bloczków z poprzedniego cyklu
+		List<OutputBean> prevBlockOutputs = new ArrayList<OutputBean>();
+		for(BlockBean block : blocks){
+			for(BlockOutputBean output : block.getOutputList()){
+				OutputBean prevOutput = new OutputBean();
+				prevOutput.setState(output.getState());
+				prevBlockOutputs.add(prevOutput);
+			}
 		}
 	
 		//sprwadz czy nie dochodzi do zapetlenia bloczkow, jesli nie to stworz flow liste.
@@ -379,6 +395,8 @@ public class DiagramBean {
 				throw new RecurrentLoopException();
 			createFlowList();
 		}
+		
+		
 		//ostatni element flowListy jest zawsze pusty - oznacza to kuniec listy i to, ze jesli flowlist zawiera tylko pusty element, to znaczy ze flowlist zostal wygenerowany i nie musi byc juz tworzony raz jezcze
 		if(flowList.size() > 1){//jesli lista jest pusta, oznacza to polaczenie bezposrednie z wejsc ukladu do wyjsc ukladu.
 			for(int i = 0; i<flowList.size(); i++){
@@ -407,6 +425,19 @@ public class DiagramBean {
 				break;
 			}
 			
+		}
+		int i = 0;
+		for(BlockBean block : blocks){
+			for(BlockOutputBean output : block.getOutputList()){
+				OutputBean prevOutput = prevBlockOutputs.get(i);
+				ThreeStateBoolean prevOutputState = prevOutput.getState();
+				ThreeStateBoolean curOutputState = output.getState();
+				if(!curOutputState.equals(prevOutputState)) {
+					evaluate();
+					break;
+				}
+				i++;
+			}
 		}
 	
 	}

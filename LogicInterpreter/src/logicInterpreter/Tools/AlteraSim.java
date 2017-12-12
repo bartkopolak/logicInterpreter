@@ -538,7 +538,7 @@ public class AlteraSim extends JFrame {
 		
 		//TEST
 		try {
-			diagram = XMLparse.parseXMLDiagram(new File("xmls/jkff.xml"));
+			diagram = XMLparse.parseXMLDiagram(new File("xmls/rejestr.xml"));
 			loadSettings();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

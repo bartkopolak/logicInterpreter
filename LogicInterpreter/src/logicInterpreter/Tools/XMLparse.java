@@ -263,7 +263,7 @@ public class XMLparse {
 											throw new MultipleOutputsInInputException(diagram.getName(), toInput.toString());
 									}
 									else {
-										throw new NoInputFoundException(diagram.getName(), toSplit[1]);
+										throw new NoInputFoundException(diagram.getName(), toSplit[0] + "." + toSplit[1]);
 									}
 									
 								}
