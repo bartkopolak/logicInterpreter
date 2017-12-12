@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<diagram name="licznik asynchroniczny 4bit">
+<blocks>
+	<block>
+		<id>jkff0</id>
+		<src>jkffblock.xml</src>
+	</block>
+	<block>
+		<id>jkff1</id>
+		<src>jkffblock.xml</src>
+	</block>
+	<block>
+		<id>jkff2</id>
+		<src>jkffblock.xml</src>
+	</block>
+	<block>
+		<id>jkff3</id>
+		<src>jkffblock.xml</src>
+	</block>
+	
+	
+</blocks>
+
+<outputs>
+	<output>D0</output>
+	<output>D1</output>
+	<output>D2</output>
+	<output>D3</output>
+</outputs>
+
+<inputs>
+	<input>
+		<name>VCC</name>
+		<links>
+			<link to="jkff0.J" />
+			<link to="jkff0.K" />
+			<link to="jkff1.J" />
+			<link to="jkff1.K" />
+			<link to="jkff2.J" />
+			<link to="jkff2.K" />
+			<link to="jkff3.J" />
+			<link to="jkff3.K" />
+		</links>
+	</input>
+	<input>
+		<name>CLK</name>
+		<links>
+			<link to="jkff0.CLK"/>
+
+		</links>
+	</input>
+</inputs>
+
+<wires>
+	<wire>
+		<id>w0</id>
+		<from>jkff0.Q</from>
+		<to>jkff1.CLK</to>
+		<to>outputs.D0</to>
+	</wire>
+	<wire>
+		<id>w1</id>
+		<from>jkff1.Q</from>
+		<to>jkff2.CLK</to>
+		<to>outputs.D1</to>
+	</wire>
+	<wire>
+		<id>w2</id>
+		<from>jkff2.Q</from>
+		<to>jkff3.CLK</to>
+		<to>outputs.D2</to>
+	</wire>
+	<wire>
+		<id>w3</id>
+		<from>jkff3.Q</from>
+		<to>outputs.D3</to>
+	</wire>
+</wires>
+
+</diagram>
