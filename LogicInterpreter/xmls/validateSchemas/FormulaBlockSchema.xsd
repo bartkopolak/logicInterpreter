@@ -13,7 +13,7 @@
 			<xs:element name="outputs" minOccurs="1" maxOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="output">
+						<xs:element name="output" minOccurs="1" maxOccurs="unbounded">
 							<xs:complexType>
 							  <xs:simpleContent>
 								<xs:extension base="xs:string">

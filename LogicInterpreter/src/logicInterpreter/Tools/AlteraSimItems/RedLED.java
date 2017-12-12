@@ -1,5 +1,6 @@
 package logicInterpreter.Tools.AlteraSimItems;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -11,31 +12,29 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 
 public class RedLED extends JCheckBox {
-
-	Image imgon, imgoff;
-
+	Color offColor = new Color(73,5,9);
+	Color onColor = new Color(241,78,86);
+	int width = 9;
+	int height = 12;
 	public RedLED() {
 		super();
 		setEnabled(false);
-		imgon = new ImageIcon("img/redLEDon.png").getImage();
-		imgoff = new ImageIcon("img/redLEDoff.png").getImage();
-		this.setPreferredSize(new Dimension(imgon.getWidth(null), imgon.getHeight(null)));
+		this.setPreferredSize(new Dimension(width,height));
 		
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
-		g.clearRect(0, 0, getWidth(), getHeight());
+		g.clearRect(0, 0, width, height);
 		if(isSelected()) {
-			
-			g.drawImage(imgon , 0, 3, null);
+			g.setColor(onColor);
 		}	
 		else {
 			
-			g.drawImage(imgoff, 0, 3, null);
+			g.setColor(offColor);
 		}
-		
+		g.fillRect(0, 0, width, height);
 			
 	}
 

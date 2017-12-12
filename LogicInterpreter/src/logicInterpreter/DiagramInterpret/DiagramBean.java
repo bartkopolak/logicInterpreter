@@ -415,7 +415,7 @@ public class DiagramBean {
 		}
 
 		for(DiagramOutputBean output : outputs){
-			output.setState(output.getFrom().getState());
+			output.setState(output.getFrom().getState());	//TODO: dodaj obsluge wyjatku nullpointerexception, gdy from jest nieokreslone!
 		}
 		for(int i=0; i<outputs.size(); i++) {
 			ThreeStateBoolean prevOutput = prevOutputs.get(i).getState();

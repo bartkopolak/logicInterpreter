@@ -1,6 +1,7 @@
 package logicInterpreter.Tools;
 
 import java.awt.BorderLayout;
+import java.awt.ComponentOrientation;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -18,11 +19,15 @@ import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Tools.AlteraSimItems.GreenLED;
+import logicInterpreter.Tools.AlteraSimItems.PushButton;
 import logicInterpreter.Tools.AlteraSimItems.RedLED;
 import logicInterpreter.Tools.AlteraSimItems.SevenSegmentDisplay;
 import logicInterpreter.Tools.AlteraSimItems.Switch;
 
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -55,10 +60,13 @@ import com.jgoodies.forms.layout.RowSpec;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JScrollPane;
 
 public class AlteraSim extends JFrame {
 
@@ -71,7 +79,9 @@ public class AlteraSim extends JFrame {
 	JCheckBox onOffClock;
 	JPanel clockSettingsPanel;
 	final List<Switch> switchesList = new ArrayList<Switch>();
+	final List<PushButton> pushButtonList = new ArrayList<PushButton>();
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
+	final List<GreenLED> greenLEDsList = new ArrayList<GreenLED>();
 	final List<SevenSegmentDisplay> HEXDisplayList = new ArrayList<SevenSegmentDisplay>();
 	
 	final JCheckBox falseCB  = new JCheckBox() { //wejscie logiczne 0
@@ -134,6 +144,7 @@ public class AlteraSim extends JFrame {
 		});
 	}
 	
+	
 	AbstractAction inputChanged = new AbstractAction() {
 		
 		private static final long serialVersionUID = 1L;
@@ -163,11 +174,10 @@ public class AlteraSim extends JFrame {
 			if (cb != null && !source.getName().equals(cb.getName())) {
 				int selItem = cb.getSelectedIndex();
 				cb.setModel(new DefaultComboBoxModel<JCheckBox>(getOutputsList()));
-				if(source.getSelectedIndex() == selItem && selItem > 1) selItem = 0;
+				if(source.getSelectedIndex() == selItem && selItem > 0) selItem = 0;
 				isUpdating = true;
 				cb.setSelectedIndex(selItem);
 				isUpdating = false;
-				System.out.println("zmieniono! dla " + cb.getName());
 			} else {
 
 			}
@@ -185,6 +195,8 @@ public class AlteraSim extends JFrame {
 			
 		}
 	};
+	
+
 	
 	private void setClockPanelVisibility() {
 		boolean show = false;
@@ -223,6 +235,27 @@ public class AlteraSim extends JFrame {
 		public void mouseReleased(MouseEvent e) {
 			super.mouseReleased(e);
 			clockSpeedSliderChanging = false;
+		}
+		
+	};
+	
+	MouseAdapter buttonPressed = new MouseAdapter() {
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			super.mousePressed(e);
+			JCheckBox src = (JCheckBox) e.getSource();
+			src.setSelected(true);
+			evaluate();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			super.mouseReleased(e);
+			JCheckBox src = (JCheckBox) e.getSource();
+			src.setSelected(false);
+			evaluate();
+			
 		}
 		
 	};
@@ -275,6 +308,7 @@ public class AlteraSim extends JFrame {
 		list.add(trueCB);
 		list.add(clockCB);
 		list.addAll(switchesList);
+		list.addAll(pushButtonList);
 		return list;	
 	}
 	
@@ -282,6 +316,7 @@ public class AlteraSim extends JFrame {
 		Vector<JCheckBox> list = new Vector<JCheckBox>();
 		list.add(noCB);
 		list.addAll(redLEDsList);
+		list.addAll(greenLEDsList);
 		for(SevenSegmentDisplay hex: HEXDisplayList) {
 			list.addAll(hex.getSegmentList());
 		}
@@ -349,6 +384,7 @@ public class AlteraSim extends JFrame {
 	
 	private void loadSettings() {
 		if(diagram != null) {
+			this.setTitle("AlteraSim - " + diagram.getName());
 			tabbedPane.removeAll();
 			selectedInputs.clear();
 			selectedOutputs.clear();
@@ -359,14 +395,27 @@ public class AlteraSim extends JFrame {
 			
 			inputsPanel.setLayout(new BorderLayout());
 			outputsPanel.setLayout(new BorderLayout());
-			inputsPanelInner.setLayout(new GridLayout(0, 1, 0, 0));
-			outputsPanelInner.setLayout(new GridLayout(0, 1, 0, 0));
 			
-			this.setTitle("AlteraSim - " + diagram.getName());
+			Dimension maxSize = new Dimension(0,220);
+			
+			JScrollPane inputsScrollPane = new JScrollPane();
+			inputsScrollPane.setViewportView(inputsPanelInner);
+			inputsScrollPane.setPreferredSize(maxSize);
+			JScrollPane outputsScrollPane = new JScrollPane();
+			outputsScrollPane.setViewportView(outputsPanelInner);
+			outputsScrollPane.setPreferredSize(maxSize);
+			inputsPanelInner.setLayout(new GridBagLayout());
+			outputsPanelInner.setLayout(new GridBagLayout());
+			GridBagConstraints c = new GridBagConstraints();
+			c.anchor = GridBagConstraints.NORTHWEST;
+			c.weightx = 1;
+			c.gridx = 0;
+			c.weighty = 0;
 			
 			for(int i=0; i<diagram.getInputList().size(); i++) {
 				DiagramInputBean input = diagram.getInput(i);
 				JPanel inpUnitPanel = new JPanel();
+				
 				inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				JLabel inputLabel = new JLabel(input.getName() + ":");
 				JComboBox<JCheckBox> inputList = new JComboBox<JCheckBox>();
@@ -376,11 +425,13 @@ public class AlteraSim extends JFrame {
 				inputList.setName(input.getName());
 				inpUnitPanel.add(inputLabel);
 				inpUnitPanel.add(inputList);
-				inputsPanelInner.add(inpUnitPanel);
+				inputsPanelInner.add(inpUnitPanel, c);
 				
 			}
 			
+			
 			clockSettingsPanel = new JPanel();
+			clockSettingsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			onOffClock = new JCheckBox("Włącz zegar");
 			clockSpeedSlider = new JSlider();
 			clockSpeedSlider.setMaximum(500);	//najwieksza szybkosc - 10ms
@@ -397,9 +448,13 @@ public class AlteraSim extends JFrame {
 			clockSettingsPanel.add(onOffClock);
 			clockSettingsPanel.add(clockSpeedSlider);
 			clockSettingsPanel.add(hertzLabel);
-			inputsPanelInner.add(clockSettingsPanel);
+			inputsPanelInner.add(clockSettingsPanel, c);
 			clockSettingsPanel.setVisible(false);
-			inputsPanel.add(inputsPanelInner, BorderLayout.WEST);
+			
+			c.weighty = 1;
+			inputsPanelInner.add(Box.createGlue(), c);
+			c.weighty = 0;
+			inputsPanel.add(inputsScrollPane, BorderLayout.CENTER);
 			
 			for(int i=0; i<diagram.getOutputList().size(); i++) {
 				DiagramOutputBean output = diagram.getOutput(i);
@@ -413,10 +468,12 @@ public class AlteraSim extends JFrame {
 				outputList.setName(output.getName());
 				outUnitPanel.add(outputLabel);
 				outUnitPanel.add(outputList);
-				outputsPanelInner.add(outUnitPanel);
+				outputsPanelInner.add(outUnitPanel,c);
 			}
-			outputsPanel.add(outputsPanelInner, BorderLayout.WEST);
-			
+			outputsPanel.add(outputsScrollPane, BorderLayout.CENTER);
+			c.weighty = 1;
+			outputsPanelInner.add(Box.createGlue(), c);
+			c.weighty = 0;
 			tabbedPane.addTab("Wejścia", null, inputsPanel, null);
 			tabbedPane.addTab("Wyjścia", null, outputsPanel, null);
 		}
@@ -469,10 +526,15 @@ public class AlteraSim extends JFrame {
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		JPanel switchLedPanel = new JPanel();
-		panel_1.add(switchLedPanel, BorderLayout.WEST);
-		switchLedPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-		switchLedPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 2));
+		JPanel switchLedPanelLeft = new JPanel();
+		panel_1.add(switchLedPanelLeft, BorderLayout.WEST);
+		switchLedPanelLeft.setBorder(new EmptyBorder(15, 15, 15, 15));
+		switchLedPanelLeft.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 2));
+		
+		JPanel switchLedPanelRight = new JPanel();
+		panel_1.add(switchLedPanelRight, BorderLayout.EAST);
+		switchLedPanelRight.setBorder(new EmptyBorder(15, 15, 15, 15));
+		switchLedPanelRight.setLayout(new BorderLayout(0, 0));
 		
 		JPanel hexAndLedsPanel = new JPanel();
 		panel_1.add(hexAndLedsPanel, BorderLayout.NORTH);
@@ -487,16 +549,19 @@ public class AlteraSim extends JFrame {
 			HEX.setToolTipText(HEX.getName());
 			hexPanel.add(HEX);
 			HEXDisplayList.add(HEX);
-		}
-		
-		
-		
-		JPanel ledsPanel = new JPanel();
-
-		hexAndLedsPanel.add(ledsPanel, BorderLayout.EAST);
-		
-		
-		
+			if(i == 6){ //separator
+				hexPanel.add(Box.createRigidArea(new Dimension(20,5)));
+			}
+			if(i == 4){ //zielona dioda led
+				hexPanel.add(Box.createRigidArea(new Dimension(5,5)));
+				GreenLED greenLED = new GreenLED();
+				greenLED.setName("LEDG8");
+				greenLED.setToolTipText("LEDG8");
+				hexPanel.add(greenLED);
+				greenLEDsList.add(greenLED);
+				hexPanel.add(Box.createRigidArea(new Dimension(5,5)));
+			}
+		}		
 		
 		JPanel optionsPanel = new JPanel();
 		contentPane.add(optionsPanel, BorderLayout.NORTH);
@@ -530,15 +595,36 @@ public class AlteraSim extends JFrame {
 			switchLedPanelUnit.add(switchComp, BorderLayout.CENTER);
 			switchesList.add(switchComp);
 			
-			switchLedPanel.add(switchLedPanelUnit);
+			switchLedPanelLeft.add(switchLedPanelUnit);
+		}
+		JPanel greenLedsPanel = new JPanel();
+		greenLedsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 13, 2));
+		switchLedPanelRight.add(greenLedsPanel, BorderLayout.NORTH);
+		for(int i= 7; i>=0; i--){
+			GreenLED greenLED = new GreenLED();
+			greenLED.setName("LEDG" + String.valueOf(i));
+			greenLED.setToolTipText("LEDG" + String.valueOf(i));
+			greenLedsPanel.add(greenLED);
+			greenLEDsList.add(greenLED);
 		}
 		
-		
+		JPanel pushButtonPanel = new JPanel();
+		pushButtonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+		switchLedPanelRight.add(pushButtonPanel, BorderLayout.CENTER);
+		for(int i = 3; i>=0; i--){
+			PushButton pushButton = new PushButton();
+			pushButton.setName("KEY" + String.valueOf(i));
+			pushButton.setToolTipText("KEY" + String.valueOf(i));
+			pushButton.addMouseListener(buttonPressed);
+			pushButtonList.add(pushButton);
+			pushButtonPanel.add(pushButton);
+			
+		}
 			
 		
 		//TEST
 		try {
-			diagram = XMLparse.parseXMLDiagram(new File("xmls/licznikasync.xml"));
+			diagram = XMLparse.parseXMLDiagram(new File("xmls/7seglicznik.xml"));
 			loadSettings();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

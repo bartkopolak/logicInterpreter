@@ -3,21 +3,23 @@ package logicInterpreter.Tools.AlteraSimItems;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
 
+import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 
-public class Switch extends JCheckBox{
-	
+public class PushButton extends JCheckBox {
+
 	private Image imgoff;
 	private Image imgon;
 	
-	public Switch() {
+	public PushButton() {
+		
 		super();
 		setSelected(false);
-		imgon = new ImageIcon("img/switchon.png").getImage();
-		imgoff = new ImageIcon("img/switchoff.png").getImage();
+		imgon = new ImageIcon("img/buttonon.png").getImage();
+		imgoff = new ImageIcon("img/buttonoff.png").getImage();
 		this.setPreferredSize(new Dimension(imgon.getWidth(null), imgon.getHeight(null)));
 		
 		
