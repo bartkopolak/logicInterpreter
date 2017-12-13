@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<block name="bin_to_7seg_display" type="formula">
+	<inputs>
+		<input>A</input>
+		<input>B</input>
+		<input>C</input>
+		<input>D</input>
+	</inputs>
+	<outputs>
+		<output function="A'BD+A'C+AB'C'+B'D'+AD'+BC">OA</output>
+		<output function="A'B'+A'C'D'+A'CD+B'D'+AC'D">OB</output>
+		<output function="A'C'+A'D+A'B+AB'+C'D">OC</output>
+		<output function="A'B'D'+B'CD+AC'+BC'D+BCD'">OD</output>
+		<output function="B'D'+AB+CD'+AC">OE</output>
+		<output function="A'BC'+AB'+C'D'+BD'+AC">OF</output>
+		<output function="A'BC'+AB'+B'C+CD'+AD">OG</output>
+	</outputs>
+</block>
