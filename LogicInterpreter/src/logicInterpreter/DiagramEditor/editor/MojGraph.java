@@ -125,7 +125,7 @@ public class MojGraph {
 		graphComponent.setToolTips(true);
 		//graphComponent.setFoldingEnabled(false);
 		
-		BasicGraphEditor editor = new BasicGraphEditor("asdf", graphComponent);
+		BasicGraphEditor editor = new BasicGraphEditor("Edytor diagramów", graphComponent);
 		EditorPalette shapesPalette = editor.insertPalette("schema");
 		shapesPalette.addTemplate("Block",null,v1);
 		

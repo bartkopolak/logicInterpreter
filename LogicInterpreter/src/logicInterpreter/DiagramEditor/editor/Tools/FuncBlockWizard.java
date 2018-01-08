@@ -66,6 +66,7 @@ public class FuncBlockWizard extends JFrame {
 	}
 	
 	String[] inputNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"};
+	String[] outputNames = new String[32];
 	String[] outputData = new String[32];
 	private JTextField textField_1;
 	
@@ -96,12 +97,26 @@ public class FuncBlockWizard extends JFrame {
 		}
 		return panel_Inputs;
 	}
-	public void createOutputList() {
+	
+	public JPanel createOutputList() {
+		JPanel panel_Outputs = new JPanel();
+		panel_Outputs.setLayout(new BoxLayout(panel_Outputs, BoxLayout.Y_AXIS));
+		panel_Outputs.removeAll();
+		panel_Outputs.invalidate();
 		ButtonGroup group = new ButtonGroup();
 		Integer outputsCount = (Integer) spinnerOutput.getModel().getValue();
 		for(int i=0; i<outputsCount; i++) {
+			JRadioButton radiobtn = new JRadioButton();
+			int pos = i;
+			if(outputNames[i] == null)
+				outputNames[i] = "X" + String.valueOf(i);
+			radiobtn.setText(outputNames[i]);
 			
+			group.add(radiobtn);
+			panel_Outputs.add(radiobtn);
+			panel_Outputs.repaint();
 		}
+		return panel_Outputs;
 	}
 	
 	public String[] getInputNames() {
@@ -236,6 +251,7 @@ public class FuncBlockWizard extends JFrame {
         
         table.changeSelection(0, noOfInputs, false, false);
         scrollPane_inp.setViewportView(createInputList(noOfInputs));
+        scrollPane_out.setViewportView(createOutputList());
 	}
 
 	/**
@@ -279,6 +295,12 @@ public class FuncBlockWizard extends JFrame {
 		panel.add(lblNewLabel_1);
 		
 		spinnerOutput = new JSpinner();
+		spinnerOutput.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				createTruthTable((Integer)spinnerInput.getModel().getValue());
+			}
+			
+		});
 		spinnerOutput.setModel(new SpinnerNumberModel(1, 1, 32, 1));
 		panel.add(spinnerOutput);
 		
@@ -300,7 +322,7 @@ public class FuncBlockWizard extends JFrame {
 		JPanel panel_8 = new JPanel();
 		panel_1.add(panel_8, BorderLayout.SOUTH);
 		
-		JButton btnNewButton_1 = new JButton("New button");
+		JButton btnNewButton_1 = new JButton("Utwórz");
 		panel_8.add(btnNewButton_1);
 		
 		JPanel panel_2 = new JPanel();
