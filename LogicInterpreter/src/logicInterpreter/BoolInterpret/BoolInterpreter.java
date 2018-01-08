@@ -38,7 +38,7 @@ public class BoolInterpreter {
 			String s = spl[i];
 			// negations first
 			for (int j = 0; j < variables.length; j++) {
-				String[] cos = s.split(variables[j], 2);
+				String[] cos = s.split("\\b" +variables[j], 2);
 				if (cos.length > 1) {
 					if (cos[1].isEmpty() || cos[1].matches("[(]|[)]")) {
 						cos[0] += variables[j];
@@ -66,6 +66,8 @@ public class BoolInterpreter {
 		if(result.endsWith("\\+|\\^|\\*")) result = result.substring(0, result.length()-1);
 		return result;
 	}
+	
+	
 /**
  * Zamienia zapis z bezznakowym mnożeniem na zapis z znakowym mnożeniem:<br> 
  * ABC + A'B'C -> A*B*C + A'*B'*C<br>
@@ -82,16 +84,16 @@ public class BoolInterpreter {
 		}
 	
 	public static void testdeleteme(){
-		String t = "A^B"; 
-		String[] vars = {"A", "B", "C"};
+		String t = "CLK*B*L"; 
+		String[] vars = {"L", "B", "CLK"};
 		String t2 = InsertMultiplyOperators(t, vars);
 		System.out.println(t);
 		System.out.println(t2);
 		 BoolEval eval = new BoolEval();
 		StaticVariableSet<ThreeStateBoolean> variables = new StaticVariableSet<ThreeStateBoolean>();
-		variables.set("A", new ThreeStateBoolean(false));
+		variables.set("L", new ThreeStateBoolean(false));
 		variables.set("B", new ThreeStateBoolean(null));
-		variables.set("C", new ThreeStateBoolean(false));
+		variables.set("CLK", new ThreeStateBoolean(false));
 		ThreeStateBoolean rt = eval.evaluate(t2, variables);
 		System.out.println("" + String.valueOf(rt));	
 		//wynik ma byc undef
