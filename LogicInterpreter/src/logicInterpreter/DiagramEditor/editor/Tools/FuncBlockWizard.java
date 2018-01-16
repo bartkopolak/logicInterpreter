@@ -1,6 +1,7 @@
 package logicInterpreter.DiagramEditor.editor.Tools;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -16,20 +17,50 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.mxgraph.model.mxCell;
+
+import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.Nodes.BlockOutputBean;
+import logicInterpreter.Tools.XMLparse;
+
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.SwingConstants;
 import java.awt.Dimension;
@@ -37,8 +68,9 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.TitledBorder;
 
-public class FuncBlockWizard extends JFrame {
+public class FuncBlockWizard extends JDialog {
 
 	private JPanel contentPane;
 	private JScrollPane scrollPane_inp;
@@ -49,6 +81,7 @@ public class FuncBlockWizard extends JFrame {
 	private JSpinner spinnerInput;
 	private JSpinner spinnerOutput;
 	private JTable table_1;
+	private BlockBean block = null;
 	/**
 	 * Launch the application.
 	 */
@@ -56,7 +89,9 @@ public class FuncBlockWizard extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FuncBlockWizard frame = new FuncBlockWizard();
+					BlockBean blok = XMLparse.parseXMLBlock(new File("xmls/binto7sd.xml"));
+					FuncBlockWizard frame = new FuncBlockWizard(blok, true);
+					
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -66,17 +101,27 @@ public class FuncBlockWizard extends JFrame {
 	}
 	
 	String[] inputNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"};
-	String[] outputNames = new String[32];
-	String[] outputData = new String[32];
+	final int maxInputs= 12;
+	final int maxOutputs = 32;
+	String[] outputNames = new String[maxOutputs];
+	String[] outputData = new String[maxOutputs];
 	private JTextField textField_1;
 	
 	ArrayList<JRadioButton> outputList = new ArrayList<JRadioButton>();
 	
 	public JPanel createInputList(int inputsCount) {
 		JPanel panel_Inputs = new JPanel();
-		panel_Inputs.setLayout(new BoxLayout(panel_Inputs, BoxLayout.Y_AXIS));
+		panel_Inputs.setBorder(new TitledBorder(null, "Wej\u015Bcia", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_Inputs.setLayout(new GridBagLayout());
 		panel_Inputs.removeAll();
 		panel_Inputs.invalidate();
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.PAGE_START;
+		c.weightx = 1;
+		c.gridx = 0;
+		c.weighty = 0;
+		
 		for(int i=0; i<inputsCount; i++) {
 			JTextField field = new JTextField();
 			int pos = i;
@@ -86,20 +131,41 @@ public class FuncBlockWizard extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					inputNames[pos] = field.getText();
-					createTruthTable(inputsCount);
+					
+					if(field.getText().isEmpty()) {
+						showMessage("empty");
+						field.setText(inputNames[pos]);
+						return;
+					}
+					for(int i=0; i<(Integer)spinnerInput.getModel().getValue(); i++) {
+						if(inputNames[i].equals(field.getText())) {
+							
+							showMessage("inputnotunique");
+							field.setText(inputNames[pos]);
+							return;
+						}
+							
+					}
+						inputNames[pos] = field.getText();
+						createTruthTable(inputsCount);
 					
 				}
 			});
-			panel_Inputs.add(field);
+			panel_Inputs.add(field, c);
 			
-			panel_Inputs.repaint();
+			
 		}
+		c.weighty = 1;
+		panel_Inputs.add(Box.createVerticalGlue(), c);
+		c.weighty = 0;
+		panel_Inputs.repaint();
 		return panel_Inputs;
 	}
 	
+	private int outputEditing = -1;
 	public JPanel createOutputList() {
 		JPanel panel_Outputs = new JPanel();
+		panel_Outputs.setBorder(new TitledBorder(null, "Wyj\u015Bcia", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_Outputs.setLayout(new BoxLayout(panel_Outputs, BoxLayout.Y_AXIS));
 		panel_Outputs.removeAll();
 		panel_Outputs.invalidate();
@@ -108,13 +174,48 @@ public class FuncBlockWizard extends JFrame {
 		for(int i=0; i<outputsCount; i++) {
 			JRadioButton radiobtn = new JRadioButton();
 			int pos = i;
-			if(outputNames[i] == null)
-				outputNames[i] = "X" + String.valueOf(i);
+			int e = 0;
+			if(outputNames[i] == null) {
+				String s = "X" + String.valueOf(i);
+				if(Arrays.asList(outputNames).contains(s)) {
+					do {
+					s = "X" + String.valueOf(e++);
+					}
+					while(Arrays.asList(outputNames).contains(s));
+				}
+					
+				outputNames[i] = s;
+			}
+				
 			radiobtn.setText(outputNames[i]);
-			
+			radiobtn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					saveTruthTableValues(outputEditing);
+					outputEditing = pos;
+					createTruthTable((Integer)spinnerInput.getModel().getValue());
+					textField.setText(outputNames[outputEditing]);
+					funcField.setText("");
+					
+					
+				}
+			});
 			group.add(radiobtn);
 			panel_Outputs.add(radiobtn);
 			panel_Outputs.repaint();
+			if(outputEditing > outputsCount-1 && i == outputsCount - 1 || outputEditing == -1)
+			{
+				
+				radiobtn.setSelected(true);
+				outputEditing = i;
+				
+			}
+				
+			if(outputEditing == i) {
+				radiobtn.setSelected(true);
+			}
+				
 		}
 		return panel_Outputs;
 	}
@@ -128,17 +229,54 @@ public class FuncBlockWizard extends JFrame {
 		return names;
 	}
 	
-	public int[] getValuesFromTruthTable() {
+	public int[] getIntValuesFromTruthTable() {
 		int rowCount = table.getRowCount();
 		int lastColIndex = table.getColumnCount() - 1;
-		int[] data = new int[rowCount];
+		int[] valdata = new int[rowCount];
 		for(int i=0;i<rowCount;i++) {
 			String val = (String) table.getModel().getValueAt(i, lastColIndex);
-			if(val == "0") data[i] = 0;
-			else if(val == "1") data[i] = 1;
-			else if(val == "x") data[i] = 2;
+			if(val.equals("0")) valdata[i] = 0;
+			else if(val.equals("1")) valdata[i] = 1;
+			else if(val.equals("x")) valdata[i] = 2;
 		}
-		return data;
+		return valdata;
+	}
+	
+	public int[] getIntValuesFromOutputDataTable(String data) {
+		
+		int[] valdata = new int[data.length()];
+		for(int i=0;i<data.length();i++) {
+			String val = String.valueOf(data.charAt(i));
+			if(val.equals("0")) valdata[i] = 0;
+			else if(val.equals("1")) valdata[i] = 1;
+			else if(val.equals("x")) valdata[i] = 2;
+		}
+		return valdata;
+	}
+	
+	public void setTruthTableValues(int pos) {
+		int rowCount = table.getRowCount();
+		int lastColIndex = table.getColumnCount() - 1;
+		String data = outputData[pos];
+		int dataLen = data.length();
+		for(int i=0;i<rowCount;i++) {
+			String val;
+			if(i < dataLen) val = String.valueOf(data.charAt(i));
+			else val = "0";
+			table.getModel().setValueAt(val, i, lastColIndex);
+		}
+	}
+	
+	
+	public void saveTruthTableValues(int pos) {
+		int rowCount = table.getRowCount();
+		int lastColIndex = table.getColumnCount() - 1;
+		String data = new String();
+		for(int i=0;i<rowCount;i++) {
+			String val = (String) table.getModel().getValueAt(i, lastColIndex);
+			data += val;
+		}
+		outputData[pos] = data;
 	}
 	
 	public void createTruthTable(Integer noOfInputs) {
@@ -151,7 +289,7 @@ public class FuncBlockWizard extends JFrame {
 			editable[i] = false;
 			types[i] = Integer.class;
 		}
-		columnNames[noOfInputs] = "out";
+		columnNames[noOfInputs] = outputNames[outputEditing];
 		editable[noOfInputs] = false;
 		types[noOfInputs] = String.class;
 		
@@ -162,7 +300,7 @@ public class FuncBlockWizard extends JFrame {
 				int pow2 = (int) Math.pow(2, noOfInputs-j-1);
 				data[i][j] = new Integer((int)Math.signum(i & pow2)).toString();
 			}
-			data[i][noOfInputs] = "0";
+			//data[i][noOfInputs] = "0";
 		}
 		
 		table.setModel(new DefaultTableModel(
@@ -250,17 +388,24 @@ public class FuncBlockWizard extends JFrame {
         });
         
         table.changeSelection(0, noOfInputs, false, false);
-        scrollPane_inp.setViewportView(createInputList(noOfInputs));
-        scrollPane_out.setViewportView(createOutputList());
+        setTruthTableValues(outputEditing);
+	}
+
+	public void showMessage(String code) {
+		if(code.equals("inputnotunique")) JOptionPane.showMessageDialog(this, "Wpisz unikalną nazwę wejścia!", "Błąd", JOptionPane.OK_OPTION);
+		else if(code.equals("outputnotunique")) JOptionPane.showMessageDialog(this, "Wpisz unikalną nazwę wyjścia!", "Błąd", JOptionPane.OK_OPTION);
+		else if(code.equals("empty")) JOptionPane.showMessageDialog(this, "Wpisz nazwę!", "Błąd", JOptionPane.OK_OPTION);
+		else if(code.equals("saveError")) JOptionPane.showMessageDialog(this, "Błąd zapisu!", "Błąd", JOptionPane.OK_OPTION);
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public FuncBlockWizard() {
+	public FuncBlockWizard(boolean changeXML) {
 		setMinimumSize(new Dimension(520, 200));
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 530, 445);
+		setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -276,7 +421,7 @@ public class FuncBlockWizard extends JFrame {
 		
 		textField_1 = new JTextField();
 		panel.add(textField_1);
-		textField_1.setColumns(16);
+		textField_1.setColumns(14);
 		
 		JLabel lblNewLabel = new JLabel("Ilość wejść");
 		panel.add(lblNewLabel);
@@ -284,11 +429,14 @@ public class FuncBlockWizard extends JFrame {
 		spinnerInput = new JSpinner();
 		spinnerInput.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
+				saveTruthTableValues(outputEditing);
+				scrollPane_inp.setViewportView(createInputList((Integer)spinnerInput.getModel().getValue()));
 				createTruthTable((Integer)spinnerInput.getModel().getValue());
+				funcField.setText("");
 				
 			}
 		});
-		spinnerInput.setModel(new SpinnerNumberModel(4, 1, 16, 1));
+		spinnerInput.setModel(new SpinnerNumberModel(4, 1, maxInputs, 1));
 		panel.add(spinnerInput);
 		
 		JLabel lblNewLabel_1 = new JLabel("Ilość wyjść");
@@ -297,11 +445,15 @@ public class FuncBlockWizard extends JFrame {
 		spinnerOutput = new JSpinner();
 		spinnerOutput.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
+				saveTruthTableValues(outputEditing);
+				scrollPane_inp.setViewportView(createInputList((Integer)spinnerInput.getModel().getValue()));
+		        scrollPane_out.setViewportView(createOutputList());
 				createTruthTable((Integer)spinnerInput.getModel().getValue());
+				textField.setText(outputNames[outputEditing]);
 			}
 			
 		});
-		spinnerOutput.setModel(new SpinnerNumberModel(1, 1, 32, 1));
+		spinnerOutput.setModel(new SpinnerNumberModel(1, 1, maxOutputs, 1));
 		panel.add(spinnerOutput);
 		
 		JPanel panel_1 = new JPanel();
@@ -322,8 +474,36 @@ public class FuncBlockWizard extends JFrame {
 		JPanel panel_8 = new JPanel();
 		panel_1.add(panel_8, BorderLayout.SOUTH);
 		
-		JButton btnNewButton_1 = new JButton("Utwórz");
-		panel_8.add(btnNewButton_1);
+		JButton saveBtn = new JButton("Zapisz");
+		saveBtn.setActionCommand("OK");
+		saveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				File p;
+				if(block != null) {
+					p = block.getFile();
+					if(!p.exists())
+						try {
+							p.createNewFile();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					save(p, changeXML);
+				}
+				else {
+					JFileChooser fileChooser = new JFileChooser();
+					FileNameExtensionFilter filterXML = new FileNameExtensionFilter("Plik bloku XML", "xml"); //filtr
+					fileChooser.setFileFilter(filterXML); //dodanie filtru do dialogu
+				    int retval = fileChooser.showSaveDialog(null);
+				    if (retval == JFileChooser.APPROVE_OPTION) {
+				      p = fileChooser.getSelectedFile();
+				      save(p, changeXML);
+				    }
+				}
+				dispose();
+			}
+		});
+		panel_8.add(saveBtn);
 		
 		JPanel panel_2 = new JPanel();
 		contentPane.add(panel_2, BorderLayout.CENTER);
@@ -342,6 +522,24 @@ public class FuncBlockWizard extends JFrame {
 		panel_5.add(lblNazwa);
 		
 		textField = new JTextField();
+		textField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(textField.getText().isEmpty()) {
+					showMessage("empty");
+					textField.setText(outputNames[outputEditing]);
+					return;
+				}
+				if(!Arrays.asList(outputNames).contains(textField.getText())) {
+					outputNames[outputEditing] = textField.getText();
+					scrollPane_out.setViewportView(createOutputList());
+					createTruthTable((Integer)spinnerInput.getModel().getValue());
+				}
+				else {
+					showMessage("outputnotunique");
+				}
+				
+			}
+		});
 		panel_5.add(textField);
 		textField.setColumns(8);
 		
@@ -359,10 +557,10 @@ public class FuncBlockWizard extends JFrame {
 		panel_6.add(funcField, BorderLayout.CENTER);
 		funcField.setColumns(20);
 		
-		JButton btnNewButton = new JButton("Oblicz");
+		JButton btnNewButton = new JButton("Pokaż funkcję");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String func = FuncMinimizer.minimize(getValuesFromTruthTable(), getInputNames());
+				String func = FuncMinimizer.minimize(getIntValuesFromTruthTable(), getInputNames(),true);
 				funcField.setText(func);
 			}
 		});
@@ -378,9 +576,119 @@ public class FuncBlockWizard extends JFrame {
 		table = new JTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		
+		for(int i=0;i<maxOutputs;i++) {
+			outputData[i] = "";
+		}
 		
 		scrollPane.setViewportView(table);
+		scrollPane_inp.setViewportView(createInputList((Integer)spinnerInput.getModel().getValue()));
+		scrollPane_out.setViewportView(createOutputList());
 		createTruthTable((Integer)spinnerInput.getModel().getValue());
+		textField.setText(outputNames[outputEditing]);
 	}
+	
+	public FuncBlockWizard(BlockBean block, boolean changeXML) {
+		this(changeXML);
+		this.block = block;
+		//nazwy wejsc
+		for (int i =0;i<block.getInputList().size();i++) {
+			inputNames[i] = block.getInput(i).getName();
+		}
+		spinnerInput.setValue(block.getInputList().size());
+		//ustal tablice prawdy
+		for (int i =0;i<block.getOutputList().size();i++) {
+			try {
+				int tt[] = block.getTruthTable(block.getOutput(i));
+				String out = "";
+				for(int j=0;j<tt.length;j++) {
+					out += String.valueOf(tt[j]);
+				}
+				outputData[i] = out;
+			} catch (RecurrentLoopException e) {
+				outputData[i] = "xxx";
+			}
+		}
+		setTruthTableValues(0);
+		
+		//nazwy wyjsc
+		for (int i =0;i<block.getOutputList().size();i++) {
+			outputNames[i] = block.getOutput(i).getName();
+		}
+		
+		spinnerOutput.setValue(block.getOutputList().size());
+		//nazwa bloku
+		textField_1.setText(block.getName());
+	}
+	
+	
+	public void save(File targetFile, boolean changeXML) {
+		int inputsNo = (Integer)spinnerInput.getModel().getValue();
+		int outputsNo = (Integer)spinnerOutput.getModel().getValue();
+		if(block == null) {
+			block = new BlockBean();
+		}
+			block.setName(textField_1.getText());
+			block.setType("formula");
+			block.getInputList().clear();
+			block.getOutputList().clear();
+			for (int i =0;i<inputsNo;i++) {
+				block.addInput(inputNames[i]);
+			}
+			for (int i =0;i<outputsNo;i++) {
+				block.addOutput(outputNames[i], FuncMinimizer.minimize(getIntValuesFromOutputDataTable(outputData[i]), getInputNames(),false));
+			}
+		
+		
+		if(changeXML) {
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			try {
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				
+				
+				
+				Document doc = docBuilder.newDocument();
+				Element rootElement = doc.createElement("block");
+				rootElement.setAttribute("name", block.getName());
+				rootElement.setAttribute("type", "formula");
+				doc.appendChild(rootElement);
+				
+				Element inputs = doc.createElement("inputs");
+				for (int i =0;i<inputsNo;i++) {
+					Element input = doc.createElement("input");
+					input.setTextContent(block.getInput(i).getName());
+					inputs.appendChild(input);
+				}
+				Element outputs = doc.createElement("outputs");
+				for (int i =0;i<outputsNo;i++) {
+					
+					Element output = doc.createElement("output");
+					BlockOutputBean b = block.getOutput(i);
+					output.setTextContent(b.getName());
+					
+					output.setAttribute("function", b.getFormula());
+					outputs.appendChild(output);
+				}
+				rootElement.appendChild(inputs);
+				rootElement.appendChild(outputs);
+				TransformerFactory transformerFactory = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactory.newTransformer();
+				DOMSource source = new DOMSource(doc);
+				StreamResult result = new StreamResult(targetFile);
+				transformer.transform(source, result);
+				
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				showMessage("saveError");
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
+				showMessage("saveError");
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+	
 
 }

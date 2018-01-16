@@ -1,10 +1,15 @@
 package logicInterpreter.Nodes;
 
+import java.io.Serializable;
+
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 
-public class InputBean {
-	protected String name;
-	protected ThreeStateBoolean state;
+public class InputBean extends Node implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5337196295572766075L;
 	protected OutputBean from = null;
 	
 	/**
@@ -18,32 +23,6 @@ public class InputBean {
 	
 	public InputBean(){
 		this("");
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * 
-	 * @return stan logiczny wejścia
-	 */
-	public ThreeStateBoolean getState() {
-		return state;
-	}
-	/**
-	 * Ustawia stan logiczny wejścia
-	 * @param state
-	 */
-	public void setState(ThreeStateBoolean state) {
-		this.state = state;
-	}
-	@Override
-	public String toString() {
-		return name;
 	}
 	/**
 	 * 

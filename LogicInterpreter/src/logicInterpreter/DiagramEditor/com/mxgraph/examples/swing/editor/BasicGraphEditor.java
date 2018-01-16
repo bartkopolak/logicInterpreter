@@ -304,7 +304,7 @@ public class BasicGraphEditor extends JPanel
 	 */
 	public EditorPalette insertPalette(String title)
 	{
-		final EditorPalette palette = new EditorPalette();
+		final EditorPalette palette = new EditorPalette(this);
 		final JScrollPane scrollPane = new JScrollPane(palette);
 		scrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

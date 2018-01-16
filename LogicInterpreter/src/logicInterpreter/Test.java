@@ -24,9 +24,9 @@ public class Test {
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {
-			blok = XMLparse.parseXMLBlock(new File("xmls/rsblok.xml"));
+			blok = XMLparse.parseXMLBlock(new File("xmls/binto7sd.xml"));
 			System.out.println(blok.getName());
-			BlockOutputBean x = blok.getOutput("Q");
+			BlockOutputBean x = blok.getOutput("OA");
 			blok.getInput(0).setState(new ThreeStateBoolean(false));
 			blok.getInput(1).setState(new ThreeStateBoolean(false));
 			blok.evaluate();
@@ -35,6 +35,10 @@ public class Test {
 			System.out.println(blok.getOutput(0).getState());
 			blok.evaluate();
 			System.out.println(blok.getOutput(0).getState());
+			int[] a = blok.getTruthTable(x);
+			for(int i = 0; i< a.length; i++) {
+				System.out.print(a[i]);
+			}
 			
 		} 
 		catch(FileNotFoundException e){

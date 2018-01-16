@@ -1,5 +1,6 @@
 package logicInterpreter.DiagramInterpret;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +13,12 @@ import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
 
-public class DiagramBean {
+public class DiagramBean implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3069694729465538656L;
 	private String name;
 	private final List<DiagramInputBean> inputs = new ArrayList<DiagramInputBean>();
 	private final List<DiagramOutputBean> outputs = new ArrayList<DiagramOutputBean>();
@@ -239,7 +244,8 @@ public class DiagramBean {
 		
 		boolean stop = false;
 		int currLevel = 1; //zaczynajac od zera ofc, wiec 1 = 2 
-				
+		if(!flowList.isEmpty())
+		{
 				while(!stop){
 						if(flowList.get(currLevel-1).isEmpty()){
 							stop = true;
@@ -272,7 +278,7 @@ public class DiagramBean {
 							currLevel++;
 						}
 				}
-		
+		}
 	}
 		
 	
@@ -405,7 +411,11 @@ public class DiagramBean {
 					//ustaw wejscia bloczkow danego poziomu - wartosci podlaczonego do wejsc bloczka wejscia ukladu
 					List<BlockInputBean> blockInputs = b.getInputList();
 					for(BlockInputBean input : blockInputs){
-						input.setState(input.getFrom().getState());
+						OutputBean o = input.getFrom();
+						if(o != null) {
+							input.setState(input.getFrom().getState());
+						}
+						
 					}
 					//wykonaj funkcje
 					b.evaluate();
@@ -415,7 +425,8 @@ public class DiagramBean {
 		}
 
 		for(DiagramOutputBean output : outputs){
-			output.setState(output.getFrom().getState());	//TODO: dodaj obsluge wyjatku nullpointerexception, gdy from jest nieokreslone!
+			if(output.getFrom() != null)
+				output.setState(output.getFrom().getState());	//TODO: dodaj obsluge wyjatku nullpointerexception, gdy from jest nieokreslone!
 		}
 		for(int i=0; i<outputs.size(); i++) {
 			ThreeStateBoolean prevOutput = prevOutputs.get(i).getState();

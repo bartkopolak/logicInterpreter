@@ -12,6 +12,8 @@ import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.*;
+import logicInterpreter.DiagramEditor.editor.GraphEditor;
+
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxPoint;
@@ -142,7 +144,8 @@ public class SchemaEditorMenuBar extends JMenuBar
 		menu = add(new JMenu(mxResources.get("diagram")));
 
 		menu.add(new ToggleOutlineItem(editor, mxResources.get("outline")));
-
+		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((GraphEditor)editor))));
+		
 		menu.addSeparator();
 
 		submenu = (JMenu) menu.add(new JMenu(mxResources.get("grid")));

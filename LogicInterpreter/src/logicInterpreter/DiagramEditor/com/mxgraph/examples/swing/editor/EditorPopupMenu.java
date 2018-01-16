@@ -5,6 +5,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.HistoryAction;
+import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.EditAction;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxResources;
 
@@ -16,34 +19,42 @@ public class EditorPopupMenu extends JPopupMenu
 	 */
 	private static final long serialVersionUID = -3132749140550242191L;
 
-	public EditorPopupMenu(BasicGraphEditor editor)
+	public EditorPopupMenu(BasicGraphEditor basicGraphEditor)
 	{
-		boolean selected = !editor.getGraphComponent().getGraph()
+		mxCell selCell = null;
+		boolean selected = !basicGraphEditor.getGraphComponent().getGraph()
 				.isSelectionEmpty();
+		boolean selectedMany = (basicGraphEditor.getGraphComponent().getGraph().getSelectionCount()>1)?true:false;
+		if(!selectedMany) {
+			
+			selCell = (mxCell) basicGraphEditor.getGraphComponent().getGraph().getSelectionCell();
+			
+			
+		}
 
-		add(editor.bind(mxResources.get("undo"), new HistoryAction(true),
+		add(basicGraphEditor.bind(mxResources.get("undo"), new HistoryAction(true),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/undo.gif"));
 
 		addSeparator();
 
 		add(
-				editor.bind(mxResources.get("cut"), TransferHandler
+				basicGraphEditor.bind(mxResources.get("cut"), TransferHandler
 						.getCutAction(),
 						"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/cut.gif"))
 				.setEnabled(selected);
 		add(
-				editor.bind(mxResources.get("copy"), TransferHandler
+				basicGraphEditor.bind(mxResources.get("copy"), TransferHandler
 						.getCopyAction(),
 						"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/copy.gif"))
 				.setEnabled(selected);
-		add(editor.bind(mxResources.get("paste"), TransferHandler
+		add(basicGraphEditor.bind(mxResources.get("paste"), TransferHandler
 				.getPasteAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/paste.gif"));
 
 		addSeparator();
 
 		add(
-				editor.bind(mxResources.get("delete"), mxGraphActions
+				basicGraphEditor.bind(mxResources.get("delete"), mxGraphActions
 						.getDeleteAction(),
 						"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/delete.gif"))
 				.setEnabled(selected);
@@ -62,19 +73,18 @@ public class EditorPopupMenu extends JPopupMenu
 
 
 		add(
-				editor.bind(mxResources.get("edit"), mxGraphActions
-						.getEditAction())).setEnabled(selected);
+				basicGraphEditor.bind(mxResources.get("edit"), new EditAction(selCell, (GraphEditor)basicGraphEditor, false))).setEnabled(selected);
 
 		addSeparator();
 
-		add(editor.bind(mxResources.get("selectVertices"), mxGraphActions
+		add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions
 				.getSelectVerticesAction()));
-		add(editor.bind(mxResources.get("selectEdges"), mxGraphActions
+		add(basicGraphEditor.bind(mxResources.get("selectEdges"), mxGraphActions
 				.getSelectEdgesAction()));
 
 		addSeparator();
 
-		add(editor.bind(mxResources.get("selectAll"), mxGraphActions
+		add(basicGraphEditor.bind(mxResources.get("selectAll"), mxGraphActions
 				.getSelectAllAction()));
 	}
 

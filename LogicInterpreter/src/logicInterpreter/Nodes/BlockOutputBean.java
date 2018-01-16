@@ -7,6 +7,10 @@ public class BlockOutputBean extends OutputBean {
 	private String formula;
 	private BlockBean parent;
 	
+	public BlockOutputBean() {
+		this(null, "", "");
+	}
+	
 	public BlockOutputBean(BlockBean parent, String name, String formula){
 		super(name);
 		this.formula = formula;
@@ -36,7 +40,7 @@ public class BlockOutputBean extends OutputBean {
 	
 	@Override
 	public String toString() {
-		return parent.getName() + "." + name;
+		return parent.getName() +"."+name;
 	}
 	
 	

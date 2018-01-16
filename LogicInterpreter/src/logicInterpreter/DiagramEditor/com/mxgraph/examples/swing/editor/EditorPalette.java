@@ -17,13 +17,18 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragSource;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
 
 import com.mxgraph.model.mxCell;
@@ -35,6 +40,12 @@ import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxResources;
+
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.EditAction;
+import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramInterpret.BlockBean;
+
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 
 public class EditorPalette extends JPanel
@@ -63,12 +74,15 @@ public class EditorPalette extends JPanel
 	/**
 	 * 
 	 */
+	protected BasicGraphEditor editor;
+
+	protected mxGraphTransferable selectedCell = null;
 	@SuppressWarnings("serial")
-	public EditorPalette()
+	public EditorPalette(BasicGraphEditor e)
 	{
 		setBackground(new Color(149, 230, 190));
 		setLayout(new FlowLayout(FlowLayout.LEADING, 5, 5));
-
+		editor = e;
 		// Clears the current selection when the background is clicked
 		addMouseListener(new MouseListener()
 		{
@@ -88,6 +102,7 @@ public class EditorPalette extends JPanel
 			 */
 			public void mouseClicked(MouseEvent e)
 			{
+				
 			}
 
 			/*
@@ -183,6 +198,7 @@ public class EditorPalette extends JPanel
 	{
 		JLabel previous = selectedEntry;
 		selectedEntry = entry;
+		selectedCell = t;
 
 		if (previous != null)
 		{
@@ -252,7 +268,16 @@ public class EditorPalette extends JPanel
 
 		addTemplate(name, icon, cell);
 	}
-
+	
+	private JPopupMenu createPopup(mxCell cell) {
+		
+		JPopupMenu menu = new JPopupMenu();
+			JMenuItem edit = new JMenuItem();
+			edit.setAction(new EditAction(cell, (GraphEditor)editor, true));
+			edit.setText("Edytuj");
+			menu.add(edit);
+		return menu;
+	}
 	/**
 	 * 
 	 * @param name
@@ -297,6 +322,16 @@ public class EditorPalette extends JPanel
 			public void mousePressed(MouseEvent e)
 			{
 				setSelectionEntry(entry, t);
+				if(selectedEntry != null && e.getButton() == MouseEvent.BUTTON3) {
+					Object[] ar = t.getCells();
+					mxCell cell = (mxCell)ar[0];
+					Object value = cell.getValue();
+					if(value instanceof BlockBean) {
+						createPopup(cell).show(e.getComponent(), e.getX(), e.getY());
+					}
+					
+					
+				}
 			}
 
 			/*
@@ -305,6 +340,7 @@ public class EditorPalette extends JPanel
 			 */
 			public void mouseClicked(MouseEvent e)
 			{
+				
 			}
 
 			/*

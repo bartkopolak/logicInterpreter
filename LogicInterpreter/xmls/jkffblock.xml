@@ -1,4 +1,1 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<block name="diagram3" type="diagram">
-	<src>jkff.xml</src>
-</block>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><block name="jkff" type="formula"><inputs><input>J</input><input>K</input><input>CLK</input></inputs><outputs><output function="J*K">Q</output><output function="J' + K'">NQ</output></outputs></block>

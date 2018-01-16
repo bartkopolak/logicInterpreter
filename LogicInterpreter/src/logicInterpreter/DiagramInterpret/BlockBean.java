@@ -1,7 +1,9 @@
 package logicInterpreter.DiagramInterpret;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +16,19 @@ import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 
-public class BlockBean {
+public class BlockBean implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7589693470370349245L;
 	private String name;
 	private final List<BlockInputBean> inputs = new ArrayList<BlockInputBean>();
 	private final List<BlockOutputBean> outputs = new ArrayList<BlockOutputBean>();
 	private String type;
 	private DiagramBean diagram = null; //uzywany tylko gdy typ to diagram
+	private boolean defaultB = false;
+	private File file = null;
 	
 	public BlockBean(){
 	}
@@ -224,40 +232,49 @@ public class BlockBean {
 		
 	}
 	/**
-	 * Drukuje do wyznaczonego strumienia tablice prawdy dla danego wyjścia bloczka.
+	 * Zwraca tablice prawdy dla danego wyjścia bloczka.
 	 * @param outputNode - wyjście bloczka
-	 * @param outputStream - strumień w którym zostanie wydrukowana tablica prawdy
 	 */
-	public void printTruthTable(BlockOutputBean outputNode, PrintStream outputStream){
+	public int[] getTruthTable(BlockOutputBean outputNode) throws RecurrentLoopException{
 		int size = inputs.size();
 		
 		//System.out.println(x.getFormula());
-		for(int j=0; j<size; j++){
-			
-			outputStream.print(getInput(j).getName() + "\t");
-		}
-		outputStream.print(outputNode.getName());
-		outputStream.println();
-		for(int i=0; i<Math.pow(2, size); i++){
+		int pow2 = (int) Math.pow(2, size);
+		int[] outputs = new int[pow2];
+		for(int i=0; i<pow2; i++){
 			
 			ThreeStateBoolean[] states = new ThreeStateBoolean[size];
 			for(int j=0; j<size; j++){
 				states[j] = ((i & (int)Math.pow(2, size-j-1)) == 0)?new ThreeStateBoolean(false):new ThreeStateBoolean(true);
-				outputStream.print(states[j] + "\t");
 				getInput(j).setState(states[j]);
 			}
-			try {
-				evaluate();
-			} catch (RecurrentLoopException e) {
-				outputStream.println("\n" + e.getMessage());
-			}
-			System.out.println(outputNode.getState());
+			evaluate();
+			ThreeStateBoolean output = outputNode.getState();
+			if(output.equals(new ThreeStateBoolean(false))) outputs[i] = 0;
+			else if(output.equals(new ThreeStateBoolean(true))) outputs[i] = 1;
 		}
+		return outputs;
+	}
+	
+	public void setDefault(boolean state) {
+		this.defaultB = state;
+	}
+
+	public boolean isDefault() {
+		return defaultB;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	@Override
 	public String toString() {
-		return "BlockBean ["+ name + "]";
+		return  name;
 	}
 	
 	

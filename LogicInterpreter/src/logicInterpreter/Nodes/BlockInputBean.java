@@ -5,6 +5,10 @@ import logicInterpreter.DiagramInterpret.BlockBean;
 public class BlockInputBean extends InputBean{
 	private BlockBean parent;
 	
+	public BlockInputBean() {
+		this(null, "");
+	}
+	
 	public BlockInputBean(String name){
 		this(null,name);
 	}
@@ -23,7 +27,7 @@ public class BlockInputBean extends InputBean{
 	
 	@Override
 	public String toString() {
-		return parent.getName() + "." + name;
+		return parent.getName() +"."+name;
 	}
 
 	

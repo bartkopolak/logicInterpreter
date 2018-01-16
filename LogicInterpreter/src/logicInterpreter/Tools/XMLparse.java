@@ -52,11 +52,32 @@ public class XMLparse {
 		
 	   }
 	
-	
+	public static String getType(File file) {
+		try {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc;
+		doc = dBuilder.parse(file);
+		doc.getDocumentElement().normalize();
+		Node rootNode = doc.getFirstChild();
+		Element rootElem = (Element) rootNode;
+		return rootElem.getTagName();
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	 
 	/*
 	 * 
 	 */
-	
 	//TODO: wyjątki
 	public static BlockBean parseXMLBlock(File file) throws Exception{
 		BlockBean block = new BlockBean();
@@ -73,6 +94,9 @@ public class XMLparse {
 			block.setName(rootElem.getAttribute("name"));
 			String type = rootElem.getAttribute("type");
 			block.setType(type);
+			String defaultB = rootElem.getAttribute("default");
+			if(defaultB.equals("true")) block.setDefault(true);
+			block.setFile(file);
 			
 			if(type.equals("formula")){
 				//typ: formula

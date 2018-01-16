@@ -1,12 +1,21 @@
 package logicInterpreter.Nodes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Wire {
+public class Wire implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7840306977197231498L;
 	private String id;
 	private List<InputBean> to = new ArrayList<InputBean>();
 	private OutputBean parent;
+	
+	public Wire(){
+		this(null,"");
+	}
 	
 	public Wire(OutputBean parent){
 		this(parent,"");

@@ -78,20 +78,13 @@ public class EditorAboutFrame extends JDialog
 		titleLabel.setOpaque(false);
 		panel.add(titleLabel, BorderLayout.NORTH);
 
-		// Adds optional subtitle
-		JLabel subtitleLabel = new JLabel(
-				"For more information visit http://www.mxgraph.com/");
-		subtitleLabel.setBorder(BorderFactory.createEmptyBorder(4, 18, 0, 0));
-		subtitleLabel.setOpaque(false);
-		panel.add(subtitleLabel, BorderLayout.CENTER);
-
 		getContentPane().add(panel, BorderLayout.NORTH);
 
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-		content.add(new JLabel("JGraph X - The Swing Portion of mxGraph"));
+		content.add(new JLabel("Do budowy edytora diagramów wykorzystano bibliotekę JGraph X."));
 		content.add(new JLabel(" "));
 
 		content.add(new JLabel("mxGraph Version " + mxGraph.VERSION));

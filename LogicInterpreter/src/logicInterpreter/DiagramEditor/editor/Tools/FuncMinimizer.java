@@ -42,9 +42,10 @@ public class FuncMinimizer {
 	 * <li>2 - wartość dowolna (don't care)</li></ul>
 	 * @param outputs - lista wyjść tabeli prawdy
 	 * @param inputNames - nazwy wejść
+	 * @param clean - gdy true, wynik nie będzie zawierał znaków mnożenia *
 	 * @return łańcuch znakowy zawierający zminimalizowaną funkcję boolowską
 	 */
-	public static String minimize(int[] outputs, String[] inputNames) {
+	public static String minimize(int[] outputs, String[] inputNames, boolean clean) {
 		int noOfInputs = (int)(Math.log(outputs.length) / Math.log(2));
 		int[] terms;
 		int[] termsSig;
@@ -198,7 +199,7 @@ public class FuncMinimizer {
 		
 		for(int i=0; i<implicantsEssential.size();i++) {
 			MintermGroup m = implicantsEssential.get(i);
-			output += m.printFunction(inputNames);
+			output += m.printFunction(inputNames, clean);
 			if(i<implicantsEssential.size()-1) output += " + ";
 		}
 		return output;
@@ -207,7 +208,7 @@ public class FuncMinimizer {
 	public static void main(String args[]) {
 		String[] inputNames = {"A", "B", "C", "D"};
 		int[] test = {1,0,2,1};
-		System.out.println(FuncMinimizer.minimize(test, inputNames));
+		System.out.println(FuncMinimizer.minimize(test, inputNames, true));
 		
 	}
 }

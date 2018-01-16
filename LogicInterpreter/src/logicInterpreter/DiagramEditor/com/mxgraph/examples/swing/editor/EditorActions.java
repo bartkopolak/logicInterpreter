@@ -72,6 +72,15 @@ import com.mxgraph.util.png.mxPngImageEncoder;
 import com.mxgraph.util.png.mxPngTextDecoder;
 import com.mxgraph.view.mxGraph;
 
+import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
+import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
+import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockWizard;
+import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.Tools.AlteraSim;
+
 /**
  *
  */
@@ -82,7 +91,7 @@ public class EditorActions
 	 * @param e
 	 * @return Returns the graph for the given action event.
 	 */
-	public static final BasicGraphEditor getEditor(ActionEvent e)
+	public static final GraphEditor getEditor(ActionEvent e)
 	{
 		if (e.getSource() instanceof Component)
 		{
@@ -94,7 +103,7 @@ public class EditorActions
 				component = component.getParent();
 			}
 
-			return (BasicGraphEditor) component;
+			return (GraphEditor) component;
 		}
 
 		return null;
@@ -2250,5 +2259,67 @@ public class EditorActions
 				}
 			}
 		}
+	}
+	@SuppressWarnings("serial")
+	public static class EditAction extends AbstractAction
+	{
+
+		mxCell source;
+		GraphEditor editor;
+		boolean changeXML;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(source != null) {
+				BlockBean block = (BlockBean) source.getValue();
+				if(!block.isDefault()) {
+					FuncBlockWizard wizard = new FuncBlockWizard(block, changeXML);
+					wizard.setVisible(true);
+					if(wizard != null) {
+						if(changeXML) editor.fillAllPalettes();
+						if(editor != null) editor.getGraphComponent().refresh();
+					}
+					
+				}
+				else {
+					EditorAlerts.show(null, "defaultBlockEditAttempt");
+				}
+
+			}
+			
+			
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public EditAction(mxCell cell, GraphEditor editor, boolean changeXML) {
+			source = cell;
+			this.editor = editor;
+			this.changeXML = changeXML;
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class DebugAction extends AbstractAction
+	{
+		private GraphEditor g;
+		public DebugAction(GraphEditor editor) {
+			g = editor;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			DiagramBean diagram = g.createDiagram();
+			
+			try {
+				diagram.evaluate();
+				DiagSimDebugger sim = new DiagSimDebugger(g, diagram);
+				sim.setVisible(true);
+			} catch (RecurrentLoopException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
 	}
 }

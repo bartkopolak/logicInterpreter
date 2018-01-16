@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<block name="not" type="formula">
+<block name="not" type="formula" default="true">
 	<inputs>
 		<input>A</input>
 	</inputs>

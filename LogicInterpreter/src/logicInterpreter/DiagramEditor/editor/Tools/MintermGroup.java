@@ -76,18 +76,32 @@ public class MintermGroup {
 		return "";
 		
 	}
-	
-	public String printFunction(String[] inputNames) {
+	/**
+	 * Zwraca funkcję logiczną w postaci tekstowej
+	 * @param inputNames - nazwy wejść
+	 * @param clean - czy drukować znak mnożenia *
+	 * @return
+	 */
+	public String printFunction(String[] inputNames, boolean clean) {
 		String implicant = getImplicant();
 		String out = "";
+		boolean printStar = false;
 		int c= 0;
 		for(int i=0;i<implicant.length();i++) {
 			char st = implicant.charAt(i);
 			if(st == '1') out = out + inputNames[i];
 			else if(st == '0') out = out + inputNames[i] + "'";
 			else if(st == '-') c++;
-			if(i<implicant.length()-1) {
-				if(implicant.charAt(i) != '-' && implicant.charAt(i+1) != '-') out += "*";
+			if(!clean) {
+				if(i<implicant.length()-1) {
+					if(implicant.charAt(i) != '-' && implicant.charAt(i+1) == '-' || implicant.charAt(i) != '-' && implicant.charAt(i+1) != '-') printStar = true;
+					if(printStar && implicant.charAt(i+1) != '-') 
+					{
+					    out += "*";
+						printStar = false;
+					}
+					
+				}
 			}
 		}
 		if(implicant.length() == c) return ("" + inputNames[0] + " + " + inputNames[0] + "'");

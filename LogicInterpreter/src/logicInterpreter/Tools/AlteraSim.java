@@ -276,6 +276,9 @@ public class AlteraSim extends JFrame {
 		catch (InterruptedException e) {
 				
 		}
+		catch(NullPointerException e) {
+			
+		}
 
 	}
 	
@@ -501,7 +504,7 @@ public class AlteraSim extends JFrame {
 		noCB.setName("brak wyjścia");
 		clockCB.setName("zegar");
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 686, 531);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -623,14 +626,13 @@ public class AlteraSim extends JFrame {
 			
 		
 		//TEST
-		try {
-			diagram = XMLparse.parseXMLDiagram(new File("xmls/7seglicznik.xml"));
-			loadSettings();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		clockThread.start();
 
+	}
+	
+	public AlteraSim(DiagramBean diagram) {
+		this();
+		this.diagram = diagram;
+		loadSettings();
 	}
 }
