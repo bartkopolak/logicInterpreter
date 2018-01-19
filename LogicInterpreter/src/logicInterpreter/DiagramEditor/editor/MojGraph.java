@@ -28,9 +28,11 @@ import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
+import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
-import logicInterpreter.Tools.XMLparse;
+import logicInterpreter.Nodes.Wire;
+import logicInterpreter.Tools.DiagFileUtils;
 
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
@@ -92,11 +94,14 @@ public class MojGraph {
 					if(((mxCell)src).getValue() != null && ((mxCell)trg).getValue() != null) {
 						Object srcVal = ((mxCell)src).getValue();
 						Object trgVal = ((mxCell)trg).getValue();
-						if(srcVal instanceof OutputBean && trgVal instanceof OutputBean) {
+						//if(((mxCell)trg).isEdge())System.out.println("edge");
+						//else System.out.println(src.toString());
+						
+						if(srcVal instanceof OutputBean && (trgVal instanceof OutputBean)) {
 							error.append("Wyjście może być połączone z wejściem lub wyjściem układu\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}
-						if(srcVal instanceof OutputBean && trgVal instanceof InputBean && ((mxCell)trg).getEdgeCount() > 1) {
+						if(srcVal instanceof OutputBean && (trgVal instanceof InputBean || ((mxCell)trg).getParent().getValue() instanceof DiagramOutputBean) && ((mxCell)trg).getEdgeCount() >= 2) {
 							error.append("Wejście może mieć tylko 1 zródło.\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}
@@ -179,15 +184,18 @@ public class MojGraph {
 				"Target Must Have 1 Source", "Target Must Connect From Source",
 				true);
 		
-		mxCodecRegistry.addPackage("logicInterpreter.Nodes"); 
-	   //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.InputBean()));
-	    //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.OutputBean()));
-	    //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramInputBean()));
-	   // mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramOutputBean()));
-	    //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.BlockInputBean()));
-	    //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.BlockOutputBean()));
-	    //mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.Wire()));
-	  
+		mxCodecRegistry.addPackage(Node.class.getPackage().toString()); 
+		mxCodecRegistry.addPackage(BlockBean.class.getPackage().toString()); 
+		
+		mxCodecRegistry.register(new mxObjectCodec(new BlockBean(), new String[] {"file", "templateBlock"}, null, null));
+	    mxCodecRegistry.register(new mxObjectCodec(new InputBean(), new String[] {"from"},null,null));
+	    mxCodecRegistry.register(new mxObjectCodec(new OutputBean(),new String[] {"wire", "state"}, null, null));
+	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramInputBean()));
+	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramOutputBean()));
+	    mxCodecRegistry.register(new mxObjectCodec(new BlockInputBean(), null, new String[] {"parent"},null));
+	    mxCodecRegistry.register(new mxObjectCodec(new BlockOutputBean(), null ,new String[] {"parent"},null));
+	    mxCodecRegistry.register(new mxObjectCodec(new Wire(), new String[] {"id"}, new String[] {"parent", "to"},null));
+		mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.Node()));
 	    
 		
 		

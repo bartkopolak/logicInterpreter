@@ -16,6 +16,10 @@ public class BlockOutputBean extends OutputBean {
 		this.formula = formula;
 		this.parent = parent;
 	}
+	
+	public BlockOutputBean(BlockBean parent, BlockOutputBean bo) {
+		this(parent, bo.getName(), bo.getFormula());
+	}
 	/**
 	 * 
 	 * @return  funkcja logiczna

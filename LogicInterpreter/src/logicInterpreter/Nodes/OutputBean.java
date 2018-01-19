@@ -24,6 +24,10 @@ public class OutputBean extends Node implements Serializable{
 	public OutputBean(){
 		this("");
 	}
+	
+	public OutputBean(OutputBean o) {
+		this(o.getName());
+	}
 	/**
 	 * Dodaje połaczenie z podanym wejściem
 	 * @param toInput

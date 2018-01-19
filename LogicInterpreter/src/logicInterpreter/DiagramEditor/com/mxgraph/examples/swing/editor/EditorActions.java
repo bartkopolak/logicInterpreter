@@ -17,6 +17,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -25,6 +26,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -38,9 +41,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.FileChooserUI;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 
@@ -75,11 +81,12 @@ import com.mxgraph.view.mxGraph;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
 import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
-import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockWizard;
+import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Tools.AlteraSim;
+import logicInterpreter.Tools.DiagFileUtils;
 
 /**
  *
@@ -599,7 +606,7 @@ public class EditorActions
 		 */
 		public void actionPerformed(ActionEvent e)
 		{
-			BasicGraphEditor editor = getEditor(e);
+			GraphEditor editor = getEditor(e);
 
 			if (editor != null)
 			{
@@ -607,11 +614,14 @@ public class EditorActions
 				mxGraph graph = graphComponent.getGraph();
 				FileFilter selectedFilter = null;
 				DefaultFileFilter xmlPngFilter = new DefaultFileFilter(".png",
-						"PNG+XML " + mxResources.get("file") + " (.png)");
+						"PNG+XML (.png)");
 				FileFilter vmlFileFilter = new DefaultFileFilter(".html",
-						"VML " + mxResources.get("file") + " (.html)");
+						"VML  (.html)");
 				String filename = null;
 				boolean dialogShown = false;
+				
+				DefaultFileFilter diagramFilter = new DefaultFileFilter(".diagram",
+						"Diagram (.diagram)");
 
 				if (showDialog || editor.getCurrentFile() == null)
 				{
@@ -633,21 +643,20 @@ public class EditorActions
 					JFileChooser fc = new JFileChooser(wd);
 
 					// Adds the default file format
-					FileFilter defaultFilter = xmlPngFilter;
-					fc.addChoosableFileFilter(defaultFilter);
-
+					FileFilter defaultFilter = diagramFilter;
+					
+					
+					fc.addChoosableFileFilter(diagramFilter);
 					// Adds special vector graphics formats and HTML
-					fc.addChoosableFileFilter(new DefaultFileFilter(".mxe",
-							"mxGraph Editor " + mxResources.get("file")
-									+ " (.mxe)"));
+					fc.addChoosableFileFilter(xmlPngFilter);
+							
 					fc.addChoosableFileFilter(new DefaultFileFilter(".txt",
-							"Graph Drawing " + mxResources.get("file")
-									+ " (.txt)"));
+							"Graph Drawing (.txt)"));
 					fc.addChoosableFileFilter(new DefaultFileFilter(".svg",
-							"SVG " + mxResources.get("file") + " (.svg)"));
+							"SVG (.svg)"));
 					fc.addChoosableFileFilter(vmlFileFilter);
 					fc.addChoosableFileFilter(new DefaultFileFilter(".html",
-							"HTML " + mxResources.get("file") + " (.html)"));
+							"HTML (.html)"));
 
 					// Adds a filter for each supported image format
 					Object[] imageFormats = ImageIO.getReaderFormatNames();
@@ -667,8 +676,7 @@ public class EditorActions
 					{
 						String ext = imageFormats[i].toString();
 						fc.addChoosableFileFilter(new DefaultFileFilter("."
-								+ ext, ext.toUpperCase() + " "
-								+ mxResources.get("file") + " (." + ext + ")"));
+								+ ext, ext.toUpperCase() + " (." + ext + ")"));
 					}
 
 					// Adds filter that accepts all supported image formats
@@ -745,6 +753,20 @@ public class EditorActions
 						mxUtils.writeFile(mxXmlUtils.getXml(mxCellRenderer
 								.createVmlDocument(graph, null, 1, null, null)
 								.getDocumentElement()), filename);
+					}
+					else if (ext.equalsIgnoreCase("diagram")) {
+						/*TODO:
+						 * Plik .diagram to archiwum. Zawierać ma plik mxe/xml zawierający układ bloków na obszarze roboczym
+						 * oraz plik xml diagramu, zawierający obiekty BlockBean itp .. 
+						 * -done
+						 */
+
+						File f = new File(filename);
+						FileOutputStream stream = new FileOutputStream(f);
+						DiagFileUtils.createDiagramFile(editor, null, stream);
+						
+						editor.setModified(false);
+						editor.setCurrentFile(new File(filename));
 					}
 					else if (ext.equalsIgnoreCase("html"))
 					{
@@ -1667,7 +1689,7 @@ public class EditorActions
 		 */
 		public void actionPerformed(ActionEvent e)
 		{
-			BasicGraphEditor editor = getEditor(e);
+			GraphEditor editor = getEditor(e);
 
 			if (editor != null)
 			{
@@ -1686,10 +1708,10 @@ public class EditorActions
 
 						// Adds file filter for supported file format
 						DefaultFileFilter defaultFilter = new DefaultFileFilter(
-								".mxe", mxResources.get("allSupportedFormats")
-										+ " (.mxe, .png, .vdx)")
+								".diagram", mxResources.get("allSupportedFormats")
+										+ " (.diagram)")
 						{
-
+/*
 							public boolean accept(File file)
 							{
 								String lcase = file.getName().toLowerCase();
@@ -1698,12 +1720,10 @@ public class EditorActions
 										|| lcase.endsWith(".png")
 										|| lcase.endsWith(".vdx");
 							}
+*/
 						};
 						fc.addChoosableFileFilter(defaultFilter);
-
-						fc.addChoosableFileFilter(new DefaultFileFilter(".mxe",
-								"mxGraph Editor " + mxResources.get("file")
-										+ " (.mxe)"));
+						/*
 						fc.addChoosableFileFilter(new DefaultFileFilter(".png",
 								"PNG+XML  " + mxResources.get("file")
 										+ " (.png)"));
@@ -1717,6 +1737,7 @@ public class EditorActions
 						fc.addChoosableFileFilter(new DefaultFileFilter(".txt",
 								"Graph Drawing  " + mxResources.get("file")
 										+ " (.txt)"));
+						*/
 
 						fc.setFileFilter(defaultFilter);
 
@@ -1730,36 +1751,12 @@ public class EditorActions
 							try
 							{
 								if (fc.getSelectedFile().getAbsolutePath()
-										.toLowerCase().endsWith(".png"))
+										.toLowerCase().endsWith(".diagram"))
 								{
-									openXmlPng(editor, fc.getSelectedFile());
-								}
-								else if (fc.getSelectedFile().getAbsolutePath()
-										.toLowerCase().endsWith(".txt"))
-								{
-									openGD(editor, fc.getSelectedFile(),
-											mxUtils.readFile(fc
-													.getSelectedFile()
-													.getAbsolutePath()));
-								}
-								else
-								{
-									Document document = mxXmlUtils
-											.parseXml(mxUtils.readFile(fc
-													.getSelectedFile()
-													.getAbsolutePath()));
-
-									mxCodec codec = new mxCodec(document);
-									codec.decode(
-											document.getDocumentElement(),
-											graph.getModel());
-									editor.setCurrentFile(fc
-											.getSelectedFile());
-
-									resetEditor(editor);
+									DiagFileUtils.readDiagramFile(editor,null, fc.getSelectedFile().getAbsolutePath());
 								}
 							}
-							catch (IOException ex)
+							catch (Exception ex)
 							{
 								ex.printStackTrace();
 								JOptionPane.showMessageDialog(
@@ -2272,7 +2269,7 @@ public class EditorActions
 			if(source != null) {
 				BlockBean block = (BlockBean) source.getValue();
 				if(!block.isDefault()) {
-					FuncBlockWizard wizard = new FuncBlockWizard(block, changeXML);
+					FuncBlockEditor wizard = new FuncBlockEditor(block, changeXML);
 					wizard.setVisible(true);
 					if(wizard != null) {
 						if(changeXML) editor.fillAllPalettes();
@@ -2318,6 +2315,57 @@ public class EditorActions
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+		}
+		
+	}
+	@SuppressWarnings("serial")
+	public static class SimulateAction extends AbstractAction
+	{
+		private GraphEditor g;
+		public SimulateAction(GraphEditor editor) {
+			g = editor;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			DiagramBean diagram = g.createDiagram();
+			
+			try {
+				diagram.evaluate();
+				AlteraSim sim = new AlteraSim(diagram);
+				sim.setVisible(true);
+			} catch (RecurrentLoopException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class BlockEditAction extends AbstractAction
+	{
+		private GraphEditor g;
+		public BlockEditAction(GraphEditor editor) {
+			g = editor;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			DiagramBean diagram = g.createDiagram();
+			
+			try {
+				diagram.evaluate();
+				File f = new File("D:/test.tmbl");
+				if(!f.exists()) f.createNewFile();
+				FileOutputStream out = new FileOutputStream(f);
+				
+				DiagFileUtils.createTemplateBlockFile(null, g,"test", out);
+				System.out.println("test na d");
+			} catch (RecurrentLoopException | IOException | ParserConfigurationException | TransformerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
 			
 		}
 		

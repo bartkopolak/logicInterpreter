@@ -45,43 +45,43 @@ public class EditorToolBar extends JToolBar
 	/**
 	 * 
 	 */
-	public EditorToolBar(final BasicGraphEditor editor, int orientation)
+	public EditorToolBar(final BasicGraphEditor basicGraphEditor, int orientation)
 	{
 		super(orientation);
 		setBorder(BorderFactory.createCompoundBorder(BorderFactory
 				.createEmptyBorder(3, 3, 3, 3), getBorder()));
 		setFloatable(false);
-		add(editor.bind("New", new NewAction(), 
+		add(basicGraphEditor.bind("New", new NewAction(), 
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/new.gif"));
-		add(editor.bind("Open", new OpenAction(),
+		add(basicGraphEditor.bind("Open", new OpenAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/open.gif"));
-		add(editor.bind("Save", new SaveAction(false),
+		add(basicGraphEditor.bind("Save", new SaveAction(false),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/save.gif"));
 
 		addSeparator();
 
-		add(editor.bind("Print", new PrintAction(),
+		add(basicGraphEditor.bind("Print", new PrintAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/print.gif"));
 
 		addSeparator();
 
-		add(editor.bind("Cut", TransferHandler.getCutAction(),
+		add(basicGraphEditor.bind("Cut", TransferHandler.getCutAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/cut.gif"));
-		add(editor.bind("Copy", TransferHandler.getCopyAction(),
+		add(basicGraphEditor.bind("Copy", TransferHandler.getCopyAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/copy.gif"));
-		add(editor.bind("Paste", TransferHandler.getPasteAction(),
+		add(basicGraphEditor.bind("Paste", TransferHandler.getPasteAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/paste.gif"));
 
 		addSeparator();
 
-		add(editor.bind("Delete", mxGraphActions.getDeleteAction(),
+		add(basicGraphEditor.bind("Delete", mxGraphActions.getDeleteAction(),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/delete.gif"));
 
 		addSeparator();
 
-		add(editor.bind("Undo", new HistoryAction(true),
+		add(basicGraphEditor.bind("Undo", new HistoryAction(true),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/undo.gif"));
-		add(editor.bind("Redo", new HistoryAction(false),
+		add(basicGraphEditor.bind("Redo", new HistoryAction(false),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/redo.gif"));
 
 		addSeparator();
@@ -113,7 +113,7 @@ public class EditorToolBar extends JToolBar
 
 				if (font != null && !font.equals("-"))
 				{
-					mxGraph graph = editor.getGraphComponent().getGraph();
+					mxGraph graph = basicGraphEditor.getGraphComponent().getGraph();
 					graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, font);
 				}
 			}
@@ -135,7 +135,7 @@ public class EditorToolBar extends JToolBar
 			 */
 			public void actionPerformed(ActionEvent e)
 			{
-				mxGraph graph = editor.getGraphComponent().getGraph();
+				mxGraph graph = basicGraphEditor.getGraphComponent().getGraph();
 				graph.setCellStyles(mxConstants.STYLE_FONTSIZE, sizeCombo
 						.getSelectedItem().toString().replace("pt", ""));
 			}
@@ -143,26 +143,26 @@ public class EditorToolBar extends JToolBar
 
 		addSeparator();
 
-		add(editor.bind("Bold", new FontStyleAction(true),
+		add(basicGraphEditor.bind("Bold", new FontStyleAction(true),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/bold.gif"));
-		add(editor.bind("Italic", new FontStyleAction(false),
+		add(basicGraphEditor.bind("Italic", new FontStyleAction(false),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/italic.gif"));
 
 		addSeparator();
 
-		add(editor.bind("Left", new KeyValueAction(mxConstants.STYLE_ALIGN,
+		add(basicGraphEditor.bind("Left", new KeyValueAction(mxConstants.STYLE_ALIGN,
 				mxConstants.ALIGN_LEFT),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/left.gif"));
-		add(editor.bind("Center", new KeyValueAction(mxConstants.STYLE_ALIGN,
+		add(basicGraphEditor.bind("Center", new KeyValueAction(mxConstants.STYLE_ALIGN,
 				mxConstants.ALIGN_CENTER),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/center.gif"));
-		add(editor.bind("Right", new KeyValueAction(mxConstants.STYLE_ALIGN,
+		add(basicGraphEditor.bind("Right", new KeyValueAction(mxConstants.STYLE_ALIGN,
 				mxConstants.ALIGN_RIGHT),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/right.gif"));
 
 		addSeparator();
 
-		final mxGraphView view = editor.getGraphComponent().getGraph()
+		final mxGraphView view = basicGraphEditor.getGraphComponent().getGraph()
 				.getView();
 		final JComboBox zoomCombo = new JComboBox(new Object[] { "400%",
 				"200%", "150%", "100%", "75%", "50%", mxResources.get("page"),
@@ -213,7 +213,7 @@ public class EditorToolBar extends JToolBar
 			 */
 			public void actionPerformed(ActionEvent e)
 			{
-				mxGraphComponent graphComponent = editor.getGraphComponent();
+				mxGraphComponent graphComponent = basicGraphEditor.getGraphComponent();
 
 				// Zoomcombo is changed when the scale is changed in the diagram
 				// but the change is ignored here
@@ -249,7 +249,7 @@ public class EditorToolBar extends JToolBar
 						}
 						catch (Exception ex)
 						{
-							JOptionPane.showMessageDialog(editor, ex
+							JOptionPane.showMessageDialog(basicGraphEditor, ex
 									.getMessage());
 						}
 					}

@@ -24,6 +24,7 @@ public class InputBean extends Node implements Serializable{
 	public InputBean(){
 		this("");
 	}
+	
 	/**
 	 * 
 	 * @return wyjście, z którym połączone jest wejście

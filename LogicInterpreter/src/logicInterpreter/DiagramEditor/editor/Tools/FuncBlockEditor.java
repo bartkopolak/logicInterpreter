@@ -42,11 +42,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mxgraph.model.mxCell;
+import com.mxgraph.util.mxResources;
 
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.DefaultFileFilter;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockOutputBean;
-import logicInterpreter.Tools.XMLparse;
+import logicInterpreter.Tools.DiagFileUtils;
 
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
@@ -56,6 +58,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +74,7 @@ import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
-public class FuncBlockWizard extends JDialog {
+public class FuncBlockEditor extends JDialog {
 
 	private JPanel contentPane;
 	private JScrollPane scrollPane_inp;
@@ -89,8 +93,8 @@ public class FuncBlockWizard extends JDialog {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					BlockBean blok = XMLparse.parseXMLBlock(new File("xmls/binto7sd.xml"));
-					FuncBlockWizard frame = new FuncBlockWizard(blok, true);
+					//BlockBean blok = DiagFileUtils.parseXMLBlock(new File("xmls/binto7sd.xml"));
+					FuncBlockEditor frame = new FuncBlockEditor();
 					
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -106,6 +110,7 @@ public class FuncBlockWizard extends JDialog {
 	String[] outputNames = new String[maxOutputs];
 	String[] outputData = new String[maxOutputs];
 	private JTextField textField_1;
+	private boolean changeXML = true;
 	
 	ArrayList<JRadioButton> outputList = new ArrayList<JRadioButton>();
 	
@@ -396,12 +401,14 @@ public class FuncBlockWizard extends JDialog {
 		else if(code.equals("outputnotunique")) JOptionPane.showMessageDialog(this, "Wpisz unikalną nazwę wyjścia!", "Błąd", JOptionPane.OK_OPTION);
 		else if(code.equals("empty")) JOptionPane.showMessageDialog(this, "Wpisz nazwę!", "Błąd", JOptionPane.OK_OPTION);
 		else if(code.equals("saveError")) JOptionPane.showMessageDialog(this, "Błąd zapisu!", "Błąd", JOptionPane.OK_OPTION);
+		else if(code.equals("wrongBlock")) JOptionPane.showMessageDialog(this, "Dany blok nie jest typu funkcyjnego", "Błąd", JOptionPane.OK_OPTION);
 	}
 
 	/**
 	 * Create the frame.
+	 * @wbp.parser.constructor
 	 */
-	public FuncBlockWizard(boolean changeXML) {
+	public FuncBlockEditor() {
 		setMinimumSize(new Dimension(520, 200));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 530, 445);
@@ -480,25 +487,38 @@ public class FuncBlockWizard extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				File p;
 				if(block != null) {
+					
 					p = block.getFile();
+					
 					if(!p.exists())
 						try {
 							p.createNewFile();
+							
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							showMessage("saveError");
+							return;
 						}
 					save(p, changeXML);
+					
 				}
 				else {
-					JFileChooser fileChooser = new JFileChooser();
-					FileNameExtensionFilter filterXML = new FileNameExtensionFilter("Plik bloku XML", "xml"); //filtr
-					fileChooser.setFileFilter(filterXML); //dodanie filtru do dialogu
-				    int retval = fileChooser.showSaveDialog(null);
-				    if (retval == JFileChooser.APPROVE_OPTION) {
-				      p = fileChooser.getSelectedFile();
-				      save(p, changeXML);
-				    }
+					p = new File("xmls/"+textField_1.getText()+".tmpb");
+					if(!p.exists()) {
+						try {
+							p.createNewFile();
+							save(p, true);
+						} catch (IOException e) {
+							showMessage("saveError");
+							return;
+						}
+					}
+					else {
+						if(JOptionPane.showConfirmDialog(null, "Blok o podanej nazwie istnieje. Nadpisać?", 
+								"Uwaga", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							save(p, true);
+						}
+					}
 				}
 				dispose();
 			}
@@ -552,7 +572,6 @@ public class FuncBlockWizard extends JDialog {
 		
 		funcField = new JTextField();
 		funcField.setEditable(false);
-		funcField.setMaximumSize(new Dimension(2147483647, 20));
 		funcField.setMinimumSize(new Dimension(6, 15));
 		panel_6.add(funcField, BorderLayout.CENTER);
 		funcField.setColumns(20);
@@ -587,43 +606,55 @@ public class FuncBlockWizard extends JDialog {
 		textField.setText(outputNames[outputEditing]);
 	}
 	
-	public FuncBlockWizard(BlockBean block, boolean changeXML) {
-		this(changeXML);
-		this.block = block;
-		//nazwy wejsc
-		for (int i =0;i<block.getInputList().size();i++) {
-			inputNames[i] = block.getInput(i).getName();
-		}
-		spinnerInput.setValue(block.getInputList().size());
-		//ustal tablice prawdy
-		for (int i =0;i<block.getOutputList().size();i++) {
-			try {
-				int tt[] = block.getTruthTable(block.getOutput(i));
-				String out = "";
-				for(int j=0;j<tt.length;j++) {
-					out += String.valueOf(tt[j]);
-				}
-				outputData[i] = out;
-			} catch (RecurrentLoopException e) {
-				outputData[i] = "xxx";
+	public FuncBlockEditor(BlockBean block, boolean changeTemplate) {
+		
+		this();
+		changeXML = changeTemplate;
+		if(block.getType().equals("formula")) {
+			this.block = block;
+			//nazwy wejsc
+			for (int i =0;i<block.getInputList().size();i++) {
+				inputNames[i] = block.getInput(i).getName();
 			}
+			spinnerInput.setValue(block.getInputList().size());
+			//ustal tablice prawdy
+			
+				for (int i =0;i<block.getOutputList().size();i++) {
+					try {
+						int tt[] = block.getTruthTable(block.getOutput(i));
+						String out = "";
+						for(int j=0;j<tt.length;j++) {
+							out += String.valueOf(tt[j]);
+						}
+						outputData[i] = out;
+					} catch (RecurrentLoopException e) {
+						outputData[i] = "xxx";
+					}
+				}
+				setTruthTableValues(0);
+			
+			
+			
+			//nazwy wyjsc
+			for (int i =0;i<block.getOutputList().size();i++) {
+				outputNames[i] = block.getOutput(i).getName();
+			}
+			
+			spinnerOutput.setValue(block.getOutputList().size());
+			//nazwa bloku
+			textField_1.setText(block.getName());
 		}
-		setTruthTableValues(0);
-		
-		//nazwy wyjsc
-		for (int i =0;i<block.getOutputList().size();i++) {
-			outputNames[i] = block.getOutput(i).getName();
+		else {
+			showMessage("wrongBlock");
 		}
-		
-		spinnerOutput.setValue(block.getOutputList().size());
-		//nazwa bloku
-		textField_1.setText(block.getName());
 	}
+	
 	
 	
 	public void save(File targetFile, boolean changeXML) {
 		int inputsNo = (Integer)spinnerInput.getModel().getValue();
 		int outputsNo = (Integer)spinnerOutput.getModel().getValue();
+		saveTruthTableValues(outputEditing);
 		if(block == null) {
 			block = new BlockBean();
 		}
@@ -640,54 +671,21 @@ public class FuncBlockWizard extends JDialog {
 		
 		
 		if(changeXML) {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			try {
-				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-				
-				
-				
-				Document doc = docBuilder.newDocument();
-				Element rootElement = doc.createElement("block");
-				rootElement.setAttribute("name", block.getName());
-				rootElement.setAttribute("type", "formula");
-				doc.appendChild(rootElement);
-				
-				Element inputs = doc.createElement("inputs");
-				for (int i =0;i<inputsNo;i++) {
-					Element input = doc.createElement("input");
-					input.setTextContent(block.getInput(i).getName());
-					inputs.appendChild(input);
-				}
-				Element outputs = doc.createElement("outputs");
-				for (int i =0;i<outputsNo;i++) {
-					
-					Element output = doc.createElement("output");
-					BlockOutputBean b = block.getOutput(i);
-					output.setTextContent(b.getName());
-					
-					output.setAttribute("function", b.getFormula());
-					outputs.appendChild(output);
-				}
-				rootElement.appendChild(inputs);
-				rootElement.appendChild(outputs);
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				DOMSource source = new DOMSource(doc);
-				StreamResult result = new StreamResult(targetFile);
-				transformer.transform(source, result);
-				
-			} catch (ParserConfigurationException e) {
+				FileOutputStream out = new FileOutputStream(targetFile);
+				DiagFileUtils.createTemplateBlockFile(block, null, block.getName(), out);
+			
+			} catch (IOException | ParserConfigurationException | TransformerException e) {
 				// TODO Auto-generated catch block
 				showMessage("saveError");
 				e.printStackTrace();
-			} catch (TransformerException e) {
-				// TODO Auto-generated catch block
-				showMessage("saveError");
-				e.printStackTrace();
-			}
+			} 
 		}
 		
 	}
+	
+	
+
 
 	
 

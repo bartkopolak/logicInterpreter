@@ -235,7 +235,7 @@ public class DiagDebug extends JFrame {
 	
 	public void init(){
 		try {
-			diagram = XMLparse.parseXMLDiagram(new File("xmls/licznikasync.xml"));
+			diagram = DiagFileUtils.parseXMLDiagram(new File("xmls/licznikasync.xml"));
 			DefaultListModel<BlockBean> model = new DefaultListModel<BlockBean>();
 			for(BlockBean block : diagram.getBlocksList())
 				model.addElement(block);

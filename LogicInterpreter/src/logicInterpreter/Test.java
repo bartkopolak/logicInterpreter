@@ -9,7 +9,7 @@ import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockOutputBean;
-import logicInterpreter.Tools.XMLparse;
+import logicInterpreter.Tools.DiagFileUtils;
 
 /*
  * UWAGA CUDOENE GOWNOOOOO
@@ -24,7 +24,7 @@ public class Test {
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {
-			blok = XMLparse.parseXMLBlock(new File("xmls/binto7sd.xml"));
+			blok = DiagFileUtils.parseXMLBlock(new File("xmls/binto7sd.xml"));
 			System.out.println(blok.getName());
 			BlockOutputBean x = blok.getOutput("OA");
 			blok.getInput(0).setState(new ThreeStateBoolean(false));

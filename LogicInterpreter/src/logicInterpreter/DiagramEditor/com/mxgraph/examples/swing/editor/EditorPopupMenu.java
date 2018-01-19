@@ -72,10 +72,9 @@ public class EditorPopupMenu extends JPopupMenu
 		//EditorMenuBar.populateShapeMenu(menu, editor);
 
 
-		add(
-				basicGraphEditor.bind(mxResources.get("edit"), new EditAction(selCell, (GraphEditor)basicGraphEditor, false))).setEnabled(selected);
+		add(basicGraphEditor.bind(mxResources.get("blockInfo"), new EditAction(selCell, (GraphEditor)basicGraphEditor, false))).setEnabled(selected);
 
-		addSeparator();
+		//addSeparator();
 
 		add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions
 				.getSelectVerticesAction()));

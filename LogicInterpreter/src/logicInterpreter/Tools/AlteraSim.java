@@ -373,7 +373,7 @@ public class AlteraSim extends JFrame {
 		if(fileSelected) {
 			try {
 				File diagrFile = new File(sciezka);
-				diagram = XMLparse.parseXMLDiagram(diagrFile);
+				diagram = DiagFileUtils.parseXMLDiagram(diagrFile);
 				lastPath = diagrFile.getParent();
 				loadSettings();
 			} catch (Exception e) {

@@ -145,6 +145,8 @@ public class SchemaEditorMenuBar extends JMenuBar
 
 		menu.add(new ToggleOutlineItem(editor, mxResources.get("outline")));
 		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("simulate"), new SimulateAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("createblock"), new BlockEditAction(((GraphEditor)editor))));
 		
 		menu.addSeparator();
 

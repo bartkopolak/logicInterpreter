@@ -186,7 +186,7 @@ public class DiagSimDebugger extends JFrame {
 		editor = ge;
 		diagram = diag;
 		editor.getGraphComponent().setEnabled(false);
-		
+		editor.getGraphComponent().getGraph().selectCells(false, false, false);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 
@@ -231,6 +231,11 @@ public class DiagSimDebugger extends JFrame {
 		panel_3.add(panel_4, BorderLayout.WEST);
 		
 		JButton evalBtn = new JButton("Wykonaj");
+		evalBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				evaluate();
+			}
+		});
 		evalBtn.setVisible(false);
 		panel_4.add(evalBtn);
 		

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<diagram name="rsff" default="true">
+<diagram name="rsff" >
 <blocks>
 	<block>
 		<id>nor1</id>
-		<src>nor.xml</src>
+		<src>nand.xml</src>
 	</block>	
 	<block>
 		<id>nor2</id>
-		<src>nor.xml</src>
+		<src>nand.xml</src>
 	</block>
 </blocks>
 

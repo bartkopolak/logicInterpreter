@@ -29,10 +29,30 @@ public class BlockBean implements Serializable{
 	private DiagramBean diagram = null; //uzywany tylko gdy typ to diagram
 	private boolean defaultB = false;
 	private File file = null;
+	private BlockBean templateBlock = null;
 	
 	public BlockBean(){
+		
 	}
-	
+	/**
+	 * Klonuje blok i okresla blok wzorca
+	 * @param b
+	 */
+	public BlockBean(BlockBean b) {
+		this.name = b.getName();
+		for(BlockInputBean in : b.getInputList()) {
+			inputs.add(new BlockInputBean(this, in));
+		}
+		for(BlockOutputBean out : b.getOutputList()) {
+			outputs.add(new BlockOutputBean(this, out));
+		}
+		type = b.getType();
+		diagram = b.getDiagram();
+		defaultB = b.isDefault();
+		file = b.getFile();
+		templateBlock = b;
+		
+	}
 	/**
 	 * Zwraca diagram przypisany do bloczka, jeśli typ bloczka = diagram<br>
 	 * Jeśli blok jest innego typu, zwraca null<br>
@@ -270,6 +290,14 @@ public class BlockBean implements Serializable{
 
 	public void setFile(File file) {
 		this.file = file;
+	}
+	
+	public BlockBean getTemplateBlock() {
+		return templateBlock;
+	}
+
+	public void setTemplateBlock(BlockBean templateBlock) {
+		this.templateBlock = templateBlock;
 	}
 
 	@Override

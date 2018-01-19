@@ -33,7 +33,7 @@ import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
 import logicInterpreter.Nodes.Wire;
-import logicInterpreter.Tools.XMLparse;
+import logicInterpreter.Tools.DiagFileUtils;
 
 public class GraphEditor extends BasicGraphEditor {
 
@@ -59,7 +59,10 @@ public class GraphEditor extends BasicGraphEditor {
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
 	FontMetrics fontMetr;
 	
-	public void addBlockToPalette(BlockBean block, PathPaletteGroup palette) {
+	public void addBlockToPalette(BlockBean templateBlock, PathPaletteGroup palette) {
+		
+		BlockBean block = new BlockBean(templateBlock);
+		block.setTemplateBlock(templateBlock);
 		int inputsNo =  block.getInputList().size();
 		int outputsNo = block.getOutputList().size();
 		int height = 20 + 20 *inputsNo;
@@ -100,17 +103,17 @@ public class GraphEditor extends BasicGraphEditor {
 		if(xmlFolder.exists() && xmlFolder.isDirectory()) {
 			File[] list = xmlFolder.listFiles();
 			for(int i=0; i<list.length; i++) {
-				if(!list[i].isFile()) continue;
-				if(XMLparse.getType(list[i]).equals("block")) {
+				try {
+				if(!list[i].isFile() && !list[i].getAbsolutePath().endsWith(".tmpb")) continue;
+				
 					BlockBean block;
-					try {
-						block = XMLparse.parseXMLBlock(list[i]);
+						block = DiagFileUtils.readTemplateBlockFile(list[i].getAbsolutePath());
 						addBlockToPalette(block, palette);
-					} catch (Exception e) {
-					}
 					
-				}
 					
+				
+			}
+				catch (Exception e) {}
 			}
 		}
 	}
@@ -211,7 +214,8 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i< blockList.size(); i++) {
 				BlockBean b = blockList.get(i);
 				int n = checkList(blockNames, b.getName());
-				if(n >= 0) b.setName(b.getName() + "." + n);
+				if(n >= 0) b.setName(b.getName() + "-" + n);
+				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
 		{
@@ -219,7 +223,8 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i<diagInputs.size(); i++) {
 				DiagramInputBean b = diagInputs.get(i);
 				int n = checkList(diagInputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "." + n);
+				if(n >= 0) b.setName(b.getName() + "-" + n);
+				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
 		{
@@ -227,7 +232,8 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i<diagOutputs.size(); i++) {
 				DiagramOutputBean b = diagOutputs.get(i);
 				int n = checkList(diagOutputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "." + n);
+				if(n >= 0) b.setName(b.getName() + "-" + n);
+				b.setName(b.getName().replaceAll("[.]", ""));
 			}	
 		}
 		
@@ -243,8 +249,15 @@ public class GraphEditor extends BasicGraphEditor {
 				if(edge != null) {
 					Object value = edge.getTarget().getValue();
 					if(value != null) {
-						InputBean target = (InputBean) value;
-						outputNode.addLink(target);
+						if(!(value instanceof InputBean)){
+							value = edge.getSource().getValue();
+						}
+						if(value instanceof InputBean){
+							InputBean target = (InputBean) value;
+							if(target.getFrom() == null)
+								outputNode.addLink(target);
+						}
+						
 					}
 				}	  
 			}
@@ -260,6 +273,30 @@ public class GraphEditor extends BasicGraphEditor {
 		
 		return diagram;
 		
+	}
+	
+	public ArrayList<mxCell> getCellsOfType(Class<?> cl){
+		mxGraph graph = getGraphComponent().getGraph();
+		ArrayList<mxCell> cellsList = new ArrayList<mxCell>();
+		
+		Collection<Object> cellsCol = mxGraphModel.filterDescendants(graph.getModel(),
+				new mxGraphModel.Filter()
+				{
+					public boolean filter(Object cell)
+					{
+						return graph.getView().getState(cell) != null
+								&& (graph.getModel().isVertex(cell));
+					}
+				});
+		for(Object o : cellsCol) {
+			if(o instanceof mxCell) {
+				mxCell cell = (mxCell) o;
+				if(cl.isInstance(cell.getValue())) {
+					cellsList.add(cell);
+				}
+			}
+		}
+		return cellsList;
 	}
 	
 	public void ioPalette(EditorPalette p) {
