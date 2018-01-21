@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><block name="functi" type="formula"><inputs><input>A</input><input>B</input><input>C</input></inputs><outputs><output function="B'*C + B*C' + A*C">X</output></outputs></block>

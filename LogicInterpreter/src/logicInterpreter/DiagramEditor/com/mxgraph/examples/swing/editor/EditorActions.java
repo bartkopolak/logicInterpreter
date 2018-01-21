@@ -79,6 +79,7 @@ import com.mxgraph.util.png.mxPngTextDecoder;
 import com.mxgraph.view.mxGraph;
 
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
 import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
 import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
@@ -2366,6 +2367,22 @@ public class EditorActions
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
+			
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class BlockInfoAction extends AbstractAction
+	{
+		private BlockBean block;
+		public BlockInfoAction(BlockBean b) {
+			block = b;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			BlockInfo ed = new BlockInfo(block);
+			ed.setVisible(true);
 			
 		}
 		

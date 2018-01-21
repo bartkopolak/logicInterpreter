@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<block name="not" type="formula" default="true">
-	<inputs>
-		<input>A</input>
-	</inputs>
-	<outputs>
-		<output function="A'">X</output>
-	</outputs>
-</block>

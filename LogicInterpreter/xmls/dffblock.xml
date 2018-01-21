@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<block name="dff" type="diagram" default="true">
-	<src>dff.xml</src>
-</block>
-<!--
-01010111
-
--->

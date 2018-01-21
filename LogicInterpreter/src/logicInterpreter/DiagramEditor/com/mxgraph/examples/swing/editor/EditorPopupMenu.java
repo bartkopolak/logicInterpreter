@@ -1,12 +1,15 @@
 package logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor;
 
+import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.HistoryAction;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.EditAction;
+import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.BlockInfoAction;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxResources;
@@ -71,17 +74,19 @@ public class EditorPopupMenu extends JPopupMenu
 
 		//EditorMenuBar.populateShapeMenu(menu, editor);
 
+		if(selCell != null && selCell.getValue() instanceof BlockBean)
+			add(basicGraphEditor.bind(mxResources.get("blockInfo"),
+				new BlockInfoAction((BlockBean) selCell.getValue()))).setSelected(!selectedMany);
 
-		add(basicGraphEditor.bind(mxResources.get("blockInfo"), new EditAction(selCell, (GraphEditor)basicGraphEditor, false))).setEnabled(selected);
-
+			
 		//addSeparator();
 
-		add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions
-				.getSelectVerticesAction()));
-		add(basicGraphEditor.bind(mxResources.get("selectEdges"), mxGraphActions
-				.getSelectEdgesAction()));
+		//add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions
+		//		.getSelectVerticesAction()));
+		//add(basicGraphEditor.bind(mxResources.get("selectEdges"), mxGraphActions
+		//		.getSelectEdgesAction()));
 
-		addSeparator();
+		//addSeparator();
 
 		add(basicGraphEditor.bind(mxResources.get("selectAll"), mxGraphActions
 				.getSelectAllAction()));

@@ -459,6 +459,12 @@ public class DiagramBean implements Serializable {
 
 	}
 	
+	public boolean validate() {
+		
+		return false;
+		
+	}
+	
 	public ArrayList<BlockBean> getAllTemplateBlocks(ArrayList<BlockBean> prevTBlocks){
 		ArrayList<BlockBean> tblocks = new ArrayList<BlockBean>();
 		ArrayList<BlockBean> tblocksVisited = new ArrayList<BlockBean>();

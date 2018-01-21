@@ -79,7 +79,35 @@ public class MojGraph {
 			// TODO Auto-generated method stub
 			return true;
 		}
+		
+		
 
+		@Override
+		public boolean isCellFoldable(Object arg0, boolean arg1) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		private int checkCellBusy(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
+			int count = 0;
+			for(int i=0; i<trgCell.getEdgeCount(); i++) {
+				
+				mxCell trgEdge = (mxCell) trgCell.getEdgeAt(i);	//pobierz polaczenie pomiedzy pinami
+				if(visitedEdges.contains(trgEdge)) continue;
+				mxCell trgEdgeTarget = (trgEdge.getSource().equals(trgCell)) ? 	//pobierz cel polaczenia
+						(mxCell)trgEdge.getTarget() : (mxCell)trgEdge.getSource();
+				if(trgEdgeTarget != null) {
+					if(trgEdgeTarget.getValue() instanceof OutputBean) {	//jesli polaczono z wyjsciem, wejscie zajęte
+						count++;
+					}
+					if(trgEdgeTarget.getValue() instanceof InputBean) {     //jesli polaczono z wejsciem, sprawdz, czy owe wejscie nie ma polaczenia z wyjsciem
+						visitedEdges.add(trgEdge);
+						count += checkCellBusy(trgEdgeTarget, visitedEdges);
+					}
+				}
+			}
+			return count;	//jesli nie znaleziono zadnego polaczenia z pinem wyjscia oraz przeszukano wszystkie połączenia wejscie-wejscie, to dany pin nie jest zajety
+		}
 		
 		@Override
 		public String getEdgeValidationError(Object cell, Object src, Object trg) {
@@ -91,9 +119,17 @@ public class MojGraph {
 
 			if(cell instanceof mxCell) {
 				if(src != null && trg != null) {
-					if(((mxCell)src).getValue() != null && ((mxCell)trg).getValue() != null) {
-						Object srcVal = ((mxCell)src).getValue();
-						Object trgVal = ((mxCell)trg).getValue();
+					mxCell trgCell = (mxCell) trg;
+					mxCell srcCell = (mxCell) src;
+					if(srcCell.getValue() != null && trgCell.getValue() != null) {
+						if(srcCell.getValue() instanceof InputBean && trgCell.getValue() instanceof OutputBean) {
+							mxCell temp = srcCell;
+							src = trgCell;
+							trgCell = temp;
+						}
+						Object srcVal = srcCell.getValue();
+						Object trgVal = trgCell.getValue();
+						
 						//if(((mxCell)trg).isEdge())System.out.println("edge");
 						//else System.out.println(src.toString());
 						
@@ -101,7 +137,11 @@ public class MojGraph {
 							error.append("Wyjście może być połączone z wejściem lub wyjściem układu\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}
-						if(srcVal instanceof OutputBean && (trgVal instanceof InputBean || ((mxCell)trg).getParent().getValue() instanceof DiagramOutputBean) && ((mxCell)trg).getEdgeCount() >= 2) {
+						
+						int inputOutputConns = checkCellBusy(trgCell, new ArrayList<mxCell>());
+						
+						System.out.println(String.valueOf(inputOutputConns));
+						if(inputOutputConns > 1) {
 							error.append("Wejście może mieć tylko 1 zródło.\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}

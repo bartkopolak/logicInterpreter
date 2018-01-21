@@ -596,11 +596,15 @@ public class DiagFileUtils {
 			}
 			else if (block != null){
 				blo = block;
+				boolean isDiagram = (block.getDiagram() != null) ? true : false;
 				ZipEntry blockEntry = new ZipEntry("blocks/block.main.xml");
 				zipout.putNextEntry(blockEntry);
-				byte[] data = createBlockXML(blo).getBytes();
+				byte[] data = (isDiagram) ? createDiagramBlockXML(blo.getName()).getBytes() : createBlockXML(blo).getBytes();
 				zipout.write(data);
 				zipout.closeEntry();
+				if(isDiagram) {
+					createDiagramFile(null, block.getDiagram(), zipout);
+				}
 			}
 			
 			
@@ -828,6 +832,29 @@ public class DiagFileUtils {
         System.out.println("OK");
         zip.close();
 		}
-	
-	
+/*	
+	public static void main(String[] args) {
+		File xmlFolder = new File("xmls/");
+		if(xmlFolder.exists() && xmlFolder.isDirectory()) {
+			File[] list = xmlFolder.listFiles();
+			for(int i=0; i<list.length; i++) {
+				try {
+				if(!list[i].isFile() && !list[i].getAbsolutePath().endsWith(".tmpb")) continue;
+				
+					BlockBean block;
+						block = DiagFileUtils.parseXMLBlock(list[i]);
+						
+						File f = new File("xmls/"+block.getName()+".tmpb");
+						DiagFileUtils.createTemplateBlockFile(block, null, null, new FileOutputStream(f));
+					
+					
+				
+			}
+				catch (Exception e) {}
+			}
+
+	}
+			
+*/		
 }
+

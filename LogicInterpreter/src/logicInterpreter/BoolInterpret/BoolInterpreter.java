@@ -84,7 +84,7 @@ public class BoolInterpreter {
 		}
 	
 	public static void testdeleteme(){
-		String t = "CLK*B*L"; 
+		String t = "true"; 
 		String[] vars = {"L", "B", "CLK"};
 		String t2 = InsertMultiplyOperators(t, vars);
 		System.out.println(t);

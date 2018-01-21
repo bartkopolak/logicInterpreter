@@ -17,10 +17,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
+import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPopupMenu;
@@ -155,6 +157,16 @@ public class GraphEditor extends BasicGraphEditor {
 	public ArrayList<mxCell> getAllOutputCells() {
 		return allOutputCells;
 	}
+	/**
+	 * Tablica zawierająca połączenia pomiedzy wejściem a wejściem
+	 * , wykorzystywana do kolorowania połaczenia w debuggerze
+	 */
+	private ArrayList<mxCell> inputsLinkedWithInputEdges = new ArrayList<mxCell>();
+	
+
+	public ArrayList<mxCell> getinputsLinkedWithInputEdges() {
+		return inputsLinkedWithInputEdges;
+	}
 
 	public DiagramBean createDiagram() {
 		mxGraph graph = getGraphComponent().getGraph();
@@ -237,7 +249,7 @@ public class GraphEditor extends BasicGraphEditor {
 			}	
 		}
 		
-		
+		inputsLinkedWithInputEdges.clear();
 		//link outputs with inputs
 		for(int i=0; i<allOutputCells.size(); i++) {
 			mxCell outcell = allOutputCells.get(i);
@@ -247,15 +259,29 @@ public class GraphEditor extends BasicGraphEditor {
 				mxCell edge = (mxCell) outcell.getEdgeAt(j);
 				
 				if(edge != null) {
-					Object value = edge.getTarget().getValue();
+					mxCell targetCell = (mxCell) edge.getTarget();
+					Object value = targetCell.getValue();
 					if(value != null) {
 						if(!(value instanceof InputBean)){
-							value = edge.getSource().getValue();
+							targetCell = (mxCell) edge.getSource();
+							value = targetCell.getValue();
 						}
 						if(value instanceof InputBean){
 							InputBean target = (InputBean) value;
-							if(target.getFrom() == null)
-								outputNode.addLink(target);
+							outputNode.addLink(target);
+							//stwórz połączenie do wejść, które poł;aćzone są z innymi wejściami
+							//(gdy wejście B połączone jest z wejściem A, a A połączone jest z wyjściem X to wejście B ma stan wyjścia X)
+							for(int k=0; k<targetCell.getEdgeCount(); k++) {
+								mxCell trgInputEdge = (mxCell) targetCell.getEdgeAt(k);
+								mxCell trgInputEdgeTarget = (trgInputEdge.getSource().equals(trgInputEdge)) 
+										? (mxCell) trgInputEdge.getTarget() : (mxCell) trgInputEdge.getSource();
+								Object tietVal = trgInputEdgeTarget.getValue();
+								if(!trgInputEdgeTarget.equals(outcell) && tietVal instanceof InputBean) {
+									InputBean tietNode = (InputBean) tietVal;
+									inputsLinkedWithInputEdges.add(trgInputEdge);
+									outputNode.addLink(tietNode);
+								}
+							}
 						}
 						
 					}
@@ -335,7 +361,52 @@ public class GraphEditor extends BasicGraphEditor {
 			
 			cell.insert(port);
 			p.addTemplate("Wyjście", null, cell);
-			}
+		}
+		{
+			BlockBean vcc = new BlockBean();
+			vcc.setName("vcc");
+			vcc.setType(BlockBean.TYPE_FUNCTION);
+			vcc.addInput("A");
+			vcc.getInput(0).setState(new ThreeStateBoolean(true));
+			vcc.addOutput("vcc", "true");
+			mxGeometry geo = new mxGeometry(0,0,50,20);
+			mxCell cell = new mxCell(vcc, geo, "");
+			cell.setConnectable(false);
+			cell.setVertex(true);
+			mxGeometry geo1 = new mxGeometry(1, 1/2.0, PORT_DIAMETER,
+					PORT_DIAMETER);
+	
+			geo1.setOffset(new mxPoint(0, -PORT_RADIUS));
+			geo1.setRelative(true);
+			mxCell port = new mxCell(vcc.getOutput(0), geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			port.setVertex(true);
+			cell.insert(port);
+			p.addTemplate("VCC", null, cell);
+			
+		}
+		{
+			BlockBean gnd = new BlockBean();
+			gnd.setName("gnd");
+			gnd.setType(BlockBean.TYPE_FUNCTION);
+			gnd.addInput("A");
+			gnd.getInput(0).setState(new ThreeStateBoolean(false));
+			gnd.addOutput("gnd", "A");
+			mxGeometry geo = new mxGeometry(0,0,50,20);
+			mxCell cell = new mxCell(gnd, geo, "");
+			cell.setConnectable(false);
+			cell.setVertex(true);
+			mxGeometry geo1 = new mxGeometry(1, 1/2.0, PORT_DIAMETER,
+					PORT_DIAMETER);
+	
+			geo1.setOffset(new mxPoint(0, -PORT_RADIUS));
+			geo1.setRelative(true);
+			mxCell port = new mxCell(gnd.getOutput(0), geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			port.setVertex(true);
+			cell.insert(port);
+			p.addTemplate("GND", null, cell);
+			
+		}
+		
 	}
 	
 	protected void showGraphPopupMenu(MouseEvent e)
@@ -370,9 +441,10 @@ public class GraphEditor extends BasicGraphEditor {
 		
 		fontMetr = graphComponent.getFontMetrics(new Font("Times",Font.PLAIN, 12));
 		EditorPalette io = this.insertPalette("Wej/Wyj");
-		EditorPalette palette = this.insertPalette("Domyslne");
-		
-		palettes.add(new PathPaletteGroup(palette, "xmls"));
+		EditorPalette gatespalette = this.insertPalette("Bramki logiczne");
+		EditorPalette oth = this.insertPalette("Domyslne");
+		palettes.add(new PathPaletteGroup(gatespalette, "xmls/gates"));
+		palettes.add(new PathPaletteGroup(oth, "xmls"));
 		fillAllPalettes();
 		ioPalette(io);
 		

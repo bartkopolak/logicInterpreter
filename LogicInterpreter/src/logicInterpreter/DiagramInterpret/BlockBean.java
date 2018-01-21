@@ -30,7 +30,8 @@ public class BlockBean implements Serializable{
 	private boolean defaultB = false;
 	private File file = null;
 	private BlockBean templateBlock = null;
-	
+	public static final String TYPE_FUNCTION = "formula";
+	public static final String TYPE_DIAGRAM = "diagram";
 	public BlockBean(){
 		
 	}

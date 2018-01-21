@@ -234,7 +234,7 @@ public class FuncBlockEditor extends JDialog {
 		return names;
 	}
 	
-	public int[] getIntValuesFromTruthTable() {
+	public static int[] getIntValuesFromTruthTable(JTable table) {
 		int rowCount = table.getRowCount();
 		int lastColIndex = table.getColumnCount() - 1;
 		int[] valdata = new int[rowCount];
@@ -486,32 +486,23 @@ public class FuncBlockEditor extends JDialog {
 		saveBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				File p;
-				if(block != null) {
+				try {
+					if(block != null) {
 					
 					p = block.getFile();
 					
 					if(!p.exists())
-						try {
-							p.createNewFile();
+						p.createNewFile();
 							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							showMessage("saveError");
-							return;
-						}
 					save(p, changeXML);
 					
 				}
 				else {
 					p = new File("xmls/"+textField_1.getText()+".tmpb");
 					if(!p.exists()) {
-						try {
-							p.createNewFile();
-							save(p, true);
-						} catch (IOException e) {
-							showMessage("saveError");
-							return;
-						}
+						p.createNewFile();
+						save(p, true);
+					
 					}
 					else {
 						if(JOptionPane.showConfirmDialog(null, "Blok o podanej nazwie istnieje. Nadpisać?", 
@@ -520,7 +511,13 @@ public class FuncBlockEditor extends JDialog {
 						}
 					}
 				}
-				dispose();
+					dispose();
+			}catch (IOException | ParserConfigurationException | TransformerException e) {
+				showMessage("saveError");
+				return;
+			}
+				
+				
 			}
 		});
 		panel_8.add(saveBtn);
@@ -579,7 +576,7 @@ public class FuncBlockEditor extends JDialog {
 		JButton btnNewButton = new JButton("Pokaż funkcję");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String func = FuncMinimizer.minimize(getIntValuesFromTruthTable(), getInputNames(),true);
+				String func = FuncMinimizer.minimize(getIntValuesFromTruthTable(table), getInputNames(),true);
 				funcField.setText(func);
 			}
 		});
@@ -651,7 +648,7 @@ public class FuncBlockEditor extends JDialog {
 	
 	
 	
-	public void save(File targetFile, boolean changeXML) {
+	public void save(File targetFile, boolean changeXML) throws IOException, ParserConfigurationException, TransformerException{
 		int inputsNo = (Integer)spinnerInput.getModel().getValue();
 		int outputsNo = (Integer)spinnerOutput.getModel().getValue();
 		saveTruthTableValues(outputEditing);
@@ -671,15 +668,10 @@ public class FuncBlockEditor extends JDialog {
 		
 		
 		if(changeXML) {
-			try {
 				FileOutputStream out = new FileOutputStream(targetFile);
 				DiagFileUtils.createTemplateBlockFile(block, null, block.getName(), out);
 			
-			} catch (IOException | ParserConfigurationException | TransformerException e) {
-				// TODO Auto-generated catch block
-				showMessage("saveError");
-				e.printStackTrace();
-			} 
+			
 		}
 		
 	}
