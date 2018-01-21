@@ -110,7 +110,11 @@ public class BlockBean implements Serializable{
 	 * @param name - nazwa bloczka
 	 */
 	public void setName(String name) {
-		this.name = name;
+		
+		if(!name.isEmpty()) {
+			this.name = name.replaceAll("[.]", "");
+		}
+		
 	}
 	
 	

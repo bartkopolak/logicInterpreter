@@ -3,6 +3,10 @@ package logicInterpreter.DiagramEditor.editor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.font.TextMeasurer;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import org.w3c.dom.Node;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.SchemaEditorMenuBar;
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.SaveAction;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockInputBean;
@@ -65,7 +70,7 @@ public class MojGraph {
 	Element inputNode = xmlDocument.createElement("input");
 	Element outputNode = xmlDocument.createElement("output");
 	EditorPalette palette;
-	
+	GraphEditor editor;
 	mxGraph graph = new mxGraph() {
 
 		@Override
@@ -211,8 +216,30 @@ public class MojGraph {
 		}
 	};
 		
+	private void close() {
+		System.exit(0);
+	}
 	
-	
+	private WindowListener windowListener = new WindowAdapter() {
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			if(editor.isModified()) {
+				int result = JOptionPane.showConfirmDialog(null, "Czy chcesz zapisać obecny diagram?", "Edytor diagramów", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(result == JOptionPane.YES_OPTION) {
+					new SaveAction(false).actionPerformed(new ActionEvent(editor.getGraphComponent(), ActionEvent.ACTION_PERFORMED, null));
+					close();
+				}
+				else if(result == JOptionPane.NO_OPTION) {
+					close();
+				}
+			}
+			else {
+				close();
+			}
+		}
+		
+	};
 	
 	
 	public MojGraph() {
@@ -223,6 +250,8 @@ public class MojGraph {
 				"1", Arrays.asList(new String[] { "output" }),
 				"Target Must Have 1 Source", "Target Must Connect From Source",
 				true);
+		
+		
 		
 		mxCodecRegistry.addPackage(Node.class.getPackage().toString()); 
 		mxCodecRegistry.addPackage(BlockBean.class.getPackage().toString()); 
@@ -271,7 +300,7 @@ public class MojGraph {
 		
 		//graphComponent.setFoldingEnabled(false);
 		
-		GraphEditor editor = new GraphEditor("Edytor diagramów", graphComponent);
+		editor = new GraphEditor("Edytor diagramów", graphComponent);
 		
 
 		SchemaEditorMenuBar menubar = new SchemaEditorMenuBar(editor);
@@ -279,6 +308,8 @@ public class MojGraph {
 
 		
 		JFrame mainFrame = editor.createFrame(menubar);
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainFrame.addWindowListener(windowListener);
 		mainFrame.setVisible(true);
 		graph.refresh();
 		editor.repaint();
