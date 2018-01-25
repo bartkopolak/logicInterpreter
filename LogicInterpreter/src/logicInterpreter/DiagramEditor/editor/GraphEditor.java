@@ -28,12 +28,15 @@ import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPa
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPopupMenu;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
+import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Nodes.Wire;
 import logicInterpreter.Tools.DiagFileUtils;
 
@@ -55,6 +58,27 @@ public class GraphEditor extends BasicGraphEditor {
 		
 	}
 	
+	public static int checkCellBusy(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
+		int count = 0;
+		for(int i=0; i<trgCell.getEdgeCount(); i++) {
+			
+			mxCell trgEdge = (mxCell) trgCell.getEdgeAt(i);	//pobierz polaczenie pomiedzy pinami
+			if(visitedEdges.contains(trgEdge)) continue;
+			mxCell trgEdgeTarget = (trgEdge.getSource().equals(trgCell)) ? 	//pobierz cel polaczenia
+					(mxCell)trgEdge.getTarget() : (mxCell)trgEdge.getSource();
+			if(trgEdgeTarget != null) {
+				if(trgEdgeTarget.getValue() instanceof OutputBean || trgEdgeTarget.getValue() instanceof DiagramInputBean) {	//jesli polaczono z wyjsciem, wejscie zajęte
+					count++;
+				}
+				if(trgEdgeTarget.getValue() instanceof InputBean) {     //jesli polaczono z wejsciem, sprawdz, czy owe wejscie nie ma polaczenia z wyjsciem
+					visitedEdges.add(trgEdge);
+					count += checkCellBusy(trgEdgeTarget, visitedEdges);
+				}
+			}
+		}
+		return count;	//jesli nie znaleziono zadnego polaczenia z pinem wyjscia oraz przeszukano wszystkie połączenia wejscie-wejscie, to dany pin nie jest zajety
+	}
+	
 	ArrayList<PathPaletteGroup> palettes = new ArrayList<PathPaletteGroup>();
 	
 	final int PORT_DIAMETER = 8;
@@ -67,20 +91,56 @@ public class GraphEditor extends BasicGraphEditor {
 		block.setTemplateBlock(templateBlock);
 		int inputsNo =  block.getInputList().size();
 		int outputsNo = block.getOutputList().size();
-		int height = 20 + 20 *inputsNo;
+		int ncount=0, wcount=0,scount=0;
+		for(int i=0; i<inputsNo; i++) {
+			BlockInputBean inputNode = block.getInput(i);
+			String pos = inputNode.getPosition();
+			if(pos.equals("west") || pos.equals("") || pos == null) wcount++;
+			else if(pos.equals("north")) ncount++;
+			else if(pos.equals("south")) scount++;
+		}
+		int maxNSpins = Math.max(ncount, scount);
+		if(maxNSpins == 0) maxNSpins++;
+		int height = 20 + 20 *wcount;
 		
-		int width = 20 + fontMetr.stringWidth(block.toString());
+		int width = 20*(maxNSpins) + fontMetr.stringWidth(block.toString());
 		mxGeometry geo = new mxGeometry(0,0,width,height);
 		mxCell cell = new mxCell(block, geo, "");
 		cell.setConnectable(false);
 		cell.setVertex(true);
+		
+		int nindex=0, windex=0,sindex=0;
+		
 		for(int i=0; i<inputsNo; i++) {
-			double pos = (double)(i+1)/(inputsNo+1.0);
-			mxGeometry geo1 = new mxGeometry(0, pos, PORT_DIAMETER,
-					PORT_DIAMETER);
-			geo1.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
+			BlockInputBean inputNode = block.getInput(i);
+			String posAttr = inputNode.getPosition();
+			double pos;
+			mxGeometry geo1 = null;
+			if(posAttr.equals("west") || posAttr.equals("") || posAttr == null) {
+
+				pos = (double)(windex+1)/(wcount+1.0);
+				windex++;
+				geo1 = new mxGeometry(0, pos, PORT_DIAMETER,
+						PORT_DIAMETER);
+				geo1.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
+			}
+			else if(posAttr.equals("north")) {
+				pos = (double)(nindex+1)/(ncount+1.0);
+				nindex++;
+				geo1 = new mxGeometry(pos, 0, PORT_DIAMETER,
+						PORT_DIAMETER);
+				geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_DIAMETER));
+			}
+			else if(posAttr.equals("south")) {
+				pos = (double)(sindex+1)/(scount+1.0);
+				sindex++;
+				geo1 = new mxGeometry(pos, 1, PORT_DIAMETER,
+						PORT_DIAMETER);
+				geo1.setOffset(new mxPoint(-PORT_RADIUS, 0));
+			}
+			
 			geo1.setRelative(true);
-			mxCell port = new mxCell(block.getInput(i), geo1, "portConstraint=west;deletable=0;labelPosition=left;labelWidth=20;labelPadding=10");
+			mxCell port = new mxCell(inputNode, geo1, "portConstraint=west;deletable=0;labelPosition=left;labelWidth=20;labelPadding=10");
 			port.setVertex(true);
 			port.setAttribute("conntype", "input");
 			cell.insert(port);
@@ -168,7 +228,8 @@ public class GraphEditor extends BasicGraphEditor {
 		return inputsLinkedWithInputEdges;
 	}
 
-	public DiagramBean createDiagram() {
+	public DiagramBean createDiagram() throws MultipleOutputsInInputException {
+		
 		mxGraph graph = getGraphComponent().getGraph();
 		DiagramBean diagram = new DiagramBean();
 		ArrayList<Object> cellsList;
@@ -226,7 +287,7 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i< blockList.size(); i++) {
 				BlockBean b = blockList.get(i);
 				int n = checkList(blockNames, b.getName());
-				if(n >= 0) b.setName(b.getName() + "-" + n);
+				if(n >= 0) b.setName(b.getName() + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
@@ -235,7 +296,7 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i<diagInputs.size(); i++) {
 				DiagramInputBean b = diagInputs.get(i);
 				int n = checkList(diagInputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "-" + n);
+				if(n >= 0) b.setName(b.getName() + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
@@ -244,7 +305,7 @@ public class GraphEditor extends BasicGraphEditor {
 			for(int i=0; i<diagOutputs.size(); i++) {
 				DiagramOutputBean b = diagOutputs.get(i);
 				int n = checkList(diagOutputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "-" + n);
+				if(n >= 0) b.setName(b.getName() + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}	
 		}
@@ -257,7 +318,6 @@ public class GraphEditor extends BasicGraphEditor {
 			
 			for(int j=0; j<outcell.getEdgeCount(); j++) {
 				mxCell edge = (mxCell) outcell.getEdgeAt(j);
-				
 				if(edge != null) {
 					mxCell targetCell = (mxCell) edge.getTarget();
 					Object value = targetCell.getValue();
@@ -268,6 +328,7 @@ public class GraphEditor extends BasicGraphEditor {
 						}
 						if(value instanceof InputBean){
 							InputBean target = (InputBean) value;
+							if(checkCellBusy(targetCell, new ArrayList<mxCell>()) > 1) throw new MultipleOutputsInInputException(".", target.toString());
 							outputNode.addLink(target);
 							//stwórz połączenie do wejść, które poł;aćzone są z innymi wejściami
 							//(gdy wejście B połączone jest z wejściem A, a A połączone jest z wyjściem X to wejście B ma stan wyjścia X)
@@ -339,7 +400,7 @@ public class GraphEditor extends BasicGraphEditor {
 	
 			geo1.setOffset(new mxPoint(0, -PORT_RADIUS));
 			geo1.setRelative(true);
-			mxCell port = new mxCell(input.getName(), geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			mxCell port = new mxCell(input, geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
 			port.setVertex(true);
 			cell.insert(port);
 			p.addTemplate("Wejście", null, cell);
@@ -356,21 +417,17 @@ public class GraphEditor extends BasicGraphEditor {
 
 			geo1.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
 			geo1.setRelative(true);
-			mxCell port = new mxCell(output.getName(), geo1, "portConstraint=west;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			mxCell port = new mxCell(output, geo1, "portConstraint=west;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
 			port.setVertex(true);
 			
 			cell.insert(port);
 			p.addTemplate("Wyjście", null, cell);
 		}
 		{
-			BlockBean vcc = new BlockBean();
-			vcc.setName("vcc");
-			vcc.setType(BlockBean.TYPE_FUNCTION);
-			vcc.addInput("A");
-			vcc.getInput(0).setState(new ThreeStateBoolean(true));
-			vcc.addOutput("vcc", "true");
+			VCCNode input = new VCCNode();
+			
 			mxGeometry geo = new mxGeometry(0,0,50,20);
-			mxCell cell = new mxCell(vcc, geo, "");
+			mxCell cell = new mxCell(input, geo, "");
 			cell.setConnectable(false);
 			cell.setVertex(true);
 			mxGeometry geo1 = new mxGeometry(1, 1/2.0, PORT_DIAMETER,
@@ -378,19 +435,14 @@ public class GraphEditor extends BasicGraphEditor {
 	
 			geo1.setOffset(new mxPoint(0, -PORT_RADIUS));
 			geo1.setRelative(true);
-			mxCell port = new mxCell(vcc.getOutput(0), geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			mxCell port = new mxCell(input, geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
 			port.setVertex(true);
 			cell.insert(port);
 			p.addTemplate("VCC", null, cell);
 			
 		}
 		{
-			BlockBean gnd = new BlockBean();
-			gnd.setName("gnd");
-			gnd.setType(BlockBean.TYPE_FUNCTION);
-			gnd.addInput("A");
-			gnd.getInput(0).setState(new ThreeStateBoolean(false));
-			gnd.addOutput("gnd", "A");
+			GNDNode gnd = new GNDNode();
 			mxGeometry geo = new mxGeometry(0,0,50,20);
 			mxCell cell = new mxCell(gnd, geo, "");
 			cell.setConnectable(false);
@@ -400,7 +452,7 @@ public class GraphEditor extends BasicGraphEditor {
 	
 			geo1.setOffset(new mxPoint(0, -PORT_RADIUS));
 			geo1.setRelative(true);
-			mxCell port = new mxCell(gnd.getOutput(0), geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
+			mxCell port = new mxCell(gnd, geo1, "portConstraint=east;deletable=0;labelPosition=right;labelWidth=20;labelPadding=10;noLabel=true");
 			port.setVertex(true);
 			cell.insert(port);
 			p.addTemplate("GND", null, cell);

@@ -19,8 +19,10 @@ import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
+import logicInterpreter.Nodes.VCCNode;
 
 import javax.swing.border.TitledBorder;
 import java.awt.Dimension;
@@ -130,9 +132,10 @@ public class DiagSimDebugger extends JFrame {
 		
 		for(int i=0; i<diagram.getInputList().size(); i++) {
 			DiagramInputBean input = diagram.getInput(i);
+			if(input instanceof VCCNode || input instanceof GNDNode) continue;
 			JPanel inpUnitPanel = new JPanel();
 			inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			JCheckBox inputBox = new JCheckBox(input.getName() + ":");
+			JCheckBox inputBox = new JCheckBox(input.getName());
 			inputBox.addActionListener(new ActionListener() {
 				
 				@Override

@@ -19,6 +19,8 @@ import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Nodes.GNDNode;
+import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Tools.AlteraSimItems.GreenLED;
 import logicInterpreter.Tools.AlteraSimItems.PushButton;
 import logicInterpreter.Tools.AlteraSimItems.RedLED;
@@ -83,6 +85,8 @@ public class AlteraSim extends JFrame {
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
 	final List<GreenLED> greenLEDsList = new ArrayList<GreenLED>();
 	final List<SevenSegmentDisplay> HEXDisplayList = new ArrayList<SevenSegmentDisplay>();
+	
+	private ArrayList<DiagramInputBean> inputList = new ArrayList<DiagramInputBean>();
 	
 	final JCheckBox falseCB  = new JCheckBox() { //wejscie logiczne 0
 
@@ -330,7 +334,7 @@ public class AlteraSim extends JFrame {
 	
 	private void evaluate() {
 		try {
-			for(int i = 0; i<diagram.getInputList().size(); i++){
+			for(int i = 0; i<inputList.size(); i++){
 				JComboBox<JCheckBox> inputComboBox = selectedInputs.get(i);
 				JCheckBox input = (JCheckBox) inputComboBox.getSelectedItem();
 				diagram.getInput(i).setState(new ThreeStateBoolean(input.isSelected()));
@@ -417,6 +421,8 @@ public class AlteraSim extends JFrame {
 			
 			for(int i=0; i<diagram.getInputList().size(); i++) {
 				DiagramInputBean input = diagram.getInput(i);
+				if(input instanceof VCCNode || input instanceof GNDNode) continue;
+				this.inputList.add(input);
 				JPanel inpUnitPanel = new JPanel();
 				
 				inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));

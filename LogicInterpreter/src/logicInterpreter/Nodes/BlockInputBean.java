@@ -20,6 +20,7 @@ public class BlockInputBean extends InputBean{
 	
 	public BlockInputBean(BlockBean parent, BlockInputBean blockInput){
 		this(parent, blockInput.getName());
+		position = blockInput.getPosition();
 	}
 	/**
 	 * 

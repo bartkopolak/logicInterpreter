@@ -158,8 +158,10 @@ public class DiagFileUtils {
 			Element inputs = (Element) inputsNode.item(0);
 
 				for (int i = 0; i < inputCount; i++) {
-					String inputName = inputs.getElementsByTagName("input").item(i).getTextContent();
-					block.addInput(inputName);
+					Element input = (Element) inputs.getElementsByTagName("input").item(i);
+					String inputName = input.getTextContent();
+					String inputPos = input.getAttribute("position");
+					block.addInput(inputName, inputPos);
 				}
 				NodeList outputsNode = doc.getElementsByTagName("outputs");
 				int outputCount = doc.getElementsByTagName("output").getLength();
@@ -193,7 +195,7 @@ public class DiagFileUtils {
 				for (int i = 0; i < diagram.getInputList().size(); i++) {
 					DiagramInputBean input = diagram.getInput(i);
 					String inputName = input.getName();
-					block.addInput(inputName);
+					block.addInput(inputName, input.getPosition());
 				}
 				for (int i = 0; i < diagram.getOutputList().size(); i++) {
 					DiagramOutputBean output = diagram.getOutput(i);
@@ -288,6 +290,9 @@ public class DiagFileUtils {
 						Element inputElement = (Element) inputNode;
 						DiagramInputBean inputBean = new DiagramInputBean();
 						inputBean.setName(inputElement.getElementsByTagName("name").item(0).getTextContent());
+						String position = inputElement.getAttribute("position");
+						if(!position.equals("")) 
+							inputBean.setPosition(position);
 						Element linksNode = (Element) inputElement.getElementsByTagName("links").item(0);
 						if(linksNode != null){
 								NodeList linksList = linksNode.getElementsByTagName("link");
@@ -347,8 +352,6 @@ public class DiagFileUtils {
 									if(output != null) {
 										if(output.getFrom() == null)
 											fromNode.addLink(output);
-										else
-											throw new MultipleOutputsInInputException(diagram.getName(), output.toString());
 									}
 								} else {
 									BlockBean block = diagram.getBlock(toSplit[0]);
@@ -356,8 +359,6 @@ public class DiagFileUtils {
 									if(toInput != null) {
 										if(toInput.getFrom() == null)
 											fromNode.addLink(toInput);
-										else
-											throw new MultipleOutputsInInputException(diagram.getName(), toInput.toString());
 									}
 									else {
 										throw new NoInputFoundException(diagram.getName(), toSplit[0] + "." + toSplit[1]);
@@ -578,8 +579,9 @@ public class DiagFileUtils {
 	 * @throws IOException 
 	 * @throws TransformerException 
 	 * @throws ParserConfigurationException 
+	 * @throws MultipleOutputsInInputException 
 	 */
-	public static void createTemplateBlockFile(BlockBean block, GraphEditor editor, String name, OutputStream stream) throws IOException, ParserConfigurationException, TransformerException {
+	public static void createTemplateBlockFile(BlockBean block, GraphEditor editor, String name, OutputStream stream) throws IOException, ParserConfigurationException, TransformerException, MultipleOutputsInInputException {
 			ZipOutputStream zipout = new ZipOutputStream(stream);
 			BlockBean blo = null;
 			
@@ -646,8 +648,9 @@ public class DiagFileUtils {
 	 * @param stream - strumień do zapisu
 	 * @return
 	 * @throws IOException
+	 * @throws MultipleOutputsInInputException 
 	 */
-	public static boolean createDiagramFile(GraphEditor editor, DiagramBean diag, OutputStream stream) throws IOException {
+	public static boolean createDiagramFile(GraphEditor editor, DiagramBean diag, OutputStream stream) throws IOException, MultipleOutputsInInputException {
 		try {
 			{
 				mxCodec codec = new mxCodec();
@@ -684,7 +687,7 @@ public class DiagFileUtils {
 					zipout.closeEntry();
 				}
 				//templateBlocks
-				ArrayList<BlockBean> templateBlocks = diagram.getAllTemplateBlocks(null);
+				ArrayList<BlockBean> templateBlocks = diagram.getAllTemplateBlocks(null, true);
 				zipout.putNextEntry(new ZipEntry("blocks/"));
 				for(int i=0; i<templateBlocks.size(); i++) {
 					BlockBean block = templateBlocks.get(i);
@@ -740,7 +743,7 @@ public class DiagFileUtils {
             }
 	}
 	
-	public static void readDiagramFile(GraphEditor editor, DiagramBean diag, String filename) throws Exception {
+	public static void readDiagramFile(GraphEditor editor, String filename) throws Exception {
 		DiagramBean diagram = null;
 		ZipFile zip = new ZipFile(filename);
 		String tempPath = System.getProperty("java.io.tmpdir");
@@ -827,11 +830,19 @@ public class DiagFileUtils {
         		}
         	}
         }
-        if(diag != null) diag = diagram;
         deleteDirectory(tempFolder);
         System.out.println("OK");
         zip.close();
 		}
+	
+	
+	public String createVHDL(DiagramBean diagram) {
+		StringBuffer sb = new StringBuffer();
+		
+		
+		
+		return sb.toString();
+	}
 /*	
 	public static void main(String[] args) {
 		File xmlFolder = new File("xmls/");

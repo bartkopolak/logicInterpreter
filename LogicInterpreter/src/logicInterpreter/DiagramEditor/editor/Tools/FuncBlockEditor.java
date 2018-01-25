@@ -46,6 +46,7 @@ import com.mxgraph.util.mxResources;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.DefaultFileFilter;
 import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Tools.DiagFileUtils;
@@ -515,6 +516,10 @@ public class FuncBlockEditor extends JDialog {
 			}catch (IOException | ParserConfigurationException | TransformerException e) {
 				showMessage("saveError");
 				return;
+			}catch (MultipleOutputsInInputException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
+				e.printStackTrace();
+				return;
 			}
 				
 				
@@ -648,7 +653,7 @@ public class FuncBlockEditor extends JDialog {
 	
 	
 	
-	public void save(File targetFile, boolean changeXML) throws IOException, ParserConfigurationException, TransformerException{
+	public void save(File targetFile, boolean changeXML) throws IOException, ParserConfigurationException, TransformerException, MultipleOutputsInInputException{
 		int inputsNo = (Integer)spinnerInput.getModel().getValue();
 		int outputsNo = (Integer)spinnerOutput.getModel().getValue();
 		saveTruthTableValues(outputEditing);
@@ -660,7 +665,7 @@ public class FuncBlockEditor extends JDialog {
 			block.getInputList().clear();
 			block.getOutputList().clear();
 			for (int i =0;i<inputsNo;i++) {
-				block.addInput(inputNames[i]);
+				block.addInput(inputNames[i], null);//TODO: okreslanie pozycji pinow
 			}
 			for (int i =0;i<outputsNo;i++) {
 				block.addOutput(outputNames[i], FuncMinimizer.minimize(getIntValuesFromOutputDataTable(outputData[i]), getInputNames(),false));

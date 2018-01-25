@@ -85,9 +85,11 @@ import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Tools.AlteraSim;
 import logicInterpreter.Tools.DiagFileUtils;
+import logicInterpreter.Tools.VHDLCreator;
 
 /**
  *
@@ -545,12 +547,20 @@ public class EditorActions
 		 */
 		protected String lastDir = null;
 
+		
+		boolean saveCanceled = false;
 		/**
 		 * 
 		 */
 		public SaveAction(boolean showDialog)
 		{
 			this.showDialog = showDialog;
+		}
+
+		
+		
+		public boolean isSaveCanceled() {
+			return saveCanceled;
 		}
 
 		/**
@@ -689,6 +699,7 @@ public class EditorActions
 
 					if (rc != JFileChooser.APPROVE_OPTION)
 					{
+						saveCanceled = true;
 						return;
 					}
 					else
@@ -714,6 +725,7 @@ public class EditorActions
 							&& JOptionPane.showConfirmDialog(graphComponent,
 									mxResources.get("overwriteExistingFile")) != JOptionPane.YES_OPTION)
 					{
+						saveCanceled = true;
 						return;
 					}
 				}
@@ -1754,7 +1766,7 @@ public class EditorActions
 								if (fc.getSelectedFile().getAbsolutePath()
 										.toLowerCase().endsWith(".diagram"))
 								{
-									DiagFileUtils.readDiagramFile(editor,null, fc.getSelectedFile().getAbsolutePath());
+									DiagFileUtils.readDiagramFile(editor, fc.getSelectedFile().getAbsolutePath());
 								}
 							}
 							catch (Exception ex)
@@ -2306,14 +2318,18 @@ public class EditorActions
 		}
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			DiagramBean diagram = g.createDiagram();
+			
 			
 			try {
+				DiagramBean diagram = g.createDiagram();
 				diagram.evaluate();
 				DiagSimDebugger sim = new DiagSimDebugger(g, diagram);
 				sim.setVisible(true);
 			} catch (RecurrentLoopException e) {
 				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MultipleOutputsInInputException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
 				e.printStackTrace();
 			}
 			
@@ -2329,14 +2345,18 @@ public class EditorActions
 		}
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			DiagramBean diagram = g.createDiagram();
+			
 			
 			try {
+				DiagramBean diagram = g.createDiagram();
 				diagram.evaluate();
 				AlteraSim sim = new AlteraSim(diagram);
 				sim.setVisible(true);
 			} catch (RecurrentLoopException e) {
 				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MultipleOutputsInInputException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
 				e.printStackTrace();
 			}
 			
@@ -2353,9 +2373,10 @@ public class EditorActions
 		}
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			DiagramBean diagram = g.createDiagram();
+			
 			
 			try {
+				DiagramBean diagram = g.createDiagram();
 				diagram.evaluate();
 				File f = new File("D:/test.tmbl");
 				if(!f.exists()) f.createNewFile();
@@ -2366,7 +2387,10 @@ public class EditorActions
 			} catch (RecurrentLoopException | IOException | ParserConfigurationException | TransformerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
+			} catch (MultipleOutputsInInputException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
+				e.printStackTrace();
+			}
 			
 		}
 		
@@ -2383,6 +2407,28 @@ public class EditorActions
 		public void actionPerformed(ActionEvent arg0) {
 			BlockInfo ed = new BlockInfo(block);
 			ed.setVisible(true);
+			
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class ExportToVHDLAction extends AbstractAction
+	{
+		private GraphEditor editor;
+		public ExportToVHDLAction(GraphEditor ed) {
+			editor = ed;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			try {
+				VHDLCreator v = new VHDLCreator(editor.createDiagram());
+				System.out.println(v.createVHDL());
+			} catch (MultipleOutputsInInputException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			
 		}
 		

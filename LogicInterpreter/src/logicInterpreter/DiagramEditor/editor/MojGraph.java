@@ -3,6 +3,10 @@ package logicInterpreter.DiagramEditor.editor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.font.TextMeasurer;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,10 +28,12 @@ import org.w3c.dom.Node;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.SchemaEditorMenuBar;
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.*;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
+import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
@@ -65,6 +71,7 @@ public class MojGraph {
 	Element inputNode = xmlDocument.createElement("input");
 	Element outputNode = xmlDocument.createElement("output");
 	EditorPalette palette;
+	GraphEditor editor;
 	
 	mxGraph graph = new mxGraph() {
 
@@ -86,27 +93,6 @@ public class MojGraph {
 		public boolean isCellFoldable(Object arg0, boolean arg1) {
 			// TODO Auto-generated method stub
 			return false;
-		}
-
-		private int checkCellBusy(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
-			int count = 0;
-			for(int i=0; i<trgCell.getEdgeCount(); i++) {
-				
-				mxCell trgEdge = (mxCell) trgCell.getEdgeAt(i);	//pobierz polaczenie pomiedzy pinami
-				if(visitedEdges.contains(trgEdge)) continue;
-				mxCell trgEdgeTarget = (trgEdge.getSource().equals(trgCell)) ? 	//pobierz cel polaczenia
-						(mxCell)trgEdge.getTarget() : (mxCell)trgEdge.getSource();
-				if(trgEdgeTarget != null) {
-					if(trgEdgeTarget.getValue() instanceof OutputBean) {	//jesli polaczono z wyjsciem, wejscie zajęte
-						count++;
-					}
-					if(trgEdgeTarget.getValue() instanceof InputBean) {     //jesli polaczono z wejsciem, sprawdz, czy owe wejscie nie ma polaczenia z wyjsciem
-						visitedEdges.add(trgEdge);
-						count += checkCellBusy(trgEdgeTarget, visitedEdges);
-					}
-				}
-			}
-			return count;	//jesli nie znaleziono zadnego polaczenia z pinem wyjscia oraz przeszukano wszystkie połączenia wejscie-wejscie, to dany pin nie jest zajety
 		}
 		
 		@Override
@@ -134,11 +120,11 @@ public class MojGraph {
 						//else System.out.println(src.toString());
 						
 						if(srcVal instanceof OutputBean && (trgVal instanceof OutputBean)) {
-							error.append("Wyjście może być połączone z wejściem lub wyjściem układu\n");
+							error.append("Wyjście musi być połączone z wejściem.\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}
 						
-						int inputOutputConns = checkCellBusy(trgCell, new ArrayList<mxCell>());
+						int inputOutputConns = GraphEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
 						
 						System.out.println(String.valueOf(inputOutputConns));
 						if(inputOutputConns > 1) {
@@ -211,7 +197,35 @@ public class MojGraph {
 		}
 	};
 		
-	
+	public void exit() {
+		System.exit(0);
+	}
+	WindowListener windowListener = new WindowAdapter() {
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			if(editor.isModified()) {
+				int result = JOptionPane.showConfirmDialog(null, "Czy chcesz zapisać obecny diagram?", "Pytanie", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(result == JOptionPane.YES_OPTION) {
+					SaveAction sa = new SaveAction(false);
+					sa.actionPerformed(new ActionEvent(editor, ActionEvent.ACTION_PERFORMED, null));
+					if(!sa.isSaveCanceled())
+						exit();
+				}
+				else if(result == JOptionPane.NO_OPTION) {
+					exit();
+				}
+				else {
+					return;
+				}
+			}
+			else {
+				exit();
+			}
+			
+		}
+		
+	};
 	
 	
 	
@@ -271,7 +285,7 @@ public class MojGraph {
 		
 		//graphComponent.setFoldingEnabled(false);
 		
-		GraphEditor editor = new GraphEditor("Edytor diagramów", graphComponent);
+		editor = new GraphEditor("Edytor diagramów", graphComponent);
 		
 
 		SchemaEditorMenuBar menubar = new SchemaEditorMenuBar(editor);
@@ -280,6 +294,8 @@ public class MojGraph {
 		
 		JFrame mainFrame = editor.createFrame(menubar);
 		mainFrame.setVisible(true);
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainFrame.addWindowListener(windowListener);
 		graph.refresh();
 		editor.repaint();
 		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener()

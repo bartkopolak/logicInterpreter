@@ -52,6 +52,11 @@ public class SchemaEditorMenuBar extends JMenuBar
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/saveas.gif"));
 
 		menu.addSeparator();
+		
+		menu.add(editor.bind(mxResources.get("exportToVHDL"), new ExportToVHDLAction((GraphEditor)editor),
+				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/save.gif"));
+		
+		menu.addSeparator();
 
 		menu.add(editor.bind(mxResources.get("pageSetup"),
 				new PageSetupAction(),

@@ -460,12 +460,13 @@ public class DiagramBean implements Serializable {
 	}
 	
 	public boolean validate() {
+		//sprawdzenie czy wejscia mają nie wiecej niz 1 zrodlo
 		
 		return false;
 		
 	}
 	
-	public ArrayList<BlockBean> getAllTemplateBlocks(ArrayList<BlockBean> prevTBlocks){
+	public ArrayList<BlockBean> getAllTemplateBlocks(ArrayList<BlockBean> prevTBlocks, boolean recursive){
 		ArrayList<BlockBean> tblocks = new ArrayList<BlockBean>();
 		ArrayList<BlockBean> tblocksVisited = new ArrayList<BlockBean>();
 		if(prevTBlocks != null) tblocksVisited.addAll(prevTBlocks);
@@ -482,8 +483,8 @@ public class DiagramBean implements Serializable {
 				}
 			}
 			if(!contains) {
-				if(b.getDiagram() != null) {
-					ArrayList<BlockBean> subBlocks = b.getDiagram().getAllTemplateBlocks(tblocks);
+				if(b.getDiagram() != null && recursive) {
+					ArrayList<BlockBean> subBlocks = b.getDiagram().getAllTemplateBlocks(tblocks, true);
 					tblocks.addAll(subBlocks);
 					tblocksVisited.addAll(subBlocks);
 					tblocks.add(b);

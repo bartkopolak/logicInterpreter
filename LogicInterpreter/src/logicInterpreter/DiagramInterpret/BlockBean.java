@@ -147,8 +147,9 @@ public class BlockBean implements Serializable{
 	 * Dodaje wejscie bloczka do listy
 	 * @param name - nazwa wejscia
 	 */
-	public void addInput(String name){
+	public void addInput(String name, String position){
 		BlockInputBean o = new BlockInputBean(this, name);
+		if(position != null && !position.isEmpty()) o.setPosition(position);
 		inputs.add(o);
 	}
 	//dla leniwych cala lista za fryko

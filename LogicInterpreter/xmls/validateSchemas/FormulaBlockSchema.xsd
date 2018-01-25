@@ -6,7 +6,16 @@
 			<xs:element name="inputs" minOccurs="1" maxOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="input" minOccurs="1" maxOccurs="unbounded"></xs:element>
+						<xs:element name="input" minOccurs="1" maxOccurs="unbounded">
+						<xs:complexType>
+							  <xs:simpleContent>
+								<xs:extension base="xs:string">
+								  <xs:attribute name="position" type="xs:string" use="optional"/>
+								</xs:extension>
+							  </xs:simpleContent>
+							</xs:complexType>
+							
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
