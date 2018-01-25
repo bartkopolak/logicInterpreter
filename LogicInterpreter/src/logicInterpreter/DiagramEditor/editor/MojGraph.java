@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.SchemaEditorMenuBar;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.*;
+import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.SaveAction;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockInputBean;
@@ -72,7 +72,7 @@ public class MojGraph {
 	Element outputNode = xmlDocument.createElement("output");
 	EditorPalette palette;
 	GraphEditor editor;
-	
+
 	mxGraph graph = new mxGraph() {
 
 		@Override
@@ -197,6 +197,7 @@ public class MojGraph {
 		}
 	};
 		
+
 	public void exit() {
 		System.exit(0);
 	}
@@ -227,7 +228,11 @@ public class MojGraph {
 		
 	};
 	
-	
+
+	private void close() {
+		System.exit(0);
+	}
+		
 	
 	public MojGraph() {
 
@@ -237,6 +242,8 @@ public class MojGraph {
 				"1", Arrays.asList(new String[] { "output" }),
 				"Target Must Have 1 Source", "Target Must Connect From Source",
 				true);
+		
+		
 		
 		mxCodecRegistry.addPackage(Node.class.getPackage().toString()); 
 		mxCodecRegistry.addPackage(BlockBean.class.getPackage().toString()); 
@@ -293,6 +300,8 @@ public class MojGraph {
 
 		
 		JFrame mainFrame = editor.createFrame(menubar);
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainFrame.addWindowListener(windowListener);
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainFrame.addWindowListener(windowListener);

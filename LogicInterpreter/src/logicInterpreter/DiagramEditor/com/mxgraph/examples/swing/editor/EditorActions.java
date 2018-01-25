@@ -2400,14 +2400,16 @@ public class EditorActions
 	public static class BlockInfoAction extends AbstractAction
 	{
 		private BlockBean block;
-		public BlockInfoAction(BlockBean b) {
+		private mxGraphComponent graph;
+		public BlockInfoAction(mxGraphComponent graphComp, BlockBean b) {
+			graph = graphComp;
 			block = b;
 		}
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			BlockInfo ed = new BlockInfo(block);
 			ed.setVisible(true);
-			
+			graph.refresh();
 		}
 		
 	}

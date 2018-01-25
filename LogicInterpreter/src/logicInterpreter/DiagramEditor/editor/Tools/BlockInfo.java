@@ -27,6 +27,8 @@ import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class BlockInfo extends JDialog {
 
@@ -155,6 +157,15 @@ public class BlockInfo extends JDialog {
 		
 		JButton btnNewButton = new JButton("OK");
 		panel_2.add(btnNewButton);
+		btnNewButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				block.setName(textField.getText());
+				dispose();
+			}
+		});
 		
 		infoPanel = new JPanel();
 		infoPanel.setBorder(new TitledBorder(null, "Informacje", TitledBorder.LEADING, TitledBorder.TOP, null, null));
