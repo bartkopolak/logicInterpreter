@@ -157,6 +157,7 @@ public class VHDLCreator {
 			
 		}
 		
+		
 		return sigCount;
 	}
 	
