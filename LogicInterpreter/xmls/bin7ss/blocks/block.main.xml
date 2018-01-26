@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<block name="mux21" type="formula">
+	<inputs>
+		<input>A</input>
+		<input>B</input>
+		<input position="south">S</input>
+	</inputs>
+	<outputs>
+		<output function="S'*A + S*B">X</output>
+	</outputs>
+</block>

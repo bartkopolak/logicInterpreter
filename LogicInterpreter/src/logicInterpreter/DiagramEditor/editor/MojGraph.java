@@ -98,10 +98,8 @@ public class MojGraph {
 		@Override
 		public String getEdgeValidationError(Object cell, Object src, Object trg) {
 			
-			int outCount = mxGraphModel.getDirectedEdgeCount(model, cell, true);
-			int inCount = mxGraphModel.getDirectedEdgeCount(model, cell, false);
+		
 			StringBuffer error = new StringBuffer();
-			Object value = src;
 
 			if(cell instanceof mxCell) {
 				if(src != null && trg != null) {
@@ -126,7 +124,7 @@ public class MojGraph {
 						
 						int inputOutputConns = GraphEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
 						
-						System.out.println(String.valueOf(inputOutputConns));
+						//System.out.println(String.valueOf(inputOutputConns));
 						if(inputOutputConns > 1) {
 							error.append("Wejście może mieć tylko 1 zródło.\n");
 							return (error.length() > 0) ? error.toString() : null;
@@ -212,6 +210,7 @@ public class MojGraph {
 					sa.actionPerformed(new ActionEvent(editor, ActionEvent.ACTION_PERFORMED, null));
 					if(!sa.isSaveCanceled())
 						exit();
+					else return;
 				}
 				else if(result == JOptionPane.NO_OPTION) {
 					exit();
@@ -229,9 +228,6 @@ public class MojGraph {
 	};
 	
 
-	private void close() {
-		System.exit(0);
-	}
 		
 	
 	public MojGraph() {
@@ -303,8 +299,6 @@ public class MojGraph {
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainFrame.addWindowListener(windowListener);
 		mainFrame.setVisible(true);
-		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainFrame.addWindowListener(windowListener);
 		graph.refresh();
 		editor.repaint();
 		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener()

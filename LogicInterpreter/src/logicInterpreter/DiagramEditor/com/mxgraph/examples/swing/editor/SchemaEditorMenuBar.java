@@ -229,7 +229,8 @@ public class SchemaEditorMenuBar extends JMenuBar
 				.get("centerZoom"), "CenterZoom", true));
 		submenu.add(new TogglePropertyItem(graphComponent, mxResources
 				.get("zoomToSelection"), "KeepSelectionVisibleOnZoom", true));
-
+		menu.add(editor.bind(mxResources.get("palEdit"), new PaletteEditAction(((GraphEditor)editor))));
+		
 		// This feature is not yet implemented
 		//submenu.add(new TogglePropertyItem(graphComponent, mxResources
 		//		.get("pageBreaks"), "PageBreaksVisible", true));

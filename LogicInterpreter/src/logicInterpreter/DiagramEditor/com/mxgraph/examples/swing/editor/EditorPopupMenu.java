@@ -77,8 +77,8 @@ public class EditorPopupMenu extends JPopupMenu
 		if(selCell != null && selCell.getValue() instanceof BlockBean)
 			add(basicGraphEditor.bind(mxResources.get("blockInfo"),
 				new BlockInfoAction(basicGraphEditor.getGraphComponent(), (BlockBean) selCell.getValue()))).setSelected(!selectedMany);
-
 			
+		
 		//addSeparator();
 
 		//add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions

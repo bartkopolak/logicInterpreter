@@ -63,7 +63,9 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.shape.mxStencilShape;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.mxGraphOutline;
+import com.mxgraph.swing.handler.mxCellHandler;
 import com.mxgraph.swing.handler.mxConnectionHandler;
+import com.mxgraph.swing.handler.mxVertexHandler;
 import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.swing.view.mxCellEditor;
 import com.mxgraph.util.mxCellRenderer;
@@ -83,6 +85,7 @@ import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
 import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
 import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
@@ -2435,4 +2438,20 @@ public class EditorActions
 		}
 		
 	}
+	
+	@SuppressWarnings("serial")
+	public static class PaletteEditAction extends AbstractAction
+	{
+		private GraphEditor editor;
+		public PaletteEditAction(GraphEditor editor) {
+			this.editor = editor;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			PaletteEditor ed = new PaletteEditor(editor);
+			ed.setVisible(true);
+		}
+		
+	}
+
 }

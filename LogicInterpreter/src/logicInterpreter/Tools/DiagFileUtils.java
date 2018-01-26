@@ -114,7 +114,7 @@ public class DiagFileUtils {
 		return null;
 	}
 	 
-	private static Document getDocument(Object src) throws SAXException, IOException, ParserConfigurationException {
+	public static Document getDocument(Object src) throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc;
@@ -209,7 +209,7 @@ public class DiagFileUtils {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Nie udało się załadować bloku! " + e.getMessage());
+			System.out.println("Nie udało się załadować bloku!");
 			//e.printStackTrace(System.out);
 			throw e;
 		}
@@ -843,6 +843,8 @@ public class DiagFileUtils {
 		
 		return sb.toString();
 	}
+	
+	
 /*	
 	public static void main(String[] args) {
 		File xmlFolder = new File("xmls/");

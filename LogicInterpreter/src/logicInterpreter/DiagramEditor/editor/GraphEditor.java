@@ -5,14 +5,33 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -42,7 +61,7 @@ import logicInterpreter.Tools.DiagFileUtils;
 
 public class GraphEditor extends BasicGraphEditor {
 
-	class PathPaletteGroup{
+	public class PathPaletteGroup{
 		private EditorPalette pal;
 		private String path;
 		PathPaletteGroup(EditorPalette a, String b){
@@ -57,6 +76,8 @@ public class GraphEditor extends BasicGraphEditor {
 		}
 		
 	}
+	
+	
 	
 	public static int checkCellBusy(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
 		int count = 0;
@@ -79,7 +100,8 @@ public class GraphEditor extends BasicGraphEditor {
 		return count;	//jesli nie znaleziono zadnego polaczenia z pinem wyjscia oraz przeszukano wszystkie połączenia wejscie-wejscie, to dany pin nie jest zajety
 	}
 	
-	ArrayList<PathPaletteGroup> palettes = new ArrayList<PathPaletteGroup>();
+	public ArrayList<PathPaletteGroup> palettes = new ArrayList<PathPaletteGroup>();
+	public ArrayList<String> paletteNames = new ArrayList<String>();
 	
 	final int PORT_DIAMETER = 8;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
@@ -116,6 +138,7 @@ public class GraphEditor extends BasicGraphEditor {
 			String posAttr = inputNode.getPosition();
 			double pos;
 			mxGeometry geo1 = null;
+			mxCell port = null;
 			if(posAttr.equals("west") || posAttr.equals("") || posAttr == null) {
 
 				pos = (double)(windex+1)/(wcount+1.0);
@@ -123,6 +146,8 @@ public class GraphEditor extends BasicGraphEditor {
 				geo1 = new mxGeometry(0, pos, PORT_DIAMETER,
 						PORT_DIAMETER);
 				geo1.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
+				geo1.setRelative(true);
+				port = new mxCell(inputNode, geo1, "portConstraint=west;deletable=0;labelPosition=left;labelWidth=20;labelPadding=10");
 			}
 			else if(posAttr.equals("north")) {
 				pos = (double)(nindex+1)/(ncount+1.0);
@@ -130,6 +155,8 @@ public class GraphEditor extends BasicGraphEditor {
 				geo1 = new mxGeometry(pos, 0, PORT_DIAMETER,
 						PORT_DIAMETER);
 				geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_DIAMETER));
+				geo1.setRelative(true);
+				port = new mxCell(inputNode, geo1, "portConstraint=north;deletable=0;labelPosition=center;verticalLabelPosition=top;labelWidth=20;labelPadding=10");
 			}
 			else if(posAttr.equals("south")) {
 				pos = (double)(sindex+1)/(scount+1.0);
@@ -137,10 +164,10 @@ public class GraphEditor extends BasicGraphEditor {
 				geo1 = new mxGeometry(pos, 1, PORT_DIAMETER,
 						PORT_DIAMETER);
 				geo1.setOffset(new mxPoint(-PORT_RADIUS, 0));
+				geo1.setRelative(true);
+				port = new mxCell(inputNode, geo1, "portConstraint=south;deletable=0;labelPosition=center;verticalLabelPosition=top;labelWidth=20;labelPadding=10");
 			}
 			
-			geo1.setRelative(true);
-			mxCell port = new mxCell(inputNode, geo1, "portConstraint=west;deletable=0;labelPosition=left;labelWidth=20;labelPadding=10");
 			port.setVertex(true);
 			port.setAttribute("conntype", "input");
 			cell.insert(port);
@@ -179,6 +206,86 @@ public class GraphEditor extends BasicGraphEditor {
 			}
 		}
 	}
+	public int defPalettesCount;
+	String palettesPath="palettes.xml";
+	
+	public void addPalette(String palName, String palPath) {
+		paletteNames.add(palName);
+		EditorPalette palette = this.insertPalette(palName);
+		palettes.add(new PathPaletteGroup(palette, palPath));
+		fillAllPalettes();
+	}
+	
+	public void removePalette(String path) {
+		int index = -1;
+		for(int i=0; i<palettes.size(); i++) {
+			PathPaletteGroup ppg = palettes.get(i);
+			if(ppg.getPath().equals(path)) {
+				index = i;
+				break;
+			}
+		}
+		if(index >0) {
+			palettes.remove(index);
+			paletteNames.remove(index);
+			getLibraryPane().remove(defPalettesCount+index-1);
+			
+		}
+	}
+	
+	public void loadPalettes() throws SAXException, IOException, ParserConfigurationException {
+		paletteNames.add("Bramki logiczne");
+		paletteNames.add("Domyslne");
+		EditorPalette gatespalette = this.insertPalette(paletteNames.get(0));
+		EditorPalette oth = this.insertPalette(paletteNames.get(1));
+		palettes.add(new PathPaletteGroup(gatespalette, "xmls/gates"));
+		palettes.add(new PathPaletteGroup(oth, "xmls"));
+		defPalettesCount = palettes.size();
+		File f = new File(palettesPath);
+		if(!f.exists())
+			try {
+				saveCustomPalettes();
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Document doc = DiagFileUtils.getDocument(f);
+		doc.getDocumentElement().normalize();
+		int paletteCount = doc.getElementsByTagName("palette").getLength();
+		for(int i=0; i<paletteCount;i++) {
+			Element paletteElem = (Element) doc.getElementsByTagName("palette").item(i);
+			String palName = paletteElem.getAttribute("name");
+			String palPath = paletteElem.getAttribute("path");
+			addPalette(palName,palPath);
+		}
+	}
+	public void saveCustomPalettes() throws SAXException, IOException, ParserConfigurationException, TransformerException {
+		
+		File f = new File(palettesPath);
+		if(!f.exists()) f.createNewFile();
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		
+		Document doc = docBuilder.newDocument();
+		Element rootElement = doc.createElement("palettes");
+		doc.appendChild(rootElement);
+		for(int i=defPalettesCount; i<palettes.size(); i++) {
+			PathPaletteGroup pg = palettes.get(i);
+			String pname = paletteNames.get(i);
+			Element palElem = doc.createElement("palette");
+			palElem.setAttribute("name", pname);
+			palElem.setAttribute("path", pg.getPath());
+			rootElement.appendChild(palElem);
+		}
+		TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+        transformer.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(f)));	
+		
+	}
 	
 	private class StringInt {
 		String str;
@@ -198,6 +305,16 @@ public class GraphEditor extends BasicGraphEditor {
 		
 	}
 
+	private String getBasename(String name) {
+		String basename[] = name.split("[_]");
+		if(basename.length>1)
+			basename = Arrays.copyOfRange(basename, 0, basename.length-1);
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<basename.length; i++)
+			sb.append(basename[i]);
+		return sb.toString();
+	}
+	
 	public int checkList(ArrayList<StringInt> list, String name) {
 		int count = 0;
 		for(int j=0; j<list.size(); j++) {
@@ -286,8 +403,8 @@ public class GraphEditor extends BasicGraphEditor {
 			ArrayList<StringInt>blockNames = new ArrayList<StringInt>();
 			for(int i=0; i< blockList.size(); i++) {
 				BlockBean b = blockList.get(i);
-				int n = checkList(blockNames, b.getName());
-				if(n >= 0) b.setName(b.getName() + "_" + n);
+				int n = checkList(blockNames, getBasename(b.getName()));
+				if(n >= 0) b.setName(getBasename(b.getName()) + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
@@ -295,8 +412,9 @@ public class GraphEditor extends BasicGraphEditor {
 			ArrayList<StringInt> diagInputsNames = new ArrayList<StringInt>();
 			for(int i=0; i<diagInputs.size(); i++) {
 				DiagramInputBean b = diagInputs.get(i);
-				int n = checkList(diagInputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "_" + n);
+				int n = checkList(diagInputsNames,getBasename(b.getName()));
+				if(n >= 0) b.setName(getBasename(b.getName()) + "_" + n);
+				else b.setName(getBasename(b.getName()));
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}
 		}
@@ -304,8 +422,8 @@ public class GraphEditor extends BasicGraphEditor {
 			ArrayList<StringInt> diagOutputsNames = new ArrayList<StringInt>();
 			for(int i=0; i<diagOutputs.size(); i++) {
 				DiagramOutputBean b = diagOutputs.get(i);
-				int n = checkList(diagOutputsNames,b.getName());
-				if(n >= 0) b.setName(b.getName() + "_" + n);
+				int n = checkList(diagOutputsNames,getBasename(b.getName()));
+				if(n >= 0) b.setName(getBasename(b.getName()) + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}	
 		}
@@ -493,11 +611,14 @@ public class GraphEditor extends BasicGraphEditor {
 		
 		fontMetr = graphComponent.getFontMetrics(new Font("Times",Font.PLAIN, 12));
 		EditorPalette io = this.insertPalette("Wej/Wyj");
-		EditorPalette gatespalette = this.insertPalette("Bramki logiczne");
-		EditorPalette oth = this.insertPalette("Domyslne");
-		palettes.add(new PathPaletteGroup(gatespalette, "xmls/gates"));
-		palettes.add(new PathPaletteGroup(oth, "xmls"));
-		fillAllPalettes();
+		try {
+			loadPalettes();
+			fillAllPalettes();
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ioPalette(io);
 		
 	}
