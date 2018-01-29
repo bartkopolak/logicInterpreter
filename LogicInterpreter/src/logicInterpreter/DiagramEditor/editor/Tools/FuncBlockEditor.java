@@ -90,20 +90,7 @@ public class FuncBlockEditor extends JDialog {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					//BlockBean blok = DiagFileUtils.parseXMLBlock(new File("xmls/binto7sd.xml"));
-					FuncBlockEditor frame = new FuncBlockEditor();
-					
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+
 	
 	String[] inputNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"};
 	final int maxInputs= 12;
@@ -618,7 +605,7 @@ public class FuncBlockEditor extends JDialog {
 			for (int i =0;i<block.getInputList().size();i++) {
 				inputNames[i] = block.getInput(i).getName();
 			}
-			spinnerInput.setValue(block.getInputList().size());
+			spinnerInput.setValue((block.getInputList().size() > 0) ? block.getInputList().size() : 4);
 			//ustal tablice prawdy
 			
 				for (int i =0;i<block.getOutputList().size();i++) {
@@ -642,7 +629,7 @@ public class FuncBlockEditor extends JDialog {
 				outputNames[i] = block.getOutput(i).getName();
 			}
 			
-			spinnerOutput.setValue(block.getOutputList().size());
+			spinnerOutput.setValue((block.getOutputList().size() > 0) ? block.getOutputList().size() : 1);
 			//nazwa bloku
 			textField_1.setText(block.getName());
 		}

@@ -62,55 +62,67 @@ public class DiagSimDebugger extends JFrame {
 	private void evaluate() {
 		try {
 			diagram.evaluate();
-			ArrayList<mxCell> outputs = editor.getAllOutputCells();
-			edges.clear();
-			//link outputs with inputs
-					for(int i=0; i<outputs.size(); i++) {
-						mxCell outcell = outputs.get(i);
-						outcell.setCollapsed(true);
-						OutputBean outputNode = ((OutputBean)outcell.getValue());
-						ThreeStateBoolean state;
-						if(outputNode instanceof BlockOutputBean) {
-							String outCellName = outputNode.getName();
-							BlockBean block = ((BlockOutputBean) outputNode).getParent();
-							BlockBean dblock = diagram.getBlock(block.getName());
-							state = dblock.getOutput(outCellName).getState();
-						}
-						else if(outputNode instanceof DiagramInputBean) {
-							state = diagram.getInput(((DiagramInputBean)outputNode).getName()).getState();
-						}
-						else state = ThreeStateBoolean.UNKNOWN;
-						
-						
-						for(int j=0; j<outcell.getEdgeCount(); j++) {
-							mxCell edge = (mxCell) outcell.getEdgeAt(j);
-							edges.add(edge);
-							if(edge != null) {
-								if(state.equals(ThreeStateBoolean.FALSE)) {
-									edge.setStyle("strokeColor=red");
-								}
-								else if(state.equals(ThreeStateBoolean.TRUE)) {
-									edge.setStyle("strokeColor=green");
-									
-								}
-								else {
-									edge.setStyle("strokeColor=black");
-								}
-								
-							}	  
-						}
-						
-					}
-			for(int i=0; i<diagram.getOutputList().size(); i++) {
-				JLabel l = outputValLabels.get(i);
-				l.setText(diagram.getOutput(i).getState().toString());
-			}
-			editor.getGraphComponent().refresh();
+			colorEdges();
 		} catch (RecurrentLoopException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void colorEdges() {
+		ArrayList<mxCell> outputs = editor.getAllOutputCells();
+		edges.clear();
+		//link outputs with inputs
+				for(int i=0; i<outputs.size(); i++) {
+					mxCell outcell = outputs.get(i);
+					outcell.setCollapsed(true);
+					OutputBean outputNode = ((OutputBean)outcell.getValue());
+					ThreeStateBoolean state;
+					if(outputNode instanceof BlockOutputBean) {
+						String outCellName = outputNode.getName();
+						BlockBean block = ((BlockOutputBean) outputNode).getParent();
+						BlockBean dblock = diagram.getBlock(block.getName());
+						state = dblock.getOutput(outCellName).getState();
+					}
+					else if(outputNode instanceof DiagramInputBean) {
+						state = diagram.getInput(((DiagramInputBean)outputNode).getName()).getState();
+					}
+					else state = ThreeStateBoolean.UNKNOWN;
+					
+					
+					for(int j=0; j<outcell.getEdgeCount(); j++) {
+						mxCell edge = (mxCell) outcell.getEdgeAt(j);
+						edges.add(edge);
+						if(edge != null) {
+							if(state.equals(ThreeStateBoolean.FALSE)) {
+								edge.setStyle("strokeColor=red");
+							}
+							else if(state.equals(ThreeStateBoolean.TRUE)) {
+								edge.setStyle("strokeColor=green");
+								
+							}
+							else {
+								edge.setStyle("strokeColor=black");
+							}
+							
+						}	  
+					}
+					
+				}
+		for(int i=0; i<diagram.getOutputList().size(); i++) {
+			JLabel l = outputValLabels.get(i);
+			l.setText(diagram.getOutput(i).getState().toString());
+		}
+		editor.getGraphComponent().refresh();
+	}
+	
+	private void initInputStates() {
+		for(int i=0; i<diagram.getInputList().size(); i++) {
+			DiagramInputBean input = diagram.getInput(i);
+			if(input instanceof VCCNode || input instanceof GNDNode) continue;
+			input.setState(new ThreeStateBoolean(false));
+		}
 	}
 	
 	public void load() {
@@ -170,7 +182,7 @@ public class DiagSimDebugger extends JFrame {
 		
 	}
 	
-	private void close() {
+	public void close() {
 		for(int i=0; i<edges.size(); i++) {
 			mxCell edge = edges.get(i);
 			edge.setStyle("strokeColor=#6482b9");
@@ -272,6 +284,7 @@ public class DiagSimDebugger extends JFrame {
 			}
 		});
 		load();
+		initInputStates();
 	}
 
 }

@@ -24,7 +24,7 @@ public class Test {
 		//test bloczka - tablica prawdy
 		BlockBean blok;
 		try {
-			blok = DiagFileUtils.parseXMLBlock(new File("xmls/binto7sd.xml"));
+			blok = DiagFileUtils.parseXMLBlock(new File("xmls/binto7sd.xml"),"");
 			System.out.println(blok.getName());
 			BlockOutputBean x = blok.getOutput("OA");
 			blok.getInput(0).setState(new ThreeStateBoolean(false));

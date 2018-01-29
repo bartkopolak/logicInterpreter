@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 
 import java.awt.FlowLayout;
@@ -38,7 +39,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
 
-public class PaletteEditor extends JFrame {
+public class PaletteEditor extends JDialog {
 
 	private JPanel contentPane;
 
@@ -101,6 +102,7 @@ public class PaletteEditor extends JFrame {
 	}
 	
 	public PaletteEditor(GraphEditor ge) {
+		setModal(true);
 		editor = ge;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);

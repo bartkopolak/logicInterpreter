@@ -108,8 +108,15 @@ public class VHDLCreator {
 					OutputBean src = b.getInput(i).getFrom();
 					if(src == null) sb.append("open,");
 					else {
-						if(src instanceof DiagramInputBean)
-							sb.append(src.getName()+",");
+						if(src instanceof DiagramInputBean) {
+							if(src instanceof VCCNode) 
+								sb.append("'1',");
+							else if(src instanceof GNDNode) 
+								sb.append("'0',");
+							else
+								sb.append(src.getName()+",");
+						}
+							
 						else if(src instanceof BlockOutputBean) {
 							SignalOutputPair signal = getSignal(signals,src);
 							if(signal == null) {
@@ -224,7 +231,9 @@ public class VHDLCreator {
 		sb.append("port\n");
 		sb.append("(\n");
 		for(int i=0; i<diagram.getInputList().size(); i++) {
-			sb.append(diagram.getInput(i).getName() + ": in std_logic;\n");
+			DiagramInputBean diagInput = diagram.getInput(i);
+			if(!(diagInput instanceof VCCNode) && !(diagInput instanceof GNDNode))
+				sb.append(diagInput.getName() + ": in std_logic;\n");
 		}
 		for(int i=0; i<diagram.getOutputList().size(); i++) {
 			sb.append(diagram.getOutput(i).getName() + ": out std_logic");

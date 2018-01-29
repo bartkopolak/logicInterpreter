@@ -1,4 +1,4 @@
-package logicInterpreter.Tools;
+package logicInterpreter.DiagramEditor.editor.Tools;
 
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
@@ -13,7 +13,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
+import logicInterpreter.DiagramEditor.editor.GraphEditor;
 import logicInterpreter.DiagramInterpret.DiagramBean;
+import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
@@ -21,6 +23,7 @@ import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.VCCNode;
+import logicInterpreter.Tools.DiagFileUtils;
 import logicInterpreter.Tools.AlteraSimItems.GreenLED;
 import logicInterpreter.Tools.AlteraSimItems.PushButton;
 import logicInterpreter.Tools.AlteraSimItems.RedLED;
@@ -54,6 +57,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.awt.event.ActionEvent;
 import com.jgoodies.forms.layout.FormLayout;
@@ -72,6 +77,7 @@ import javax.swing.JScrollPane;
 
 public class AlteraSim extends JFrame {
 
+	private DiagSimDebugger debugger;
 	private JPanel contentPane;
 	DiagramBean diagram;
 	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();	//wybrana metoda wejscia na plytce z listy combobox
@@ -130,24 +136,6 @@ public class AlteraSim extends JFrame {
 		}
 		
 	};
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AlteraSim frame = new AlteraSim();
-					frame.setVisible(true);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	
 	
 	AbstractAction inputChanged = new AbstractAction() {
 		
@@ -285,12 +273,12 @@ public class AlteraSim extends JFrame {
 		}
 
 	}
-	
+	boolean simRunning = true;
 	Thread clockThread = new Thread(new Runnable() {
 		
 		@Override
 		public void run() {
-			while(true) {
+			while(simRunning) {
 				clock();
 			}	
 		}
@@ -301,7 +289,7 @@ public class AlteraSim extends JFrame {
 		
 		@Override
 		public void run() {
-			while(true) {
+			while(simRunning) {
 				evaluate();
 			}	
 		}
@@ -337,9 +325,11 @@ public class AlteraSim extends JFrame {
 			for(int i = 0; i<inputList.size(); i++){
 				JComboBox<JCheckBox> inputComboBox = selectedInputs.get(i);
 				JCheckBox input = (JCheckBox) inputComboBox.getSelectedItem();
-				diagram.getInput(i).setState(new ThreeStateBoolean(input.isSelected()));
+				
+				diagram.getInput(inputList.get(i).getName()).setState(new ThreeStateBoolean(input.isSelected()));
 			}
 			diagram.evaluate();
+			debugger.colorEdges();
 			for(JCheckBox output : getOutputsList()) {
 				output.setSelected(false);
 			}
@@ -381,7 +371,6 @@ public class AlteraSim extends JFrame {
 				lastPath = diagrFile.getParent();
 				loadSettings();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				JOptionPane.showMessageDialog(this, "Niepoprawny format diagramu: " + e.getMessage());
 			}
 			
@@ -421,20 +410,20 @@ public class AlteraSim extends JFrame {
 			
 			for(int i=0; i<diagram.getInputList().size(); i++) {
 				DiagramInputBean input = diagram.getInput(i);
-				if(input instanceof VCCNode || input instanceof GNDNode) continue;
-				this.inputList.add(input);
-				JPanel inpUnitPanel = new JPanel();
-				
-				inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-				JLabel inputLabel = new JLabel(input.getName() + ":");
-				JComboBox<JCheckBox> inputList = new JComboBox<JCheckBox>();
-				selectedInputs.add(inputList);
-				inputList.addActionListener(inputListListener);
-				inputList.setModel(new DefaultComboBoxModel<JCheckBox>(getInputsList()));
-				inputList.setName(input.getName());
-				inpUnitPanel.add(inputLabel);
-				inpUnitPanel.add(inputList);
-				inputsPanelInner.add(inpUnitPanel, c);
+				if(!(input instanceof VCCNode) && !(input instanceof GNDNode)) {
+					this.inputList.add(input);
+					JPanel inpUnitPanel = new JPanel();
+					inpUnitPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+					JLabel inputLabel = new JLabel(input.getName() + ":");
+					JComboBox<JCheckBox> inputList = new JComboBox<JCheckBox>();
+					selectedInputs.add(inputList);
+					inputList.addActionListener(inputListListener);
+					inputList.setModel(new DefaultComboBoxModel<JCheckBox>(getInputsList()));
+					inputList.setName(input.getName());
+					inpUnitPanel.add(inputLabel);
+					inpUnitPanel.add(inputList);
+					inputsPanelInner.add(inpUnitPanel, c);
+				}
 				
 			}
 			
@@ -489,6 +478,11 @@ public class AlteraSim extends JFrame {
 		
 	}
 	
+	private void close() {
+		simRunning = false;
+		debugger.close();
+		dispose();
+	}
 	/**
 	 * Create the frame.
 	 */
@@ -497,7 +491,6 @@ public class AlteraSim extends JFrame {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
@@ -510,7 +503,16 @@ public class AlteraSim extends JFrame {
 		noCB.setName("brak wyjścia");
 		clockCB.setName("zegar");
 
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// TODO Auto-generated method stub
+				close();
+			}
+			
+		});
 		setBounds(100, 100, 686, 531);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -633,12 +635,14 @@ public class AlteraSim extends JFrame {
 		
 		//TEST
 		clockThread.start();
+		
 
 	}
 	
-	public AlteraSim(DiagramBean diagram) {
+	public AlteraSim(GraphEditor ge) throws MultipleOutputsInInputException {
 		this();
-		this.diagram = diagram;
+		diagram = ge.createDiagram();
+		debugger = new DiagSimDebugger(ge, diagram);
 		loadSettings();
 	}
 }

@@ -107,6 +107,17 @@ public class GraphEditor extends BasicGraphEditor {
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
 	FontMetrics fontMetr;
 	
+	private String diagramName = "";
+	
+	
+	public String getDiagramName() {
+		return diagramName;
+	}
+
+	public void setDiagramName(String diagramName) {
+		this.diagramName = diagramName;
+	}
+
 	public void addBlockToPalette(BlockBean templateBlock, PathPaletteGroup palette) {
 		
 		BlockBean block = new BlockBean(templateBlock);
@@ -188,6 +199,7 @@ public class GraphEditor extends BasicGraphEditor {
 	
 	public void fillPalette(PathPaletteGroup palette) {
 		palette.getPalette().removeAll();
+		palette.getPalette().repaint();
 		File xmlFolder = new File(palette.getPath());
 		if(xmlFolder.exists() && xmlFolder.isDirectory()) {
 			File[] list = xmlFolder.listFiles();
@@ -375,12 +387,14 @@ public class GraphEditor extends BasicGraphEditor {
 		for(int i=0; i<cellsList.size();i++) {
 			Object value = ((mxCell)(cellsList.get(i))).getValue();
 			if (value instanceof BlockOutputBean) {
+				((BlockOutputBean) value).setState(ThreeStateBoolean.UNKNOWN);
 				blOutputs.add((BlockOutputBean) value);
 				allOutputCells.add((mxCell) cellsList.get(i));
 				
 			}
 			else if(value instanceof DiagramInputBean) {
 				if(!(((mxCell) cellsList.get(i)).getChildCount() == 0)) {
+					((DiagramInputBean) value).setState(ThreeStateBoolean.UNKNOWN);
 					diagInputs.add((DiagramInputBean) value);
 					mxCell pin = (mxCell) ((mxCell) cellsList.get(i)).getChildAt(0);
 					pin.setValue((DiagramInputBean) value);
@@ -390,6 +404,7 @@ public class GraphEditor extends BasicGraphEditor {
 			}
 			else if (value instanceof DiagramOutputBean) {
 				if(!(((mxCell) cellsList.get(i)).getChildCount() == 0)) {
+					((DiagramOutputBean) value).setState(ThreeStateBoolean.UNKNOWN);
 					diagOutputs.add((DiagramOutputBean) value);
 					mxCell pin = (mxCell) ((mxCell) cellsList.get(i)).getChildAt(0);
 					pin.setValue((DiagramOutputBean) value);

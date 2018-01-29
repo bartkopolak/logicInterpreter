@@ -60,8 +60,10 @@ import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
+import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Nodes.Wire;
 
 import org.w3c.dom.NodeList;
@@ -131,7 +133,7 @@ public class DiagFileUtils {
 	 * 
 	 */
 	//TODO: wyjątki
-	public static BlockBean parseXMLBlock(Object file) throws Exception{
+	public static BlockBean parseXMLBlock(Object file, String templateBlockPath) throws Exception{
 		BlockBean block = new BlockBean();
 
 		try {
@@ -148,7 +150,7 @@ public class DiagFileUtils {
 			String defaultB = rootElem.getAttribute("default");
 			if(defaultB.equals("true")) block.setDefault(true);
 			if(file instanceof File)
-				block.setFile((File)file);
+				block.setFile(new File(templateBlockPath));
 			
 			if(type.equals("formula")){
 				//typ: formula
@@ -209,7 +211,7 @@ public class DiagFileUtils {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Nie udało się załadować bloku!");
+			System.out.println("Nie udało się załadować bloku! " + templateBlockPath );
 			//e.printStackTrace(System.out);
 			throw e;
 		}
@@ -258,7 +260,7 @@ public class DiagFileUtils {
 					if (blockNode.getNodeType() == Node.ELEMENT_NODE) {
 						Element blockElement = (Element) blockNode;
 						String src = blockElement.getElementsByTagName("src").item(0).getTextContent();
-						BlockBean blockBeanTemplate = parseXMLBlock(new File( file.getParent() + "/" +  src));
+						BlockBean blockBeanTemplate = parseXMLBlock(new File( file.getParent() + "/" +  src), "");
 						BlockBean blockBean = new BlockBean(blockBeanTemplate);
 						blockBean.setName(blockElement.getElementsByTagName("id").item(0).getTextContent());
 						diagram.addBlock(blockBean);
@@ -288,7 +290,14 @@ public class DiagFileUtils {
 					Node inputNode = inputsList.item(i);
 					if (inputNode.getNodeType() == Node.ELEMENT_NODE) {
 						Element inputElement = (Element) inputNode;
-						DiagramInputBean inputBean = new DiagramInputBean();
+						String nodeSpecType = inputElement.getAttribute("type");
+						DiagramInputBean inputBean;
+						if(nodeSpecType.equals("VCC"))
+							inputBean = new VCCNode();
+						else if(nodeSpecType.equals("GND"))
+							inputBean = new GNDNode();
+						else
+							inputBean = new DiagramInputBean();
 						inputBean.setName(inputElement.getElementsByTagName("name").item(0).getTextContent());
 						String position = inputElement.getAttribute("position");
 						if(!position.equals("")) 
@@ -431,6 +440,10 @@ public class DiagFileUtils {
 			for (int i =0;i<diagram.getInputList().size();i++) {
 				DiagramInputBean b = diagram.getInput(i);
 				Element input = doc.createElement("input");
+				if(b instanceof VCCNode)
+					input.setAttribute("type", "VCC");
+				else if(b instanceof GNDNode)
+					input.setAttribute("type", "GND");
 				Element id = doc.createElement("name");
 				id.setTextContent(b.getName());
 				
@@ -634,10 +647,10 @@ public class DiagFileUtils {
 		
 		File blockXMLFile = new File(tempFolder.getAbsolutePath() + "/blocks/block.main.xml");
 		
-		out = parseXMLBlock(blockXMLFile);
-		out.setFile(new File(filename));
+		out = parseXMLBlock(blockXMLFile, filename);
+		//out.setFile(new File(filename));
 		deleteDirectory(tempFolder);
-		
+		zip.close();
 		return out;
 	}
 		
@@ -645,7 +658,7 @@ public class DiagFileUtils {
 	 * Tworzy archiwum przechowujące wszystkie niezbędne pliki do stworzenia diagramu
 	 * @param editor - obiekt edytora diagramów
 	 * @param diagram - obiekt diagramu np, z bloku, używany do 
-	 * @param stream - strumień do zapisu
+	 * @param stream - strumień do zapisu (jesli plik diagramu zapisywany jext wewnątrz archiwum)
 	 * @return
 	 * @throws IOException
 	 * @throws MultipleOutputsInInputException 
@@ -774,6 +787,7 @@ public class DiagFileUtils {
 			editor.setModified(false);
 			editor.getUndoManager().clear();
 			editor.getGraphComponent().zoomAndCenter();
+			editor.setDiagramName(currFile.getName().replaceFirst("[.][^.]+$", ""));
 		}
 		//diagram
 		File mainDiagram = new File(tempFolder.getAbsolutePath() + "/blocks/diagram.main.xml");
@@ -803,14 +817,18 @@ public class DiagFileUtils {
         for (int i=0;i<inputCells.size(); i++) {
         	mxCell cell = inputCells.get(i);
         	if(cell.getChildCount() == 0) continue;
-        	DiagramInputBean cb = (DiagramInputBean) cell.getValue();
+        	DiagramInputBean cb = (DiagramInputBean)cell.getValue();
         	String cbName = cb.getName();
         	for(int j=0; j<diagram.getInputList().size(); j++) {
-        		DiagramInputBean db = diagram.getInput(j);
-        		String dbName = db.getName();
+        		Object db = diagram.getInput(j);
+        		String dbName = ((DiagramInputBean) db).getName();
         		if(dbName.equals(cbName)) {
-        			cell.setValue(db);
-        			
+        			if(cb instanceof VCCNode)
+        				cell.setValue(new VCCNode());
+        			else if(cb instanceof GNDNode)
+        				cell.setValue(new GNDNode());
+        			else
+        				cell.setValue(db);
         		}
         	}
         }
@@ -831,7 +849,7 @@ public class DiagFileUtils {
         	}
         }
         deleteDirectory(tempFolder);
-        System.out.println("OK");
+        //System.out.println("OK");
         zip.close();
 		}
 	

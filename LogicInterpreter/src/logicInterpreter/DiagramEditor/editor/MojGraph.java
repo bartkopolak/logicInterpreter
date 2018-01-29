@@ -35,8 +35,10 @@ import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
+import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
+import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Nodes.Wire;
 import logicInterpreter.Tools.DiagFileUtils;
 
@@ -72,7 +74,8 @@ public class MojGraph {
 	Element outputNode = xmlDocument.createElement("output");
 	EditorPalette palette;
 	GraphEditor editor;
-
+	JFrame mainFrame;
+	private static int framesOpened;
 	mxGraph graph = new mxGraph() {
 
 		@Override
@@ -195,9 +198,17 @@ public class MojGraph {
 		}
 	};
 		
+	
+	
+	
+	public GraphEditor getEditor() {
+		return editor;
+	}
 
 	public void exit() {
-		System.exit(0);
+		mainFrame.dispose();
+		framesOpened--;
+		if(framesOpened == 0) System.exit(0);
 	}
 	WindowListener windowListener = new WindowAdapter() {
 
@@ -231,29 +242,28 @@ public class MojGraph {
 		
 	
 	public MojGraph() {
-
-		
-		mxMultiplicity[] multiplicities = new mxMultiplicity[1];
-		multiplicities[0] = new mxMultiplicity(false, "conntype", "input" , null, 0,
-				"1", Arrays.asList(new String[] { "output" }),
-				"Target Must Have 1 Source", "Target Must Connect From Source",
-				true);
-		
-		
-		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		mxCodecRegistry.addPackage(Node.class.getPackage().toString()); 
 		mxCodecRegistry.addPackage(BlockBean.class.getPackage().toString()); 
 		
 		mxCodecRegistry.register(new mxObjectCodec(new BlockBean(), new String[] {"file", "templateBlock"}, null, null));
 	    mxCodecRegistry.register(new mxObjectCodec(new InputBean(), new String[] {"from"},null,null));
 	    mxCodecRegistry.register(new mxObjectCodec(new OutputBean(),new String[] {"wire", "state"}, null, null));
+		mxCodecRegistry.register(new mxObjectCodec(new VCCNode()));
+		mxCodecRegistry.register(new mxObjectCodec(new GNDNode()));
 	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramInputBean()));
 	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramOutputBean()));
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockInputBean(), null, new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockOutputBean(), null ,new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new Wire(), new String[] {"id"}, new String[] {"parent", "to"},null));
 		mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.Node()));
-	    
+
 		
 		
 		graph.setCellsResizable(false);
@@ -265,7 +275,6 @@ public class MojGraph {
 		graph.setAllowNegativeCoordinates(false);
 	    graph.setResetEdgesOnConnect(false);
 	    //graph.setResetEdgesOnMove(true);
-	    graph.setMultiplicities(multiplicities);
 	    graph.setDefaultOverlap(0);
 	    
 	    mxFastOrganicLayout layout2 = new mxFastOrganicLayout(graph);
@@ -292,13 +301,13 @@ public class MojGraph {
 		
 
 		SchemaEditorMenuBar menubar = new SchemaEditorMenuBar(editor);
-		editor.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		
 
 		
-		JFrame mainFrame = editor.createFrame(menubar);
+		mainFrame = editor.createFrame(menubar);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainFrame.addWindowListener(windowListener);
-		mainFrame.setVisible(true);
+		
 		graph.refresh();
 		editor.repaint();
 		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener()
@@ -308,10 +317,16 @@ public class MojGraph {
 				graphComponent.validateGraph();
 			}
 		});
+		framesOpened++;
+	}
+	
+	public void view() {
+		mainFrame.setVisible(true);
 	}
 	
 	public static void main(String[] args) {
-		MojGraph m = new MojGraph() ;
+		MojGraph m = new MojGraph();
+		m.view();
 		
 	}
 }

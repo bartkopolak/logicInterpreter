@@ -8,6 +8,8 @@ import javax.swing.TransferHandler;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.HistoryAction;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.Nodes.DiagramInputBean;
+import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.BlockInfoAction;
 
 import com.mxgraph.model.mxCell;
@@ -78,7 +80,12 @@ public class EditorPopupMenu extends JPopupMenu
 			add(basicGraphEditor.bind(mxResources.get("blockInfo"),
 				new BlockInfoAction(basicGraphEditor.getGraphComponent(), (BlockBean) selCell.getValue()))).setSelected(!selectedMany);
 			
-		
+		if(selCell != null && selCell.getValue() instanceof VCCNode) {
+			System.out.println("VCCNODE");
+		}
+		if(selCell != null && selCell.getValue() instanceof DiagramInputBean) {
+			System.out.println("DIAGRAM");
+		}
 		//addSeparator();
 
 		//add(basicGraphEditor.bind(mxResources.get("selectVertices"), mxGraphActions

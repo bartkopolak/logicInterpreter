@@ -17,7 +17,7 @@ public class OutputBean extends Node implements Serializable{
 	
 	public OutputBean(String name){
 		this.name = name;
-		state = new ThreeStateBoolean(false);
+		state = ThreeStateBoolean.UNKNOWN;
 		wire = new Wire(this);
 	}
 	
@@ -53,4 +53,14 @@ public class OutputBean extends Node implements Serializable{
 	public String toString() {
 		return name;
 	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		OutputBean b = new OutputBean(name);
+		b.state = new ThreeStateBoolean(false);
+		b.wire = new Wire(this);
+		return b;
+	}
+	
+	
 }

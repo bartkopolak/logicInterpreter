@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.*;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphActions;
@@ -115,46 +116,12 @@ public class SchemaEditorMenuBar extends JMenuBar
 
 		menu.addSeparator();
 
+		menu.add(new ToggleOutlineItem(editor, mxResources.get("outline")));
 		menu.add(new ToggleGridItem(editor, mxResources.get("grid")));
 		menu.add(new ToggleRulersItem(editor, mxResources.get("rulers")));
 
 		menu.addSeparator();
-
-		submenu = (JMenu) menu.add(new JMenu(mxResources.get("zoom")));
-
-		submenu.add(editor.bind("400%", new ScaleAction(4)));
-		submenu.add(editor.bind("200%", new ScaleAction(2)));
-		submenu.add(editor.bind("150%", new ScaleAction(1.5)));
-		submenu.add(editor.bind("100%", new ScaleAction(1)));
-		submenu.add(editor.bind("75%", new ScaleAction(0.75)));
-		submenu.add(editor.bind("50%", new ScaleAction(0.5)));
-
-		submenu.addSeparator();
-
-		submenu.add(editor.bind(mxResources.get("custom"), new ScaleAction(0)));
-
-		menu.addSeparator();
-
-		menu.add(editor.bind(mxResources.get("zoomIn"), mxGraphActions
-				.getZoomInAction()));
-		menu.add(editor.bind(mxResources.get("zoomOut"), mxGraphActions
-				.getZoomOutAction()));
-
-		menu.addSeparator();
-
-		menu.add(editor.bind(mxResources.get("actualSize"), mxGraphActions
-				.getZoomActualAction()));
-
-		// Creates the diagram menu
-		menu = add(new JMenu(mxResources.get("diagram")));
-
-		menu.add(new ToggleOutlineItem(editor, mxResources.get("outline")));
-		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((GraphEditor)editor))));
-		menu.add(editor.bind(mxResources.get("simulate"), new SimulateAction(((GraphEditor)editor))));
-		menu.add(editor.bind(mxResources.get("createblock"), new BlockEditAction(((GraphEditor)editor))));
 		
-		menu.addSeparator();
-
 		submenu = (JMenu) menu.add(new JMenu(mxResources.get("grid")));
 
 		submenu.add(editor.bind(mxResources.get("gridSize"),
@@ -172,6 +139,52 @@ public class SchemaEditorMenuBar extends JMenuBar
 				mxGraphComponent.GRID_STYLE_LINE)));
 		submenu.add(editor.bind(mxResources.get("cross"), new GridStyleAction(
 				mxGraphComponent.GRID_STYLE_CROSS)));
+		
+		menu.addSeparator();
+		
+		submenu = (JMenu) menu.add(new JMenu(mxResources.get("zoom")));
+
+		submenu.add(editor.bind("400%", new ScaleAction(4)));
+		submenu.add(editor.bind("200%", new ScaleAction(2)));
+		submenu.add(editor.bind("150%", new ScaleAction(1.5)));
+		submenu.add(editor.bind("100%", new ScaleAction(1)));
+		submenu.add(editor.bind("75%", new ScaleAction(0.75)));
+		submenu.add(editor.bind("50%", new ScaleAction(0.5)));
+
+		submenu.addSeparator();
+
+		submenu.add(editor.bind(mxResources.get("custom"), new ScaleAction(0)));
+
+		
+
+		menu.add(editor.bind(mxResources.get("zoomIn"), mxGraphActions
+				.getZoomInAction()));
+		menu.add(editor.bind(mxResources.get("zoomOut"), mxGraphActions
+				.getZoomOutAction()));
+
+		menu.addSeparator();
+
+		menu.add(editor.bind(mxResources.get("actualSize"), mxGraphActions
+				.getZoomActualAction()));
+
+		// Creates the diagram menu
+		menu = add(new JMenu(mxResources.get("diagram")));
+
+		
+		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("simulate"), new SimulateAction(((GraphEditor)editor))));
+		
+
+		
+		menu = add(new JMenu(mxResources.get("palettes")));
+		menu.add(editor.bind(mxResources.get("createBlock"), new BlockCreateAction(((GraphEditor)editor),false,null)));
+		menu.add(editor.bind(mxResources.get("createBlockDiag"), new BlockCreateAction(((GraphEditor)editor),true,null)));
+		
+		menu.addSeparator();
+		
+		menu.add(editor.bind(mxResources.get("palEdit"), new PaletteEditAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("palRefresh"), new PaletteRefreshAction(((GraphEditor)editor))));
+		
 		/*
 		menu.addSeparator();
 
@@ -229,7 +242,7 @@ public class SchemaEditorMenuBar extends JMenuBar
 				.get("centerZoom"), "CenterZoom", true));
 		submenu.add(new TogglePropertyItem(graphComponent, mxResources
 				.get("zoomToSelection"), "KeepSelectionVisibleOnZoom", true));
-		menu.add(editor.bind(mxResources.get("palEdit"), new PaletteEditAction(((GraphEditor)editor))));
+		
 		
 		// This feature is not yet implemented
 		//submenu.add(new TogglePropertyItem(graphComponent, mxResources

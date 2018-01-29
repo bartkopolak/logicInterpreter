@@ -28,7 +28,6 @@
             <xs:sequence>
               <xs:element name="input" maxOccurs="unbounded" minOccurs="1">
                 <xs:complexType>
-
                   <xs:sequence>
                     <xs:element type="xs:string" name="name"/>
                     <xs:element name="links"  minOccurs="0" maxOccurs="1">
@@ -48,6 +47,7 @@
                     </xs:element>
                   </xs:sequence>
 				  <xs:attribute name="position" type="xs:string" use="optional"/>
+				  <xs:attribute name="type" type="xs:string" use="optional"/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>

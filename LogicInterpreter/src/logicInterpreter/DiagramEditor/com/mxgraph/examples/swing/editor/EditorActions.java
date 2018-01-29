@@ -15,12 +15,15 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -81,16 +84,18 @@ import com.mxgraph.util.png.mxPngTextDecoder;
 import com.mxgraph.view.mxGraph;
 
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.MojGraph;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSim;
 import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
 import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
 import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.TemplateBlockWizard;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
-import logicInterpreter.Tools.AlteraSim;
 import logicInterpreter.Tools.DiagFileUtils;
 import logicInterpreter.Tools.VHDLCreator;
 
@@ -783,6 +788,7 @@ public class EditorActions
 						
 						editor.setModified(false);
 						editor.setCurrentFile(new File(filename));
+						editor.setDiagramName(f.getName().replaceFirst("[.][^.]+$", ""));
 					}
 					else if (ext.equalsIgnoreCase("html"))
 					{
@@ -2285,12 +2291,25 @@ public class EditorActions
 			if(source != null) {
 				BlockBean block = (BlockBean) source.getValue();
 				if(!block.isDefault()) {
-					FuncBlockEditor wizard = new FuncBlockEditor(block, changeXML);
-					wizard.setVisible(true);
-					if(wizard != null) {
-						if(changeXML) editor.fillAllPalettes();
-						if(editor != null) editor.getGraphComponent().refresh();
+					if(block.getType().equals(BlockBean.TYPE_FUNCTION)) {
+						FuncBlockEditor wizard = new FuncBlockEditor(block, changeXML);
+						wizard.setVisible(true);
+						if(wizard != null) {
+							if(changeXML) editor.fillAllPalettes();
+							if(editor != null) editor.getGraphComponent().refresh();
+						}
 					}
+					else if(block.getType().equals(BlockBean.TYPE_DIAGRAM)) {
+						MojGraph editorWindow = new MojGraph();
+						
+						try {
+							DiagFileUtils.readDiagramFile(editorWindow.getEditor(), block.getFile().getAbsolutePath());
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(null, "Błąd przy otwieraniu pliku diagramu");
+						}
+						editorWindow.view();
+					}
+					
 					
 				}
 				else {
@@ -2308,6 +2327,50 @@ public class EditorActions
 			source = cell;
 			this.editor = editor;
 			this.changeXML = changeXML;
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class RemoveAction extends AbstractAction
+	{
+
+		mxCell source;
+		GraphEditor editor;
+		boolean changeXML;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(source != null) {
+				BlockBean block = (BlockBean) source.getValue();
+				if(!block.isDefault()) {
+					int r = JOptionPane.showConfirmDialog(null, "Czy na pewno chcesz usunąć blok "+block.getName()+"?", "Pytanie", JOptionPane.YES_NO_OPTION);
+					if(r == JOptionPane.YES_OPTION) {
+							File f = block.getFile();
+						if(f.delete()) {
+							editor.fillAllPalettes();
+						}
+						else {
+							EditorAlerts.show(null, "blockRemoveError");
+						}
+					}
+					
+					
+					
+				}
+				else {
+					EditorAlerts.show(null, "defaultBlockEditAttempt");
+				}
+
+			}
+			
+			
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public RemoveAction(mxCell cell, GraphEditor editor) {
+			source = cell;
+			this.editor = editor;
 		}
 		
 	}
@@ -2351,13 +2414,8 @@ public class EditorActions
 			
 			
 			try {
-				DiagramBean diagram = g.createDiagram();
-				diagram.evaluate();
-				AlteraSim sim = new AlteraSim(diagram);
+				AlteraSim sim = new AlteraSim(g);
 				sim.setVisible(true);
-			} catch (RecurrentLoopException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (MultipleOutputsInInputException e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
 				e.printStackTrace();
@@ -2368,31 +2426,29 @@ public class EditorActions
 	}
 	
 	@SuppressWarnings("serial")
-	public static class BlockEditAction extends AbstractAction
+	public static class BlockCreateAction extends AbstractAction
 	{
 		private GraphEditor g;
-		public BlockEditAction(GraphEditor editor) {
+		private boolean createFromOpenedDiagram;
+		private String path;
+		public BlockCreateAction(GraphEditor editor, boolean createFromOpenedDiagram, String path) {
 			g = editor;
+			this.createFromOpenedDiagram = createFromOpenedDiagram;
+			this.path = path;
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			
-			
+			TemplateBlockWizard wizard;
 			try {
-				DiagramBean diagram = g.createDiagram();
-				diagram.evaluate();
-				File f = new File("D:/test.tmbl");
-				if(!f.exists()) f.createNewFile();
-				FileOutputStream out = new FileOutputStream(f);
-				
-				DiagFileUtils.createTemplateBlockFile(null, g,"test", out);
-				System.out.println("test na d");
-			} catch (RecurrentLoopException | IOException | ParserConfigurationException | TransformerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(createFromOpenedDiagram)
+					wizard = new TemplateBlockWizard(BlockBean.TYPE_DIAGRAM, g, g.createDiagram(), path);
+				else
+					wizard = new TemplateBlockWizard(BlockBean.TYPE_FUNCTION, g, null, path);
+				wizard.setVisible(true);
 			} catch (MultipleOutputsInInputException e) {
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
-				e.printStackTrace();
+				// TODO Auto-generated catch block
+				JOptionPane.showMessageDialog(null, e.getMessage());
 			}
 			
 		}
@@ -2428,8 +2484,29 @@ public class EditorActions
 		public void actionPerformed(ActionEvent arg0) {
 			try {
 				VHDLCreator v = new VHDLCreator(editor.createDiagram());
-				System.out.println(v.createVHDL());
-			} catch (MultipleOutputsInInputException e) {
+				JFileChooser fc = new JFileChooser();
+				DefaultFileFilter vhdlFilter = new DefaultFileFilter(".vhd", "Plik VHDL");
+				fc.setFileFilter(vhdlFilter);
+				int result = fc.showSaveDialog(null);
+				if(result == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					
+					if (file.exists()
+							&& JOptionPane.showConfirmDialog(null,
+									mxResources.get("overwriteExistingFile")) != JOptionPane.YES_OPTION)
+					{
+						return;
+					}
+					if(!file.exists()) file.createNewFile();
+					String data = v.createVHDL();
+					BufferedReader br = new BufferedReader(new StringReader(data));
+					PrintWriter pw = new PrintWriter(file);
+					br.lines().forEach(line -> pw.println(line));
+					br.close();
+					pw.close();
+				}
+				
+			} catch (MultipleOutputsInInputException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -2450,6 +2527,20 @@ public class EditorActions
 		public void actionPerformed(ActionEvent arg0) {
 			PaletteEditor ed = new PaletteEditor(editor);
 			ed.setVisible(true);
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class PaletteRefreshAction extends AbstractAction
+	{
+		private GraphEditor editor;
+		public PaletteRefreshAction(GraphEditor editor) {
+			this.editor = editor;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			editor.fillAllPalettes();
 		}
 		
 	}

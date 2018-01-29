@@ -59,7 +59,8 @@ public class Wire implements Serializable{
 	 */
 	public void addToInput(InputBean toInput){
 		toInput.from = parent;
-		to.add(toInput);
+		if(!to.contains(toInput))
+			to.add(toInput);
 	}
 	/**
 	 * Pobiera listę wszystkich wejść układu, do których połączenie jest podłączone

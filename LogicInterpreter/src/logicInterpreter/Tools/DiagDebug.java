@@ -118,7 +118,6 @@ public class DiagDebug extends JFrame {
 					try {
 						diagram.evaluate();
 					} catch (RecurrentLoopException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -264,7 +263,6 @@ public class DiagDebug extends JFrame {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setBounds(100, 100, 684, 544);
