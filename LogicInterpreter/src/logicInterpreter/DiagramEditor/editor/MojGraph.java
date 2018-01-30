@@ -7,30 +7,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.font.TextMeasurer;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
 
-import javax.swing.ImageIcon;
+import java.util.ArrayList;
+
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.MenuBarUI;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.SchemaEditorMenuBar;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.SaveAction;
 import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
@@ -40,42 +33,32 @@ import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
 import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Nodes.Wire;
-import logicInterpreter.Tools.DiagFileUtils;
 
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
-import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxFastOrganicLayout;
-import com.mxgraph.layout.mxOrganicLayout;
-import com.mxgraph.layout.mxParallelEdgeLayout;
-import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxPoint;
-import com.mxgraph.util.mxRectangle;
-import com.mxgraph.util.mxResources;
+
+
 import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxMultiplicity;
 
 public class MojGraph {
 
 	final int PORT_DIAMETER = 8;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
-	Document xmlDocument = mxDomUtils.createDocument();
-	Element inputNode = xmlDocument.createElement("input");
-	Element outputNode = xmlDocument.createElement("output");
 	EditorPalette palette;
 	GraphEditor editor;
 	JFrame mainFrame;
 	private static int framesOpened;
+	FontMetrics fontMetrics;
 	mxGraph graph = new mxGraph() {
 
 		@Override
@@ -152,12 +135,17 @@ public class MojGraph {
 					{
 						if (cell instanceof mxCell && newValue != null)
 						{
-							Object value = ((mxCell) cell).getValue();
+							mxCell dCell = (mxCell)cell;
+							Object value = dCell.getValue();
 
 							if (value instanceof BlockBean)
 							{
 								BlockBean block = (BlockBean) value;
 								block.setName((String)newValue);
+								int width = block.getBaseCellRect().width + fontMetrics.stringWidth(block.toString());
+								int height = block.getBaseCellRect().height;
+								dCell.getGeometry().setWidth(width);
+								dCell.getGeometry().setHeight(height);
 							}
 							else if(value instanceof InputBean) {
 								InputBean input = (InputBean) value;
@@ -167,6 +155,7 @@ public class MojGraph {
 								OutputBean output = (OutputBean) value;
 								output.setName((String)newValue);
 							}
+							
 							this.refresh();
 						}
 
@@ -257,8 +246,8 @@ public class MojGraph {
 	    mxCodecRegistry.register(new mxObjectCodec(new OutputBean(),new String[] {"wire", "state"}, null, null));
 		mxCodecRegistry.register(new mxObjectCodec(new VCCNode()));
 		mxCodecRegistry.register(new mxObjectCodec(new GNDNode()));
-	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramInputBean()));
-	    mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.DiagramOutputBean()));
+	    mxCodecRegistry.register(new mxObjectCodec(new DiagramInputBean()));
+	    mxCodecRegistry.register(new mxObjectCodec(new DiagramOutputBean()));
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockInputBean(), null, new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockOutputBean(), null ,new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new Wire(), new String[] {"id"}, new String[] {"parent", "to"},null));
@@ -294,7 +283,7 @@ public class MojGraph {
 		graphComponent.setGridColor(Color.BLACK);
 		graphComponent.setBackground(Color.white);
 		graphComponent.setToolTips(true);
-		
+		fontMetrics = graphComponent.getFontMetrics(new Font("Times",Font.PLAIN, 12));
 		//graphComponent.setFoldingEnabled(false);
 		
 		editor = new GraphEditor("Edytor diagramów", graphComponent);

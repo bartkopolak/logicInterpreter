@@ -2,7 +2,6 @@ package logicInterpreter.DiagramEditor.editor.Tools;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,36 +18,19 @@ import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultCellEditor;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.mxgraph.model.mxCell;
-import com.mxgraph.util.mxResources;
-
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.DefaultFileFilter;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
-import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Tools.DiagFileUtils;
 
 import javax.swing.JScrollPane;
@@ -59,15 +41,10 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.swing.SwingConstants;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
@@ -77,6 +54,10 @@ import javax.swing.border.TitledBorder;
 
 public class FuncBlockEditor extends JDialog {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JScrollPane scrollPane_inp;
 	private JScrollPane scrollPane_out;
@@ -85,7 +66,6 @@ public class FuncBlockEditor extends JDialog {
 	private JTextField funcField;
 	private JSpinner spinnerInput;
 	private JSpinner spinnerOutput;
-	private JTable table_1;
 	private BlockBean block = null;
 	/**
 	 * Launch the application.

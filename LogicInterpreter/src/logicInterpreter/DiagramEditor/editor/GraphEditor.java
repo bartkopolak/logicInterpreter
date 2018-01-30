@@ -3,6 +3,7 @@ package logicInterpreter.DiagramEditor.editor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -136,8 +137,9 @@ public class GraphEditor extends BasicGraphEditor {
 		if(maxNSpins == 0) maxNSpins++;
 		int height = 20 + 20 *wcount;
 		
-		int width = 20*(maxNSpins) + fontMetr.stringWidth(block.toString());
-		mxGeometry geo = new mxGeometry(0,0,width,height);
+		int width = 20*(maxNSpins);
+		block.setBaseCellRect(new Rectangle(width, height));
+		mxGeometry geo = new mxGeometry(0,0,width + fontMetr.stringWidth(block.toString()) ,height);
 		mxCell cell = new mxCell(block, geo, "");
 		cell.setConnectable(false);
 		cell.setVertex(true);

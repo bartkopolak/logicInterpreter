@@ -85,10 +85,10 @@ public class VHDLCreator {
 		StringBuffer sb = new StringBuffer();
 		sb.append("(\n");
 		for(int i=0; i<block.getInputList().size(); i++) {
-			sb.append(block.getInput(i).getName() + ": in std_logic;\n");
+			sb.append(block.getInput(i).getVHDLName() + ": in std_logic;\n");
 		}
 		for(int i=0; i<block.getOutputList().size(); i++) {
-			sb.append(block.getOutput(i).getName() + ": out std_logic");
+			sb.append(block.getOutput(i).getVHDLName() + ": out std_logic");
 			if(i<block.getOutputList().size()-1) sb.append(";");
 			sb.append("\n");
 		}
@@ -103,7 +103,7 @@ public class VHDLCreator {
 		List<List<BlockBean>> flowList = diagram.getFlowList();
 		for(List<BlockBean> level : flowList) {
 			for(BlockBean b : level) {
-				sb.append("U_"+b.getName()+"_"+mapCount+": c_"+b.getTemplateBlock().getName()+" port map (");
+				sb.append("U_"+b.getVHDLName()+"_"+mapCount+": c_"+b.getTemplateBlock().getVHDLName()+" port map (");
 				for(int i=0; i<b.getInputList().size(); i++) {
 					OutputBean src = b.getInput(i).getFrom();
 					if(src == null) sb.append("open,");
@@ -114,7 +114,7 @@ public class VHDLCreator {
 							else if(src instanceof GNDNode) 
 								sb.append("'0',");
 							else
-								sb.append(src.getName()+",");
+								sb.append(src.getVHDLName()+",");
 						}
 							
 						else if(src instanceof BlockOutputBean) {
@@ -146,19 +146,19 @@ public class VHDLCreator {
 		for(DiagramOutputBean diagOut : diagram.getOutputList()) {
 			OutputBean src = diagOut.getFrom();
 			if(src instanceof VCCNode) {
-				sb.append(diagOut.getName() + " <= '1';\n");
+				sb.append(diagOut.getVHDLName() + " <= '1';\n");
 			}
 			else if(src instanceof GNDNode) {
-				sb.append(diagOut.getName() + " <= '0';\n");
+				sb.append(diagOut.getVHDLName() + " <= '0';\n");
 			}
 			else if(src instanceof DiagramInputBean) {
 				
-				sb.append(diagOut.getName() + " <= " + src.getName() + ";\n");
+				sb.append(diagOut.getVHDLName() + " <= " + src.getVHDLName() + ";\n");
 			}
 			else if(src instanceof BlockOutputBean) {
 				SignalOutputPair signal = getSignal(signals,src);
 			if(signal != null) {
-				sb.append(diagOut.getName() + " <= " + signal.getSignalName() + ";\n");
+				sb.append(diagOut.getVHDLName() + " <= " + signal.getSignalName() + ";\n");
 			}
 			}
 			
@@ -173,7 +173,7 @@ public class VHDLCreator {
 		ArrayList<BlockBean> templBlocks = diagram.getAllTemplateBlocks(null, false);
 		for(int i=0;i<templBlocks.size(); i++) {
 			BlockBean templBlock = templBlocks.get(i);
-			sb.append("component c_" + templBlock.getName() + " is port ");
+			sb.append("component c_" + templBlock.getVHDLName() + " is port ");
 			sb.append(listBlockIO(templBlock));
 			sb.append("end component;\n");
 		}
@@ -197,28 +197,28 @@ public class VHDLCreator {
 		StringBuffer sb = new StringBuffer();
 		sb.append("LIBRARY ieee;\n");
 		sb.append("USE ieee.std_logic_1164.all;\n");
-		sb.append("entity c_" + block.getName() + " is\n");
+		sb.append("entity c_" + block.getVHDLName() + " is\n");
 		sb.append("port\n");
 		sb.append(listBlockIO(block));
-		sb.append("end entity;\narchitecture a_"+block.getName()+ " of c_" +block.getName()+ " is\n");
+		sb.append("end entity;\narchitecture a_"+block.getVHDLName()+ " of c_" +block.getVHDLName()+ " is\n");
 		
 		if(block.getType().equals(BlockBean.TYPE_FUNCTION)) {
 			sb.append("begin\n");
 			for(int i=0;i<block.getOutputList().size();i++) {
 				BlockOutputBean out = block.getOutput(i);
-				sb.append(out.getName() + " <= " + convertFunctionToVHDL(out.getFormula()) +";\n");
+				sb.append(out.getVHDLName() + " <= " + convertFunctionToVHDL(out.getFormula()) +";\n");
 			}
 		}
 		else if(block.getType().equals(BlockBean.TYPE_DIAGRAM)) {
 			
 			if(block.getDiagram() != null) {
 				DiagramBean diagram = block.getDiagram();
-				String signalPrefix = "c_" + block.getName() +"_";
+				String signalPrefix = "c_" + block.getVHDLName() +"_";
 				sb.append(createDiagramArchitecture(diagram, signalPrefix));
 				
 			}
 		}
-		sb.append("end a_"+block.getName()+";\n----------\n");
+		sb.append("end a_"+block.getVHDLName()+";\n----------\n");
 		return sb.toString();
 	}
 	
@@ -233,10 +233,10 @@ public class VHDLCreator {
 		for(int i=0; i<diagram.getInputList().size(); i++) {
 			DiagramInputBean diagInput = diagram.getInput(i);
 			if(!(diagInput instanceof VCCNode) && !(diagInput instanceof GNDNode))
-				sb.append(diagInput.getName() + ": in std_logic;\n");
+				sb.append(diagInput.getVHDLName() + ": in std_logic;\n");
 		}
 		for(int i=0; i<diagram.getOutputList().size(); i++) {
-			sb.append(diagram.getOutput(i).getName() + ": out std_logic");
+			sb.append(diagram.getOutput(i).getVHDLName() + ": out std_logic");
 			if(i<diagram.getOutputList().size()-1) sb.append(";");
 			sb.append("\n");
 		}

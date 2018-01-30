@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.mxgraph.model.mxCell;
-import com.mxgraph.swing.mxGraphComponent;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
@@ -20,7 +19,6 @@ import logicInterpreter.Nodes.BlockOutputBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.GNDNode;
-import logicInterpreter.Nodes.InputBean;
 import logicInterpreter.Nodes.OutputBean;
 import logicInterpreter.Nodes.VCCNode;
 
@@ -30,12 +28,9 @@ import java.awt.GridBagLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 
-import javax.swing.AbstractAction;
 import javax.swing.Box;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;

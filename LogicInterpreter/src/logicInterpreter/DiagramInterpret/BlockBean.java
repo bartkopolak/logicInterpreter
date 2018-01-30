@@ -1,5 +1,6 @@
 package logicInterpreter.DiagramInterpret;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -30,6 +31,7 @@ public class BlockBean implements Serializable{
 	private boolean defaultB = false;
 	private File file = null;
 	private BlockBean templateBlock = null;
+	private Rectangle baseCellRect = null;
 	public static final String TYPE_FUNCTION = "formula";
 	public static final String TYPE_DIAGRAM = "diagram";
 	public BlockBean(){
@@ -51,7 +53,9 @@ public class BlockBean implements Serializable{
 		diagram = b.getDiagram();
 		defaultB = b.isDefault();
 		file = b.getFile();
+		baseCellRect = b.getBaseCellRect();
 		templateBlock = b;
+		
 		
 	}
 	/**
@@ -104,6 +108,10 @@ public class BlockBean implements Serializable{
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	public String getVHDLName() {
+		return name.replaceAll(" ", "");
 	}
 	/**
 	 * Ustawia nazwę bloczka
@@ -305,7 +313,13 @@ public class BlockBean implements Serializable{
 	public void setTemplateBlock(BlockBean templateBlock) {
 		this.templateBlock = templateBlock;
 	}
-
+	
+	public Rectangle getBaseCellRect() {
+		return baseCellRect;
+	}
+	public void setBaseCellRect(Rectangle baseCellRect) {
+		this.baseCellRect = baseCellRect;
+	}
 	@Override
 	public String toString() {
 		return  name;

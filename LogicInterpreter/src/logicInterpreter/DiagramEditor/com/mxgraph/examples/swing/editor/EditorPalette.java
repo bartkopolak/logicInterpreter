@@ -276,19 +276,24 @@ public class EditorPalette extends JPanel
 			
 			if(cell.getValue() instanceof BlockBean) {
 				String blockType = ((BlockBean)cell.getValue()).getType();
-				JMenuItem edit = new JMenuItem();
-				edit.setAction(new EditAction(cell, (GraphEditor)editor, true));
-				if(blockType.equals(BlockBean.TYPE_FUNCTION))
-					edit.setText("Edytuj");
-				else if(blockType.equals(BlockBean.TYPE_DIAGRAM))
-					edit.setText("Otwórz diagram");
-				menu.add(edit);
+				boolean isDef = ((BlockBean)cell.getValue()).isDefault();
+				if(!isDef) {
+					JMenuItem edit = new JMenuItem();
+					edit.setAction(new EditAction(cell, (GraphEditor)editor, true));
+					if(blockType.equals(BlockBean.TYPE_FUNCTION))
+						edit.setText("Edytuj");
+					else if(blockType.equals(BlockBean.TYPE_DIAGRAM))
+						edit.setText("Otwórz diagram");
+					menu.add(edit);
+					JMenuItem remove = new JMenuItem();
+					remove.setAction(new RemoveAction(cell, (GraphEditor)editor));
+					remove.setText("Usuń");
+					menu.add(remove);
+				}
+				
 			}
 			
-			JMenuItem remove = new JMenuItem();
-			remove.setAction(new RemoveAction(cell, (GraphEditor)editor));
-			remove.setText("Usuń");
-			menu.add(remove);
+			
 		return menu;
 	}
 	/**

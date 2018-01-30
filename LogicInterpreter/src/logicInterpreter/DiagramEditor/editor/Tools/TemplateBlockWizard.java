@@ -275,6 +275,7 @@ public class TemplateBlockWizard extends JFrame {
 				try {
 					FileOutputStream out = new FileOutputStream(f);
 					DiagFileUtils.createTemplateBlockFile(null, editor, blockName, out);
+					editor.setDiagramName(blockName);
 					editor.fillAllPalettes();
 					dispose();
 				} catch (IOException | ParserConfigurationException | TransformerException e) {

@@ -790,23 +790,21 @@ public class EditorActions
 						editor.setCurrentFile(new File(filename));
 						editor.setDiagramName(f.getName().replaceFirst("[.][^.]+$", ""));
 					}
+					else if (ext.equalsIgnoreCase("tmpb")) {
+
+						File f = new File(filename);
+						FileOutputStream stream = new FileOutputStream(f);
+						DiagFileUtils.createTemplateBlockFile(null, editor, editor.getDiagramName(), stream);
+						editor.setModified(false);
+						editor.setCurrentFile(new File(filename));
+						editor.setDiagramName(f.getName().replaceFirst("[.][^.]+$", ""));
+						editor.fillAllPalettes();
+					}
 					else if (ext.equalsIgnoreCase("html"))
 					{
 						mxUtils.writeFile(mxXmlUtils.getXml(mxCellRenderer
 								.createHtmlDocument(graph, null, 1, null, null)
 								.getDocumentElement()), filename);
-					}
-					else if (ext.equalsIgnoreCase("mxe")
-							|| ext.equalsIgnoreCase("xml"))
-					{
-						mxCodec codec = new mxCodec();
-						String xml = mxXmlUtils.getXml(codec.encode(graph
-								.getModel()));
-
-						mxUtils.writeFile(xml, filename);
-
-						editor.setModified(false);
-						editor.setCurrentFile(new File(filename));
 					}
 					else if (ext.equalsIgnoreCase("txt"))
 					{
@@ -2489,7 +2487,20 @@ public class EditorActions
 				fc.setFileFilter(vhdlFilter);
 				int result = fc.showSaveDialog(null);
 				if(result == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
+					String filename = fc.getSelectedFile().getAbsolutePath();
+					FileFilter selectedFilter = fc.getFileFilter();
+
+					if (selectedFilter instanceof DefaultFileFilter)
+					{
+						String ext = ((DefaultFileFilter) selectedFilter)
+								.getExtension();
+
+						if (!filename.toLowerCase().endsWith(ext))
+						{
+							filename += ext;
+						}
+					}
+					File file = new File(filename);
 					
 					if (file.exists()
 							&& JOptionPane.showConfirmDialog(null,

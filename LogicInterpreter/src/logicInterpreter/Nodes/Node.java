@@ -26,6 +26,11 @@ public class Node implements Serializable{
 	public String getName() {
 		return name;
 	}
+	
+	public String getVHDLName() {
+		return name.replaceAll(" ", "");
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}

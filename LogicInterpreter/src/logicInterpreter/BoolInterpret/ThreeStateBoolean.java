@@ -56,8 +56,7 @@ public final class ThreeStateBoolean implements java.io.Serializable {
 		public boolean equals(Object obj) {
 			if(obj instanceof Boolean) {
 				Boolean b = (Boolean)obj;
-				if(value == State.UNKNOWN && b == null) ;
-				else if(value == State.TRUE && b) return true;
+				if(value == State.TRUE && b) return true;
 				else if(value == State.FALSE && !b) return true;
 				
 				else return false;
