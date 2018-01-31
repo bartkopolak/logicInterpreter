@@ -50,6 +50,7 @@ import com.mxgraph.util.mxXmlUtils;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.DefaultFileFilter;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
@@ -653,6 +654,51 @@ public class DiagFileUtils {
 		zip.close();
 		return out;
 	}
+	
+	public static String createPinBindsXML(List<PinBind> listOfPinBinds) throws ParserConfigurationException, TransformerException {
+
+		
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		
+		Document doc = docBuilder.newDocument();
+		Element rootElement = doc.createElement("binds");
+		doc.appendChild(rootElement);
+		for(PinBind bind : listOfPinBinds) {
+			Element bindElement = doc.createElement("bind");
+			bindElement.setAttribute("node", bind.getNodeName());
+			bindElement.setAttribute("boardElementIndex", String.valueOf(bind.getBoardElemIndex()));
+			rootElement.appendChild(bindElement);
+		}
+		
+		StringWriter sw = new StringWriter();
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+        transformer.transform(new DOMSource(doc), new StreamResult(sw));
+        return sw.toString();	
+	}
+	
+	public static List<PinBind> parsePinBindsXML(File file) throws SAXException, IOException, ParserConfigurationException{
+		Document doc;
+		doc = getDocument(file);
+		doc.getDocumentElement().normalize();
+		NodeList bindsNodeList = doc.getElementsByTagName("bind");
+		int bindCount = bindsNodeList.getLength();
+		List<PinBind> list = new ArrayList<PinBind>();
+		for(int i=0; i<bindCount; i++) {
+			Node bindNode = bindsNodeList.item(i);
+			if (bindNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element bindElem = (Element) bindNode;
+				PinBind bind = new PinBind(bindElem.getAttribute("node"), Integer.valueOf(bindElem.getAttribute("boardElementIndex")));
+				list.add(bind);
+			}
+		}
+		return list;
+	}
 		
 	/**
 	 * Tworzy archiwum przechowujące wszystkie niezbędne pliki do stworzenia diagramu
@@ -678,15 +724,26 @@ public class DiagFileUtils {
 				
 				if(editor != null) {
 					editor.createDiagram();
-					String xml = mxXmlUtils.getXml(codec.encode(editor.getGraphComponent().getGraph().getModel()));
+					String schemaXml = mxXmlUtils.getXml(codec.encode(editor.getGraphComponent().getGraph().getModel()));
 					ZipEntry editorSchemaEntry = new ZipEntry("editorSchema.xml");
 					zipout.putNextEntry(editorSchemaEntry);
 					{
-						byte[] data = xml.getBytes();
+						byte[] data = schemaXml.getBytes();
 						zipout.write(data);
 						zipout.closeEntry();
 					}
 					diagram = editor.createDiagram();
+					if(editor.getAlteraSimPinBinds() != null) {
+						String pinBindsXml = createPinBindsXML(editor.getAlteraSimPinBinds());
+						ZipEntry pinBindsEntry = new ZipEntry("pinBinds.xml");
+						zipout.putNextEntry(pinBindsEntry);
+						{
+							byte[] data = pinBindsXml.getBytes();
+							zipout.write(data);
+							zipout.closeEntry();
+						}
+					}
+					
 				}
 				else{
 					diagram = diag;
@@ -789,6 +846,13 @@ public class DiagFileUtils {
 			editor.getGraphComponent().zoomAndCenter();
 			editor.setDiagramName(currFile.getName().replaceFirst("[.][^.]+$", ""));
 		}
+		
+		//pinBinds
+		File pinBindsFile = new File(tempFolder.getAbsolutePath() + "/pinBinds.xml");
+		if(pinBindsFile.exists() && editor != null) {
+			editor.setAlteraSimPinBinds(parsePinBindsXML(pinBindsFile));
+		}
+		
 		//diagram
 		File mainDiagram = new File(tempFolder.getAbsolutePath() + "/blocks/diagram.main.xml");
         diagram = DiagFileUtils.parseXMLDiagram(mainDiagram);

@@ -114,18 +114,3 @@ public class BoolInterpreter {
 	
 	
 }
-
-//TODO
-/*
- * W STRUKTURZE DRZEWA
- * MAJA BYC POSZCZEGOLNE BLOCZKI
- * STWORZ GRAF POLACZEN
- * JESLI W GRAFIE POLACZENIE IDZIE DO RODZICA, TO MA SIE NIE WYKONYWAC OD RAZU!
- * IDZIEMY OD KORZENIA W DOL!
- * 
- * + ogarnij z xorem - wejscie 1 oraz wyjscie xora 
- * wyjscie powinno byc 0, ale bedie 101010101010
- * jak co to co kazdy krok bedzie oscylowac
- * jesli nie bedzie zegara, to po prostu przejdz cale drzewo do konca, czyi tylko 1 przebieg.
- * jesli zegar bedzie, cos sie wykombinuje....
- */ 

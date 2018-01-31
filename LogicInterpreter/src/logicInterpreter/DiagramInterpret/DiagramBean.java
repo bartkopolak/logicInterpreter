@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
@@ -24,10 +25,6 @@ public class DiagramBean implements Serializable {
 	private final List<DiagramOutputBean> outputs = new ArrayList<DiagramOutputBean>();
 	private final List<BlockBean> blocks = new ArrayList<BlockBean>();
 	private final List<List<BlockBean>> flowList = new ArrayList<List<BlockBean>>();
-
-	public List<List<BlockBean>> getFlowList() {
-		return flowList;
-	}
 
 	public DiagramBean() {
 
@@ -459,6 +456,10 @@ public class DiagramBean implements Serializable {
 
 	}
 	
+	public List<List<BlockBean>> getFlowList() {
+		return flowList;
+	}
+
 	public boolean validate() {
 		//sprawdzenie czy wejscia mają nie wiecej niz 1 zrodlo
 		

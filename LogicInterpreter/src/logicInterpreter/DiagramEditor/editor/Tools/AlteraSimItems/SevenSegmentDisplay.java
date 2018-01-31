@@ -1,4 +1,4 @@
-package logicInterpreter.Tools.AlteraSimItems;
+package logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems;
 
 import java.awt.Color;
 import java.awt.Component;

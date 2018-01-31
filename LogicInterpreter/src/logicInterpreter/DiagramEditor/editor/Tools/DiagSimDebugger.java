@@ -12,6 +12,7 @@ import com.mxgraph.model.mxCell;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.GraphEditor.AdditionalEdgeForOutputNode;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
@@ -53,7 +54,7 @@ public class DiagSimDebugger extends JFrame {
 	private ArrayList<JLabel> outputValLabels = new ArrayList<JLabel>();
 	
 	private ArrayList<mxCell> edges = new ArrayList<mxCell>();
-	
+	boolean edgeListFilled = false;
 	private void evaluate() {
 		try {
 			diagram.evaluate();
@@ -65,9 +66,25 @@ public class DiagSimDebugger extends JFrame {
 		
 	}
 	
+	private void colorEdge(mxCell edge, ThreeStateBoolean state) {
+		if(edge != null) {
+			if(state.equals(ThreeStateBoolean.FALSE)) {
+				edge.setStyle("strokeColor=red");
+			}
+			else if(state.equals(ThreeStateBoolean.TRUE)) {
+				edge.setStyle("strokeColor=green");
+				
+			}
+			else {
+				edge.setStyle("strokeColor=black");
+			}
+			
+		}	  
+	}
+	
 	public void colorEdges() {
 		ArrayList<mxCell> outputs = editor.getAllOutputCells();
-		edges.clear();
+		if(!edgeListFilled) edges.clear();
 		//link outputs with inputs
 				for(int i=0; i<outputs.size(); i++) {
 					mxCell outcell = outputs.get(i);
@@ -88,28 +105,27 @@ public class DiagSimDebugger extends JFrame {
 					
 					for(int j=0; j<outcell.getEdgeCount(); j++) {
 						mxCell edge = (mxCell) outcell.getEdgeAt(j);
-						edges.add(edge);
-						if(edge != null) {
-							if(state.equals(ThreeStateBoolean.FALSE)) {
-								edge.setStyle("strokeColor=red");
-							}
-							else if(state.equals(ThreeStateBoolean.TRUE)) {
-								edge.setStyle("strokeColor=green");
-								
-							}
-							else {
-								edge.setStyle("strokeColor=black");
-							}
-							
-						}	  
+						if(!edgeListFilled) edges.add(edge);
+						colorEdge(edge, state);
+					}
+					for(GraphEditor.AdditionalEdgeForOutputNode extraedge : editor.getAdditionalEdgesList()) {
+						if(extraedge.getNode().equals(outputNode)) {
+							if(!edgeListFilled) edges.add(extraedge.getAdditionalEdge());
+							colorEdge(extraedge.getAdditionalEdge(),state);
+						}
+						
+						//znajdz pin wyjscia
 					}
 					
 				}
+				
+		
 		for(int i=0; i<diagram.getOutputList().size(); i++) {
 			JLabel l = outputValLabels.get(i);
 			l.setText(diagram.getOutput(i).getState().toString());
 		}
 		editor.getGraphComponent().refresh();
+		edgeListFilled = true;
 	}
 	
 	private void initInputStates() {

@@ -2317,7 +2317,7 @@ public class EditorActions
 			}
 			
 			
-			// TODO Auto-generated method stub
+			// 
 			
 		}
 		
@@ -2362,7 +2362,7 @@ public class EditorActions
 			}
 			
 			
-			// TODO Auto-generated method stub
+			// 
 			
 		}
 		
@@ -2390,7 +2390,6 @@ public class EditorActions
 				DiagSimDebugger sim = new DiagSimDebugger(g, diagram);
 				sim.setVisible(true);
 			} catch (RecurrentLoopException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (MultipleOutputsInInputException e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Błędny diagram", JOptionPane.ERROR_MESSAGE, null);
@@ -2445,7 +2444,7 @@ public class EditorActions
 					wizard = new TemplateBlockWizard(BlockBean.TYPE_FUNCTION, g, null, path);
 				wizard.setVisible(true);
 			} catch (MultipleOutputsInInputException e) {
-				// TODO Auto-generated catch block
+				// 
 				JOptionPane.showMessageDialog(null, e.getMessage());
 			}
 			
@@ -2518,7 +2517,7 @@ public class EditorActions
 				}
 				
 			} catch (MultipleOutputsInInputException | IOException e) {
-				// TODO Auto-generated catch block
+				// 
 				e.printStackTrace();
 			}
 			

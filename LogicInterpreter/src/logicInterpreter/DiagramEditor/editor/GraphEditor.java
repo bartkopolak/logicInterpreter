@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -46,6 +47,7 @@ import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPopupMenu;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
@@ -78,7 +80,37 @@ public class GraphEditor extends BasicGraphEditor {
 		
 	}
 	
+	public class AdditionalEdgeForOutputNode{
+		private OutputBean node;
+		private mxCell additionalEdge;
 	
+		
+		public AdditionalEdgeForOutputNode(OutputBean node, mxCell extraCell) {
+			this.node = node;
+			additionalEdge = extraCell;
+		}
+
+
+		public OutputBean getNode() {
+			return node;
+		}
+
+		public mxCell getAdditionalEdge() {
+			return additionalEdge;
+		}
+
+		
+	}
+	
+	private List<PinBind> alteraSimPinBinds = null;
+	
+	public List<PinBind> getAlteraSimPinBinds() {
+		return alteraSimPinBinds;
+	}
+
+	public void setAlteraSimPinBinds(List<PinBind> alteraSimPinBinds) {
+		this.alteraSimPinBinds = alteraSimPinBinds;
+	}
 	
 	public static int checkCellBusy(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
 		int count = 0;
@@ -99,6 +131,27 @@ public class GraphEditor extends BasicGraphEditor {
 			}
 		}
 		return count;	//jesli nie znaleziono zadnego polaczenia z pinem wyjscia oraz przeszukano wszystkie połączenia wejscie-wejscie, to dany pin nie jest zajety
+	}
+	
+	public static mxCell getParent(mxCell trgCell,ArrayList<mxCell> visitedEdges) {
+		mxCell source;
+		for(int i=0; i<trgCell.getEdgeCount(); i++) {
+			
+			mxCell trgEdge = (mxCell) trgCell.getEdgeAt(i);	//pobierz polaczenie pomiedzy pinami
+			if(visitedEdges.contains(trgEdge)) continue;
+			mxCell trgEdgeTarget = (trgEdge.getSource().equals(trgCell)) ? 	//pobierz cel polaczenia
+					(mxCell)trgEdge.getTarget() : (mxCell)trgEdge.getSource();
+			if(trgEdgeTarget != null) {
+				if(trgEdgeTarget.getValue() instanceof OutputBean || trgEdgeTarget.getValue() instanceof DiagramInputBean) {	//jesli polaczono z wyjsciem, wejscie zajęte
+					return trgEdgeTarget;
+				}
+				if(trgEdgeTarget.getValue() instanceof InputBean) {     //jesli polaczono z wejsciem, sprawdz, czy owe wejscie nie ma polaczenia z wyjsciem
+					visitedEdges.add(trgEdge);
+					return getParent(trgEdgeTarget, visitedEdges);
+				}
+			}
+		}
+		return null;
 	}
 	
 	public ArrayList<PathPaletteGroup> palettes = new ArrayList<PathPaletteGroup>();
@@ -354,9 +407,29 @@ public class GraphEditor extends BasicGraphEditor {
 	 */
 	private ArrayList<mxCell> inputsLinkedWithInputEdges = new ArrayList<mxCell>();
 	
+	private ArrayList<AdditionalEdgeForOutputNode> additionalEdgesList = new ArrayList<AdditionalEdgeForOutputNode>();
+	
+	public ArrayList<AdditionalEdgeForOutputNode> getAdditionalEdgesList() {
+		return additionalEdgesList;
+	}
 
-	public ArrayList<mxCell> getinputsLinkedWithInputEdges() {
-		return inputsLinkedWithInputEdges;
+	public void linkInputToInputConnections(mxCell srcCell, OutputBean outputNode) {
+		AdditionalEdgeForOutputNode extraEdge = null;
+		for(int k=0; k<srcCell.getEdgeCount(); k++) {
+			mxCell inputEdge = (mxCell) srcCell.getEdgeAt(k);		//pobierz połączenie wychodzące z pinu wejścia
+			mxCell inputEdgeTarget = (inputEdge.getSource().equals(srcCell)) 
+					? (mxCell) inputEdge.getTarget() : (mxCell) inputEdge.getSource();	//zidentyfikuj cel 
+			Object ieVal = inputEdgeTarget.getValue();				//pobierz obiekt układu logicznego reprezentowany przez cel połączenia
+			if(!inputsLinkedWithInputEdges.contains(inputEdge) && ieVal instanceof InputBean) {	//jeśli dane wejście jest połączone z innym wejściem
+				InputBean tietNode = (InputBean) ieVal;
+				inputsLinkedWithInputEdges.add(inputEdge);
+				extraEdge = new AdditionalEdgeForOutputNode(outputNode, inputEdge);
+				outputNode.addLink(tietNode);	
+				linkInputToInputConnections(inputEdgeTarget, outputNode);
+			}
+		}
+		if(extraEdge != null)
+			additionalEdgesList.add(extraEdge);
 	}
 
 	public DiagramBean createDiagram() throws MultipleOutputsInInputException {
@@ -420,7 +493,7 @@ public class GraphEditor extends BasicGraphEditor {
 			ArrayList<StringInt>blockNames = new ArrayList<StringInt>();
 			for(int i=0; i< blockList.size(); i++) {
 				BlockBean b = blockList.get(i);
-				int n = checkList(blockNames, getBasename(b.getName()));
+				int n = checkList(blockNames, getBasename(b.getName()));		
 				if(n >= 0) b.setName(getBasename(b.getName()) + "_" + n);
 				b.setName(b.getName().replaceAll("[.]", ""));
 			}
@@ -448,36 +521,28 @@ public class GraphEditor extends BasicGraphEditor {
 		inputsLinkedWithInputEdges.clear();
 		//link outputs with inputs
 		for(int i=0; i<allOutputCells.size(); i++) {
-			mxCell outcell = allOutputCells.get(i);
-			OutputBean outputNode = (OutputBean) outcell.getValue();
-			
-			for(int j=0; j<outcell.getEdgeCount(); j++) {
-				mxCell edge = (mxCell) outcell.getEdgeAt(j);
+			mxCell srcCell = allOutputCells.get(i);											//obiekt diagramu - pin wyjscia
+			OutputBean outputNode = (OutputBean) srcCell.getValue();						//pin wyjściowy układu logicznego
+			outputNode.resetLinks();														//zresetuj połączenia wyjścia
+			for(int j=0; j<srcCell.getEdgeCount(); j++) {									//dla każdego połaczenia wychodzącego w diagramie z wyjścia
+				mxCell edge = (mxCell) srcCell.getEdgeAt(j);								//obiekt połączenia w diagramie
 				if(edge != null) {
-					mxCell targetCell = (mxCell) edge.getTarget();
-					Object value = targetCell.getValue();
+					mxCell targetCell = (mxCell) edge.getTarget();							//obiekt diagramu - cel połączenia
+					Object value = targetCell.getValue();									//obiekt układu który reprezentowany jest przez wyzej zdefiniowany obiekt diagramu
 					if(value != null) {
-						if(!(value instanceof InputBean)){
-							targetCell = (mxCell) edge.getSource();
+						if(!(value instanceof InputBean)){									//jeśli wartość obiektu diagramu nie jest pinem wejścia
+							targetCell = (mxCell) edge.getSource();							//to moze znaczyć, że połączenie pomiędzy pinami jest odwrotnie przypisane
 							value = targetCell.getValue();
 						}
-						if(value instanceof InputBean){
-							InputBean target = (InputBean) value;
-							if(checkCellBusy(targetCell, new ArrayList<mxCell>()) > 1) throw new MultipleOutputsInInputException(".", target.toString());
-							outputNode.addLink(target);
+						if(value instanceof InputBean){										//jeśli cel połączenia to pin wejścia
+							InputBean target = (InputBean) value;							//pin wejściowy układu logicznego
+							if(checkCellBusy(targetCell, new ArrayList<mxCell>()) > 1) 
+								throw new MultipleOutputsInInputException(".", target.toString());	//sprawdza czy do pinu nie połączono więcej niż 1 wyjście
+							outputNode.addLink(target);										//dodaj połączenie do tego wejścia
 							//stwórz połączenie do wejść, które poł;aćzone są z innymi wejściami
 							//(gdy wejście B połączone jest z wejściem A, a A połączone jest z wyjściem X to wejście B ma stan wyjścia X)
-							for(int k=0; k<targetCell.getEdgeCount(); k++) {
-								mxCell trgInputEdge = (mxCell) targetCell.getEdgeAt(k);
-								mxCell trgInputEdgeTarget = (trgInputEdge.getSource().equals(trgInputEdge)) 
-										? (mxCell) trgInputEdge.getTarget() : (mxCell) trgInputEdge.getSource();
-								Object tietVal = trgInputEdgeTarget.getValue();
-								if(!trgInputEdgeTarget.equals(outcell) && tietVal instanceof InputBean) {
-									InputBean tietNode = (InputBean) tietVal;
-									inputsLinkedWithInputEdges.add(trgInputEdge);
-									outputNode.addLink(tietNode);
-								}
-							}
+							//FIXME: rekurencyjnie lącz pin wejściowy z pinami wejsciowymi,warunek wyzej!
+							linkInputToInputConnections(targetCell, outputNode);
 						}
 						
 					}

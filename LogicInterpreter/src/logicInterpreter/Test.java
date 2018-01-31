@@ -48,7 +48,6 @@ public class Test {
 			System.out.println("Błąd w pliku xml bloku: " + e.getMessage());
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -93,7 +92,7 @@ public class Test {
 			
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			//
 			e.printStackTrace();
 		}
 		*/

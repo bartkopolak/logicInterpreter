@@ -3,6 +3,7 @@ package logicInterpreter.DiagramEditor.editor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -141,7 +142,14 @@ public class MojGraph {
 							if (value instanceof BlockBean)
 							{
 								BlockBean block = (BlockBean) value;
+								if(block.getBaseCellRect() == null) {
+									int width = (int) (dCell.getGeometry().getWidth() - fontMetrics.stringWidth(block.toString()));
+									int height = (int) dCell.getGeometry().getHeight();
+									Rectangle baseRect = new Rectangle(width, height);
+									block.setBaseCellRect(baseRect);
+								}
 								block.setName((String)newValue);
+								
 								int width = block.getBaseCellRect().width + fontMetrics.stringWidth(block.toString());
 								int height = block.getBaseCellRect().height;
 								dCell.getGeometry().setWidth(width);

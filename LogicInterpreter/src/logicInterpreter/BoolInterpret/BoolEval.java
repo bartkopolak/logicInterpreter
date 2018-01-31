@@ -43,12 +43,6 @@ public class BoolEval extends AbstractEvaluator<ThreeStateBoolean> {
 	}
   }
  
-  /**
-   * TODO: zaimplementuj logike 3-stanową:
-   * http://wiki.c2.com/?ThreeValuedLogic
-   * 
-   * kazde wyjscie domyslnie jest undefined.
-   */
   
   @Override
   protected ThreeStateBoolean evaluate(Operator operator, Iterator<ThreeStateBoolean> operands, Object evaluationContext) {

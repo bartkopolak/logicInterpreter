@@ -1,4 +1,4 @@
-package logicInterpreter.Tools.AlteraSimItems;
+package logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;

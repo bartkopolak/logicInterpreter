@@ -14,6 +14,12 @@ import javax.swing.border.EmptyBorder;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.GreenLED;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PushButton;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.RedLED;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.SevenSegmentDisplay;
+import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.Switch;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
@@ -24,11 +30,6 @@ import logicInterpreter.Nodes.DiagramOutputBean;
 import logicInterpreter.Nodes.GNDNode;
 import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Tools.DiagFileUtils;
-import logicInterpreter.Tools.AlteraSimItems.GreenLED;
-import logicInterpreter.Tools.AlteraSimItems.PushButton;
-import logicInterpreter.Tools.AlteraSimItems.RedLED;
-import logicInterpreter.Tools.AlteraSimItems.SevenSegmentDisplay;
-import logicInterpreter.Tools.AlteraSimItems.Switch;
 
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -78,6 +79,8 @@ public class AlteraSim extends JFrame {
 	JSlider clockSpeedSlider;
 	JCheckBox onOffClock;
 	JPanel clockSettingsPanel;
+	private GraphEditor editor;
+	
 	final List<Switch> switchesList = new ArrayList<Switch>();
 	final List<PushButton> pushButtonList = new ArrayList<PushButton>();
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
@@ -157,7 +160,7 @@ public class AlteraSim extends JFrame {
 		for (JComboBox<JCheckBox> cb : selectedOutputs) {
 			if (cb != null && !source.getName().equals(cb.getName())) {
 				int selItem = cb.getSelectedIndex();
-				cb.setModel(new DefaultComboBoxModel<JCheckBox>(getOutputsList()));
+				cb.setModel(new DefaultComboBoxModel<JCheckBox>(getBoardOutputsList()));
 				if(source.getSelectedIndex() == selItem && selItem > 0) selItem = 0;
 				isUpdating = true;
 				cb.setSelectedIndex(selItem);
@@ -275,21 +278,13 @@ public class AlteraSim extends JFrame {
 			}	
 		}
 	});
-	
 
-	Thread boardThread = new Thread(new Runnable() {
-		
-		@Override
-		public void run() {
-			while(simRunning) {
-				evaluate();
-			}	
-		}
-	});
-	
 	private JLabel hertzLabel;
-	
-	private Vector<JCheckBox> getInputsList(){
+	/**
+	 * Zbierz wszystkie wejścia płytki do 1 listy
+	 * @return
+	 */
+	private Vector<JCheckBox> getBoardInputsList(){
 		Vector<JCheckBox> list = new Vector<JCheckBox>();
 		list.add(falseCB);
 		list.add(trueCB);
@@ -298,8 +293,11 @@ public class AlteraSim extends JFrame {
 		list.addAll(pushButtonList);
 		return list;	
 	}
-	
-	private Vector<JCheckBox> getOutputsList(){
+	/**
+	 * Zbierz wszystkie wyjścia płytki do 1 listy
+	 * @return
+	 */
+	private Vector<JCheckBox> getBoardOutputsList(){
 		Vector<JCheckBox> list = new Vector<JCheckBox>();
 		list.add(noCB);
 		list.addAll(redLEDsList);
@@ -311,7 +309,10 @@ public class AlteraSim extends JFrame {
 		return list;	
 	}
 	
-	
+	/**
+	 * Przetwórz układ, których stany wejść są stanami CheckBoxów powiązanych z danym wejściem<br>
+	 * Następnie ustaw stany wyjść płytki powiązanych z wyjściami układu.
+	 */
 	private void evaluate() {
 		try {
 			for(int i = 0; i<inputList.size(); i++){
@@ -322,7 +323,7 @@ public class AlteraSim extends JFrame {
 			}
 			diagram.evaluate();
 			debugger.colorEdges();
-			for(JCheckBox output : getOutputsList()) {
+			for(JCheckBox output : getBoardOutputsList()) {
 				output.setSelected(false);
 			}
 			for(int i = 0; i<diagram.getOutputList().size(); i++){
@@ -339,35 +340,57 @@ public class AlteraSim extends JFrame {
 
 	private String lastPath = "";
 	
-	private void openDiagram() {
-		String sciezka = "";
-		boolean fileSelected = true;
-		try{
-			JFileChooser dialog = new JFileChooser(lastPath); //stworzenie okienka dialogowego do wyboru pliku do przeszukania
-			FileNameExtensionFilter filterXML = new FileNameExtensionFilter("Plik diagramu XML", "xml"); //filtr
-			    dialog.setFileFilter(filterXML); //dodanie filtru do dialogu
-			    int returnVal = dialog.showOpenDialog(this); //wyśw. okno dialogowe
-			    if(returnVal == JFileChooser.APPROVE_OPTION) { //jeśli uzytkownik otworzy plik (wciśnie przycisk otwórz)
-			    	sciezka = dialog.getSelectedFile().getAbsolutePath(); //pobierz ściezke do pliku i zapisz ją do stringa
-			    }
-			    else
-			    	fileSelected = false;
+	private void loadPinBinds(List<PinBind> listOfBinds) {
+		if(listOfBinds == null) {
+			JOptionPane.showMessageDialog(this, "Nie znaleziono wcześniej zapisanych ustawień połączeń!");
+			return;
 		}
-		catch(Exception e){
-			JOptionPane.showMessageDialog(this, "Nie udało się otworzyć pliku.");
-		}
-		if(fileSelected) {
-			try {
-				File diagrFile = new File(sciezka);
-				diagram = DiagFileUtils.parseXMLDiagram(diagrFile);
-				lastPath = diagrFile.getParent();
-				loadSettings();
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(this, "Niepoprawny format diagramu: " + e.getMessage());
+		for(PinBind bind : listOfBinds) {
+			String[] pinname = bind.getNodeName().split("[.]");
+			if(pinname[0].equals("inputs")) {
+				JComboBox<JCheckBox> inputComboBox = null;
+				for(int i=0; i<inputList.size(); i++) {
+					DiagramInputBean input= inputList.get(i);
+					if(input.getName().equals(pinname[1])) {
+						inputComboBox = selectedInputs.get(i);
+						break;
+					}
+				}
+				if(inputComboBox != null) {
+					inputComboBox.setSelectedIndex(bind.getBoardElemIndex());
+				}
 			}
-			
-			
+			if(pinname[0].equals("outputs")) {
+				JComboBox<JCheckBox> outputComboBox = null;
+				for(int i=0; i<diagram.getOutputList().size(); i++) {
+					DiagramOutputBean output = diagram.getOutputList().get(i);
+					if(output.getName().equals(pinname[1])) {
+						outputComboBox = selectedOutputs.get(i);
+						break;
+					}
+				}
+				if(outputComboBox != null) {
+					outputComboBox.setSelectedIndex(bind.getBoardElemIndex());
+				}
+			}
 		}
+	}
+	
+	private ArrayList<PinBind> savePinBinds(){
+		ArrayList<PinBind> list = new ArrayList<PinBind>();
+		for(int i = 0; i<inputList.size(); i++){
+			JComboBox<JCheckBox> inputComboBox = selectedInputs.get(i);
+			DiagramInputBean input= inputList.get(i);
+			PinBind bind = new PinBind(input.toString(), inputComboBox.getSelectedIndex());
+			list.add(bind);
+		}
+		for(int i = 0; i<diagram.getOutputList().size(); i++){
+			JComboBox<JCheckBox> outputComboBox = selectedOutputs.get(i);
+			DiagramOutputBean output = diagram.getOutputList().get(i);
+			PinBind bind = new PinBind(output.toString(), outputComboBox.getSelectedIndex());
+			list.add(bind);
+		}
+		return list;
 	}
 	
 	private void loadSettings() {
@@ -410,7 +433,7 @@ public class AlteraSim extends JFrame {
 					JComboBox<JCheckBox> inputList = new JComboBox<JCheckBox>();
 					selectedInputs.add(inputList);
 					inputList.addActionListener(inputListListener);
-					inputList.setModel(new DefaultComboBoxModel<JCheckBox>(getInputsList()));
+					inputList.setModel(new DefaultComboBoxModel<JCheckBox>(getBoardInputsList()));
 					inputList.setName(input.getName());
 					inpUnitPanel.add(inputLabel);
 					inpUnitPanel.add(inputList);
@@ -454,7 +477,7 @@ public class AlteraSim extends JFrame {
 				JComboBox<JCheckBox> outputList = new JComboBox<JCheckBox>();
 				selectedOutputs.add(outputList);
 				outputList.addItemListener(outputListListener);
-				outputList.setModel(new DefaultComboBoxModel<JCheckBox>(getOutputsList()));
+				outputList.setModel(new DefaultComboBoxModel<JCheckBox>(getBoardOutputsList()));
 				outputList.setName(output.getName());
 				outUnitPanel.add(outputLabel);
 				outUnitPanel.add(outputList);
@@ -513,13 +536,32 @@ public class AlteraSim extends JFrame {
 		JMenu mnPlik = new JMenu("Plik");
 		menuBar.add(mnPlik);
 		
-		JMenuItem mntmOtwrz = new JMenuItem("Otwórz");
-		mntmOtwrz.addActionListener(new ActionListener() {
+		JMenuItem mntmSaveSett = new JMenuItem("Zapisz ustawienia pinów");
+		mntmSaveSett.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				openDiagram();
+				editor.setAlteraSimPinBinds(savePinBinds());
+				editor.setModified(true);
 			}
 		});
-		mnPlik.add(mntmOtwrz);
+		mnPlik.add(mntmSaveSett);
+		JMenuItem mntmLoadSett = new JMenuItem("Wczytaj ustawienia pinów");
+		mntmLoadSett.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				loadPinBinds(editor.getAlteraSimPinBinds());
+			}
+		});
+		mnPlik.add(mntmLoadSett);
+		mnPlik.addSeparator();
+		JMenuItem mntmClearSett = new JMenuItem("Skasuj ustawienia pinów");
+		mntmClearSett.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int retVal = JOptionPane.showConfirmDialog(null, "Czy na pewno chcesz skasować zapisane ustawienia pinów?", "AlteraSim", JOptionPane.YES_NO_OPTION);
+				if(retVal == JOptionPane.YES_OPTION)
+					editor.setAlteraSimPinBinds(null);
+					editor.setModified(true);
+			}
+		});
+		mnPlik.add(mntmClearSett);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -635,6 +677,10 @@ public class AlteraSim extends JFrame {
 		this();
 		diagram = ge.createDiagram();
 		debugger = new DiagSimDebugger(ge, diagram);
+		editor = ge;
 		loadSettings();
+		if(ge.getAlteraSimPinBinds() != null) {
+			loadPinBinds(ge.getAlteraSimPinBinds());
+		}
 	}
 }
