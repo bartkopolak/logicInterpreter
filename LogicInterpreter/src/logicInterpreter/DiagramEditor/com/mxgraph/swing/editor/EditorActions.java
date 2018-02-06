@@ -83,7 +83,7 @@ import com.mxgraph.util.png.mxPngImageEncoder;
 import com.mxgraph.util.png.mxPngTextDecoder;
 import com.mxgraph.view.mxGraph;
 
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.MojGraph;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSim;
 import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
@@ -109,7 +109,7 @@ public class EditorActions
 	 * @param e
 	 * @return Returns the graph for the given action event.
 	 */
-	public static final GraphEditor getEditor(ActionEvent e)
+	public static final DigitalCircuitEditor getEditor(ActionEvent e)
 	{
 		if (e.getSource() instanceof Component)
 		{
@@ -121,7 +121,7 @@ public class EditorActions
 				component = component.getParent();
 			}
 
-			return (GraphEditor) component;
+			return (DigitalCircuitEditor) component;
 		}
 
 		return null;
@@ -276,7 +276,7 @@ public class EditorActions
 
 			if (editor != null)
 			{
-				if(editor instanceof GraphEditor)
+				if(editor instanceof DigitalCircuitEditor)
 					
 				editor.exit();
 			}
@@ -627,7 +627,7 @@ public class EditorActions
 		 */
 		public void actionPerformed(ActionEvent e)
 		{
-			GraphEditor editor = getEditor(e);
+			DigitalCircuitEditor editor = getEditor(e);
 
 			if (editor != null)
 			{
@@ -1711,7 +1711,7 @@ public class EditorActions
 		 */
 		public void actionPerformed(ActionEvent e)
 		{
-			GraphEditor editor = getEditor(e);
+			DigitalCircuitEditor editor = getEditor(e);
 
 			if (editor != null)
 			{
@@ -2284,7 +2284,7 @@ public class EditorActions
 	{
 
 		mxCell source;
-		GraphEditor editor;
+		DigitalCircuitEditor editor;
 		boolean changeXML;
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -2323,7 +2323,7 @@ public class EditorActions
 			
 		}
 		
-		public EditAction(mxCell cell, GraphEditor editor, boolean changeXML) {
+		public EditAction(mxCell cell, DigitalCircuitEditor editor, boolean changeXML) {
 			source = cell;
 			this.editor = editor;
 			this.changeXML = changeXML;
@@ -2336,7 +2336,7 @@ public class EditorActions
 	{
 
 		mxCell source;
-		GraphEditor editor;
+		DigitalCircuitEditor editor;
 		boolean changeXML;
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -2368,7 +2368,7 @@ public class EditorActions
 			
 		}
 		
-		public RemoveAction(mxCell cell, GraphEditor editor) {
+		public RemoveAction(mxCell cell, DigitalCircuitEditor editor) {
 			source = cell;
 			this.editor = editor;
 		}
@@ -2378,8 +2378,8 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class DebugAction extends AbstractAction
 	{
-		private GraphEditor g;
-		public DebugAction(GraphEditor editor) {
+		private DigitalCircuitEditor g;
+		public DebugAction(DigitalCircuitEditor editor) {
 			g = editor;
 		}
 		@Override
@@ -2404,8 +2404,8 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class SimulateAction extends AbstractAction
 	{
-		private GraphEditor g;
-		public SimulateAction(GraphEditor editor) {
+		private DigitalCircuitEditor g;
+		public SimulateAction(DigitalCircuitEditor editor) {
 			g = editor;
 		}
 		@Override
@@ -2427,10 +2427,10 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class BlockCreateAction extends AbstractAction
 	{
-		private GraphEditor g;
+		private DigitalCircuitEditor g;
 		private boolean createFromOpenedDiagram;
 		private String path;
-		public BlockCreateAction(GraphEditor editor, boolean createFromOpenedDiagram, String path) {
+		public BlockCreateAction(DigitalCircuitEditor editor, boolean createFromOpenedDiagram, String path) {
 			g = editor;
 			this.createFromOpenedDiagram = createFromOpenedDiagram;
 			this.path = path;
@@ -2475,8 +2475,8 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class ExportToVHDLAction extends AbstractAction
 	{
-		private GraphEditor editor;
-		public ExportToVHDLAction(GraphEditor ed) {
+		private DigitalCircuitEditor editor;
+		public ExportToVHDLAction(DigitalCircuitEditor ed) {
 			editor = ed;
 		}
 		@Override
@@ -2531,8 +2531,8 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class PaletteEditAction extends AbstractAction
 	{
-		private GraphEditor editor;
-		public PaletteEditAction(GraphEditor editor) {
+		private DigitalCircuitEditor editor;
+		public PaletteEditAction(DigitalCircuitEditor editor) {
 			this.editor = editor;
 		}
 		@Override
@@ -2546,8 +2546,8 @@ public class EditorActions
 	@SuppressWarnings("serial")
 	public static class PaletteRefreshAction extends AbstractAction
 	{
-		private GraphEditor editor;
-		public PaletteRefreshAction(GraphEditor editor) {
+		private DigitalCircuitEditor editor;
+		public PaletteRefreshAction(DigitalCircuitEditor editor) {
 			this.editor = editor;
 		}
 		@Override

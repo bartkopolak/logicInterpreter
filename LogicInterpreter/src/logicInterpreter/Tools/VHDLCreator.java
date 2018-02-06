@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Nodes.BlockOutputBean;

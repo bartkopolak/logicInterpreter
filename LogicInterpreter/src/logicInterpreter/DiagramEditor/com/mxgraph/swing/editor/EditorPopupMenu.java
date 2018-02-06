@@ -7,7 +7,7 @@ import javax.swing.TransferHandler;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.BlockInfoAction;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.HistoryAction;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.Nodes.DiagramInputBean;
 import logicInterpreter.Nodes.VCCNode;

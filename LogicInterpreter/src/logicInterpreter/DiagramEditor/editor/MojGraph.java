@@ -56,7 +56,7 @@ public class MojGraph {
 	final int PORT_DIAMETER = 8;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
 	EditorPalette palette;
-	GraphEditor editor;
+	DigitalCircuitEditor editor;
 	JFrame mainFrame;
 	private static int framesOpened;
 	FontMetrics fontMetrics;
@@ -103,7 +103,7 @@ public class MojGraph {
 							return (error.length() > 0) ? error.toString() : null;
 						}
 						else {
-							int inputOutputConns = GraphEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
+							int inputOutputConns = DigitalCircuitEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
 							if(inputOutputConns > 1) {
 								error.append("Wejście może mieć tylko 1 zródło.\n");
 								return (error.length() > 0) ? error.toString() : null;
@@ -191,7 +191,7 @@ public class MojGraph {
 	
 	
 	
-	public GraphEditor getEditor() {
+	public DigitalCircuitEditor getEditor() {
 		return editor;
 	}
 
@@ -287,7 +287,7 @@ public class MojGraph {
 		fontMetrics = graphComponent.getFontMetrics(new Font("Times",Font.PLAIN, 12));
 		//graphComponent.setFoldingEnabled(false);
 		
-		editor = new GraphEditor("Edytor diagramów", graphComponent);
+		editor = new DigitalCircuitEditor("Edytor diagramów", graphComponent);
 		
 
 		EditorMenuBar menubar = new EditorMenuBar(editor);

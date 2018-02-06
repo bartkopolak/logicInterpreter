@@ -11,7 +11,7 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -43,7 +43,7 @@ public class PaletteEditor extends JDialog {
 	 * Launch the application.
 	 */
 	JList<String> list;
-	GraphEditor editor;
+	DigitalCircuitEditor editor;
 	/**
 	 * Create the frame.
 	 */
@@ -97,7 +97,7 @@ public class PaletteEditor extends JDialog {
 		return listModel;
 	}
 	
-	public PaletteEditor(GraphEditor ge) {
+	public PaletteEditor(DigitalCircuitEditor ge) {
 		setModal(true);
 		editor = ge;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

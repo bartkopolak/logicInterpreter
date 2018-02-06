@@ -12,7 +12,7 @@ import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.*;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
 
 import com.mxgraph.swing.mxGraphComponent;
@@ -54,7 +54,7 @@ public class EditorMenuBar extends JMenuBar
 
 		menu.addSeparator();
 		
-		menu.add(editor.bind(mxResources.get("exportToVHDL"), new ExportToVHDLAction((GraphEditor)editor),
+		menu.add(editor.bind(mxResources.get("exportToVHDL"), new ExportToVHDLAction((DigitalCircuitEditor)editor),
 				"/logicInterpreter/DiagramEditor/com/mxgraph/examples/swing/images/save.gif"));
 		
 		menu.addSeparator();
@@ -171,19 +171,19 @@ public class EditorMenuBar extends JMenuBar
 		menu = add(new JMenu(mxResources.get("diagram")));
 
 		
-		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((GraphEditor)editor))));
-		menu.add(editor.bind(mxResources.get("simulate"), new SimulateAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("debug"), new DebugAction(((DigitalCircuitEditor)editor))));
+		menu.add(editor.bind(mxResources.get("simulate"), new SimulateAction(((DigitalCircuitEditor)editor))));
 		
 
 		
 		menu = add(new JMenu(mxResources.get("palettes")));
-		menu.add(editor.bind(mxResources.get("createBlock"), new BlockCreateAction(((GraphEditor)editor),false,null)));
-		menu.add(editor.bind(mxResources.get("createBlockDiag"), new BlockCreateAction(((GraphEditor)editor),true,null)));
+		menu.add(editor.bind(mxResources.get("createBlock"), new BlockCreateAction(((DigitalCircuitEditor)editor),false,null)));
+		menu.add(editor.bind(mxResources.get("createBlockDiag"), new BlockCreateAction(((DigitalCircuitEditor)editor),true,null)));
 		
 		menu.addSeparator();
 		
-		menu.add(editor.bind(mxResources.get("palEdit"), new PaletteEditAction(((GraphEditor)editor))));
-		menu.add(editor.bind(mxResources.get("palRefresh"), new PaletteRefreshAction(((GraphEditor)editor))));
+		menu.add(editor.bind(mxResources.get("palEdit"), new PaletteEditAction(((DigitalCircuitEditor)editor))));
+		menu.add(editor.bind(mxResources.get("palRefresh"), new PaletteRefreshAction(((DigitalCircuitEditor)editor))));
 		
 		/*
 		menu.addSeparator();

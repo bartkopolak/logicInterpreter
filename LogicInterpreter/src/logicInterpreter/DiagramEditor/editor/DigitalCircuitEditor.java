@@ -62,7 +62,7 @@ import logicInterpreter.Nodes.VCCNode;
 import logicInterpreter.Nodes.Wire;
 import logicInterpreter.Tools.DiagFileUtils;
 
-public class GraphEditor extends BasicGraphEditor {
+public class DigitalCircuitEditor extends BasicGraphEditor {
 
 	public class PathPaletteGroup{
 		private EditorPalette pal;
@@ -666,7 +666,7 @@ public class GraphEditor extends BasicGraphEditor {
 	{
 		Point pt = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(),
 				graphComponent);
-		EditorPopupMenu menu = new EditorPopupMenu(GraphEditor.this);
+		EditorPopupMenu menu = new EditorPopupMenu(DigitalCircuitEditor.this);
 		menu.show(graphComponent, pt.x, pt.y);
 
 		e.consume();
@@ -682,7 +682,7 @@ public class GraphEditor extends BasicGraphEditor {
 		}
 	}
 	
-	public GraphEditor(String appTitle, mxGraphComponent component) {
+	public DigitalCircuitEditor(String appTitle, mxGraphComponent component) {
 		super(appTitle, component);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

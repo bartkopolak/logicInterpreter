@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
@@ -64,7 +64,7 @@ public class TemplateBlockWizard extends JFrame {
 	private String type;
 	private JPanel mainpanel;
 
-	private GraphEditor editor;
+	private DigitalCircuitEditor editor;
 	private DiagramBean diagram;
 	private String palettePath = null;
 	/**
@@ -308,7 +308,7 @@ public class TemplateBlockWizard extends JFrame {
  * @param palettePath - ściezka palety, do którego ma być zapisany blok wzorzec, gdy podana, jest ona wówczas zaznaczona na liście palet
  * 					<br> gdy jest null, paleta wybierana jest z listy przez użytkownika.
  */
-	public TemplateBlockWizard(String type, GraphEditor editor, DiagramBean diagram, String palettePath) {
+	public TemplateBlockWizard(String type, DigitalCircuitEditor editor, DiagramBean diagram, String palettePath) {
 		this.editor = editor;
 		this.diagram = diagram;
 		this.palettePath = palettePath;

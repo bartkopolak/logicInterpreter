@@ -11,8 +11,8 @@ import javax.swing.border.EmptyBorder;
 import com.mxgraph.model.mxCell;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
-import logicInterpreter.DiagramEditor.editor.GraphEditor.AdditionalEdgeForOutputNode;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor.AdditionalEdgeForOutputNode;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
@@ -48,7 +48,7 @@ public class DiagSimDebugger extends JFrame {
 	private JPanel panel_out;
 	private JScrollPane scrollPane_inp;
 	private JScrollPane scrollPane_out;
-	private GraphEditor editor;
+	private DigitalCircuitEditor editor;
 	private DiagramBean diagram;
 	private boolean evalOnChange = true;
 	private ArrayList<JLabel> outputValLabels = new ArrayList<JLabel>();
@@ -108,7 +108,7 @@ public class DiagSimDebugger extends JFrame {
 						if(!edgeListFilled) edges.add(edge);
 						colorEdge(edge, state);
 					}
-					for(GraphEditor.AdditionalEdgeForOutputNode extraedge : editor.getAdditionalEdgesList()) {
+					for(DigitalCircuitEditor.AdditionalEdgeForOutputNode extraedge : editor.getAdditionalEdgesList()) {
 						if(extraedge.getNode().equals(outputNode)) {
 							if(!edgeListFilled) edges.add(extraedge.getAdditionalEdge());
 							colorEdge(extraedge.getAdditionalEdge(),state);
@@ -207,7 +207,7 @@ public class DiagSimDebugger extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DiagSimDebugger(GraphEditor ge, DiagramBean diag) {
+	public DiagSimDebugger(DigitalCircuitEditor ge, DiagramBean diag) {
 		
 		editor = ge;
 		diagram = diag;

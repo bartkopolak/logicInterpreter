@@ -49,7 +49,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.DefaultFileFilter;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
@@ -595,7 +595,7 @@ public class DiagFileUtils {
 	 * @throws ParserConfigurationException 
 	 * @throws MultipleOutputsInInputException 
 	 */
-	public static void createTemplateBlockFile(BlockBean block, GraphEditor editor, String name, OutputStream stream) throws IOException, ParserConfigurationException, TransformerException, MultipleOutputsInInputException {
+	public static void createTemplateBlockFile(BlockBean block, DigitalCircuitEditor editor, String name, OutputStream stream) throws IOException, ParserConfigurationException, TransformerException, MultipleOutputsInInputException {
 			ZipOutputStream zipout = new ZipOutputStream(stream);
 			BlockBean blo = null;
 			
@@ -709,7 +709,7 @@ public class DiagFileUtils {
 	 * @throws IOException
 	 * @throws MultipleOutputsInInputException 
 	 */
-	public static boolean createDiagramFile(GraphEditor editor, DiagramBean diag, OutputStream stream) throws IOException, MultipleOutputsInInputException {
+	public static boolean createDiagramFile(DigitalCircuitEditor editor, DiagramBean diag, OutputStream stream) throws IOException, MultipleOutputsInInputException {
 		try {
 			{
 				mxCodec codec = new mxCodec();
@@ -813,7 +813,7 @@ public class DiagFileUtils {
             }
 	}
 	
-	public static void readDiagramFile(GraphEditor editor, String filename) throws Exception {
+	public static void readDiagramFile(DigitalCircuitEditor editor, String filename) throws Exception {
 		DiagramBean diagram = null;
 		ZipFile zip = new ZipFile(filename);
 		String tempPath = System.getProperty("java.io.tmpdir");

@@ -44,7 +44,7 @@ import com.mxgraph.util.mxResources;
 
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.EditAction;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.RemoveAction;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramInterpret.BlockBean;
 
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -279,14 +279,14 @@ public class EditorPalette extends JPanel
 				boolean isDef = ((BlockBean)cell.getValue()).isDefault();
 				if(!isDef) {
 					JMenuItem edit = new JMenuItem();
-					edit.setAction(new EditAction(cell, (GraphEditor)editor, true));
+					edit.setAction(new EditAction(cell, (DigitalCircuitEditor)editor, true));
 					if(blockType.equals(BlockBean.TYPE_FUNCTION))
 						edit.setText("Edytuj");
 					else if(blockType.equals(BlockBean.TYPE_DIAGRAM))
 						edit.setText("Otwórz diagram");
 					menu.add(edit);
 					JMenuItem remove = new JMenuItem();
-					remove.setAction(new RemoveAction(cell, (GraphEditor)editor));
+					remove.setAction(new RemoveAction(cell, (DigitalCircuitEditor)editor));
 					remove.setText("Usuń");
 					menu.add(remove);
 				}

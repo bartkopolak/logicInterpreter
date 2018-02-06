@@ -13,7 +13,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
-import logicInterpreter.DiagramEditor.editor.GraphEditor;
+import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.GreenLED;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PushButton;
@@ -80,7 +80,7 @@ public class AlteraSim extends JFrame {
 	JSlider clockSpeedSlider;
 	JCheckBox onOffClock;
 	JPanel clockSettingsPanel;
-	private GraphEditor editor;
+	private DigitalCircuitEditor editor;
 	
 	final List<Switch> switchesList = new ArrayList<Switch>();
 	final List<PushButton> pushButtonList = new ArrayList<PushButton>();
@@ -693,7 +693,7 @@ public class AlteraSim extends JFrame {
 
 	}
 	
-	public AlteraSim(GraphEditor ge) throws MultipleOutputsInInputException {
+	public AlteraSim(DigitalCircuitEditor ge) throws MultipleOutputsInInputException {
 		this();
 		diagram = ge.createDiagram();
 		debugger = new DiagSimDebugger(ge, diagram);
