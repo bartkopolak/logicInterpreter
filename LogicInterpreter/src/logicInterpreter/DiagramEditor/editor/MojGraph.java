@@ -21,9 +21,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.SchemaEditorMenuBar;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorActions.SaveAction;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorPalette;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorMenuBar;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.SaveAction;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.Nodes.BlockInputBean;
 import logicInterpreter.Nodes.BlockOutputBean;
@@ -64,21 +64,16 @@ public class MojGraph {
 
 		@Override
 		public boolean isValidDropTarget(Object arg0, Object[] arg1) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
 		public boolean isSplitEnabled() {
-			// TODO Auto-generated method stub
 			return true;
 		}
-		
-		
 
 		@Override
 		public boolean isCellFoldable(Object arg0, boolean arg1) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 		
@@ -91,38 +86,36 @@ public class MojGraph {
 			if(cell instanceof mxCell) {
 				if(src != null && trg != null) {
 					mxCell trgCell = (mxCell) trg;
+					
 					mxCell srcCell = (mxCell) src;
 					if(srcCell.getValue() != null && trgCell.getValue() != null) {
 						if(srcCell.getValue() instanceof InputBean && trgCell.getValue() instanceof OutputBean) {
 							mxCell temp = srcCell;
-							src = trgCell;
+							srcCell = trgCell;
 							trgCell = temp;
 						}
 						Object srcVal = srcCell.getValue();
 						Object trgVal = trgCell.getValue();
 						
-						//if(((mxCell)trg).isEdge())System.out.println("edge");
-						//else System.out.println(src.toString());
 						
 						if(srcVal instanceof OutputBean && (trgVal instanceof OutputBean)) {
 							error.append("Wyjście musi być połączone z wejściem.\n");
 							return (error.length() > 0) ? error.toString() : null;
 						}
-						
-						int inputOutputConns = GraphEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
-						
-						//System.out.println(String.valueOf(inputOutputConns));
-						if(inputOutputConns > 1) {
-							error.append("Wejście może mieć tylko 1 zródło.\n");
-							return (error.length() > 0) ? error.toString() : null;
+						else {
+							int inputOutputConns = GraphEditor.checkCellBusy(trgCell, new ArrayList<mxCell>());
+							if(inputOutputConns > 1) {
+								error.append("Wejście może mieć tylko 1 zródło.\n");
+								return (error.length() > 0) ? error.toString() : null;
+							}
 						}
 						
-					
 					}
 				}
-				
-				
 			}
+			
+			
+			
 			return super.getEdgeValidationError(cell,src,trg);
 		}
 		
@@ -297,7 +290,7 @@ public class MojGraph {
 		editor = new GraphEditor("Edytor diagramów", graphComponent);
 		
 
-		SchemaEditorMenuBar menubar = new SchemaEditorMenuBar(editor);
+		EditorMenuBar menubar = new EditorMenuBar(editor);
 		
 
 		

@@ -17,7 +17,7 @@ import logicInterpreter.Nodes.OutputBean;
 public class DiagramBean implements Serializable {
 
 	/**
-	 * 
+	 * Obiekt modelujący układ cyfrowy
 	 */
 	private static final long serialVersionUID = 3069694729465538656L;
 	private String name;

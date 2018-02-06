@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
@@ -86,6 +87,8 @@ public class AlteraSim extends JFrame {
 	final List<RedLED> redLEDsList = new ArrayList<RedLED>();
 	final List<GreenLED> greenLEDsList = new ArrayList<GreenLED>();
 	final List<SevenSegmentDisplay> HEXDisplayList = new ArrayList<SevenSegmentDisplay>();
+	
+	private boolean falseIsHighState = false;
 	
 	private ArrayList<DiagramInputBean> inputList = new ArrayList<DiagramInputBean>();
 	
@@ -258,7 +261,7 @@ public class AlteraSim extends JFrame {
 					
 				}
 			}
-			Thread.sleep(10 * clockSpeedSlider.getValue());
+			Thread.sleep((10 * clockSpeedSlider.getValue())/2);
 		}
 		catch (InterruptedException e) {
 				
@@ -329,7 +332,7 @@ public class AlteraSim extends JFrame {
 			for(int i = 0; i<diagram.getOutputList().size(); i++){
 				JComboBox<JCheckBox> outputComboBox = selectedOutputs.get(i);
 				JCheckBox output = (JCheckBox) outputComboBox.getSelectedItem();
-				output.setSelected(diagram.getOutput(i).getState().toBoolean());
+				output.setSelected(diagram.getOutput(i).getState().toBoolean() ^ falseIsHighState);
 			}
 		} catch (RecurrentLoopException e) {
 			e.printStackTrace();
@@ -342,7 +345,8 @@ public class AlteraSim extends JFrame {
 	
 	private void loadPinBinds(List<PinBind> listOfBinds) {
 		if(listOfBinds == null) {
-			JOptionPane.showMessageDialog(this, "Nie znaleziono wcześniej zapisanych ustawień połączeń!");
+			JOptionPane.showMessageDialog(this, "Nie znaleziono wcześniej zapisanych ustawień pinów!");
+			setTitle("AlteraSim - brak zapisanych ustawień pinów");
 			return;
 		}
 		for(PinBind bind : listOfBinds) {
@@ -374,6 +378,8 @@ public class AlteraSim extends JFrame {
 				}
 			}
 		}
+		setTitle("AlteraSim - wczytano zapisane ustawienia pinów");
+		
 	}
 	
 	private ArrayList<PinBind> savePinBinds(){
@@ -395,7 +401,7 @@ public class AlteraSim extends JFrame {
 	
 	private void loadSettings() {
 		if(diagram != null) {
-			this.setTitle("AlteraSim - " + diagram.getName());
+			this.setTitle("AlteraSim");
 			tabbedPane.removeAll();
 			selectedInputs.clear();
 			selectedOutputs.clear();
@@ -541,6 +547,7 @@ public class AlteraSim extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				editor.setAlteraSimPinBinds(savePinBinds());
 				editor.setModified(true);
+				setTitle("AlteraSim - wczytano zapisane ustawienia pinów");
 			}
 		});
 		mnPlik.add(mntmSaveSett);
@@ -559,9 +566,22 @@ public class AlteraSim extends JFrame {
 				if(retVal == JOptionPane.YES_OPTION)
 					editor.setAlteraSimPinBinds(null);
 					editor.setModified(true);
+					setTitle("AlteraSim - brak zapisanych ustawień pinów");
 			}
 		});
 		mnPlik.add(mntmClearSett);
+		
+		JMenu mnSettings = new JMenu("Ustawienia");
+		menuBar.add(mnSettings);
+		
+		JCheckBoxMenuItem mntmSett = new JCheckBoxMenuItem("Konwencja ujemna", false);
+		mntmSett.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				falseIsHighState = mntmSett.isSelected();
+				evaluate();
+			}
+		});
+		mnSettings.add(mntmSett);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -681,6 +701,9 @@ public class AlteraSim extends JFrame {
 		loadSettings();
 		if(ge.getAlteraSimPinBinds() != null) {
 			loadPinBinds(ge.getAlteraSimPinBinds());
+		}
+		else {
+			setTitle("AlteraSim - brak zapisanych ustawień pinów");
 		}
 	}
 }

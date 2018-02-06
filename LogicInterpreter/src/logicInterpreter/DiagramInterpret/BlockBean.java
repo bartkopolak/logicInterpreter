@@ -11,7 +11,7 @@ import java.util.List;
 import com.fathzer.soft.javaluator.StaticVariableSet;
 
 import logicInterpreter.BoolInterpret.BoolEval;
-import logicInterpreter.BoolInterpret.BoolInterpreter;
+import logicInterpreter.BoolInterpret.BoolEvalUtils;
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.Nodes.BlockInputBean;
@@ -20,12 +20,14 @@ import logicInterpreter.Nodes.BlockOutputBean;
 public class BlockBean implements Serializable{
 
 	/**
-	 * 
+	 * Obiekt modelujący podukład cyfrowy
+	 * Obiekt może modelować jeden z 2 typów układu cyfrowego: behawioralny lub strukturalny
+	 * Podukładem moze być dowolny element układu cyfrowego oprócz wejść i wyjść, czyli bramki logiczne, przerzutniki, multipleksery, itp...
 	 */
 	private static final long serialVersionUID = 7589693470370349245L;
 	private String name;
-	private final List<BlockInputBean> inputs = new ArrayList<BlockInputBean>();
-	private final List<BlockOutputBean> outputs = new ArrayList<BlockOutputBean>();
+	private final List<BlockInputBean> inputs = new ArrayList<BlockInputBean>();	//lista wejść podukładu
+	private final List<BlockOutputBean> outputs = new ArrayList<BlockOutputBean>();	//lista wyjść
 	private String type;
 	private DiagramBean diagram = null; //uzywany tylko gdy typ to diagram
 	private boolean defaultB = false;
@@ -241,7 +243,7 @@ public class BlockBean implements Serializable{
 			}
 			//wykonaj funkcje logiczna dla kazdego wyjscia
 			for(BlockOutputBean output : outputs){
-				String func = BoolInterpreter.InsertMultiplyOperators(output.getFormula(), inputNames);
+				String func = BoolEvalUtils.InsertMultiplyOperators(output.getFormula(), inputNames);
 				ThreeStateBoolean prevCycleState = null;
 				resultState = eval.evaluate(func, variables);
 				output.setState(resultState);

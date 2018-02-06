@@ -48,7 +48,7 @@ import com.mxgraph.util.mxResources;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.DefaultFileFilter;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.DefaultFileFilter;
 import logicInterpreter.DiagramEditor.editor.GraphEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramInterpret.BlockBean;

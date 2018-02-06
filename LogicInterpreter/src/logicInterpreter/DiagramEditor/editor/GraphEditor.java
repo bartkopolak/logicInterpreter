@@ -44,9 +44,9 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.BasicGraphEditor;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPalette;
-import logicInterpreter.DiagramEditor.com.mxgraph.examples.swing.editor.EditorPopupMenu;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.BasicGraphEditor;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorPalette;
+import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorPopupMenu;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.DiagramInterpret.DiagramBean;
@@ -427,9 +427,10 @@ public class GraphEditor extends BasicGraphEditor {
 				outputNode.addLink(tietNode);	
 				linkInputToInputConnections(inputEdgeTarget, outputNode);
 			}
+			if(extraEdge != null)
+				additionalEdgesList.add(extraEdge);
 		}
-		if(extraEdge != null)
-			additionalEdgesList.add(extraEdge);
+		
 	}
 
 	public DiagramBean createDiagram() throws MultipleOutputsInInputException {
