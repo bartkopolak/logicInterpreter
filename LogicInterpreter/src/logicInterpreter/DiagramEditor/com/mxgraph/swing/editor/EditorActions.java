@@ -84,7 +84,7 @@ import com.mxgraph.util.png.mxPngTextDecoder;
 import com.mxgraph.view.mxGraph;
 
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
-import logicInterpreter.DiagramEditor.editor.MojGraph;
+import logicInterpreter.DiagramEditor.editor.MainProgram;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSim;
 import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
 import logicInterpreter.DiagramEditor.editor.Tools.LogSimDebugger;
@@ -2300,7 +2300,7 @@ public class EditorActions
 						}
 					}
 					else if(block.getType().equals(BlockBean.TYPE_DIAGRAM)) {
-						MojGraph editorWindow = new MojGraph();
+						MainProgram editorWindow = new MainProgram();
 						
 						try {
 							DiagFileUtils.readDiagramFile(editorWindow.getEditor(), block.getFile().getAbsolutePath());

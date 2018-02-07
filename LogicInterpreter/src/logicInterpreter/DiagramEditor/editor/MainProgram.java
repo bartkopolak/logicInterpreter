@@ -51,7 +51,7 @@ import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraph;
 
-public class MojGraph {
+public class MainProgram {
 
 	final int PORT_DIAMETER = 8;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
@@ -231,7 +231,7 @@ public class MojGraph {
 
 		
 	
-	public MojGraph() {
+	public MainProgram() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
@@ -287,7 +287,7 @@ public class MojGraph {
 		fontMetrics = graphComponent.getFontMetrics(new Font("Times",Font.PLAIN, 12));
 		//graphComponent.setFoldingEnabled(false);
 		
-		editor = new DigitalCircuitEditor("Edytor diagramów", graphComponent);
+		editor = new DigitalCircuitEditor("Edytor układów cyfrowych", graphComponent);
 		
 
 		EditorMenuBar menubar = new EditorMenuBar(editor);
@@ -315,7 +315,7 @@ public class MojGraph {
 	}
 	
 	public static void main(String[] args) {
-		MojGraph m = new MojGraph();
+		MainProgram m = new MainProgram();
 		m.view();
 		
 	}
