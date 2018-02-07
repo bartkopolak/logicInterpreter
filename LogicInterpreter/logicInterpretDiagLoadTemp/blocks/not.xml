@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><block default="true" name="not" type="formula"><inputs><input>A</input></inputs><outputs><output function="A'">X</output></outputs></block>

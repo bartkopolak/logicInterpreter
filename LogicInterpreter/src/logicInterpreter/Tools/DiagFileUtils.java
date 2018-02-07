@@ -212,7 +212,7 @@ public class DiagFileUtils {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Nie udało się załadować bloku! " + templateBlockPath );
+			System.out.println("Nie udało się załadować bloku! " + templateBlockPath + ". Powód: " + e.getMessage());
 			//e.printStackTrace(System.out);
 			throw e;
 		}
