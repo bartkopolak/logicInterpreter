@@ -71,7 +71,7 @@ import javax.swing.JScrollPane;
 
 public class AlteraSim extends JFrame {
 
-	private DiagSimDebugger debugger;
+	private LogSimDebugger debugger;
 	private JPanel contentPane;
 	DiagramBean diagram;
 	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();	//wybrana metoda wejscia na plytce z listy combobox
@@ -696,7 +696,7 @@ public class AlteraSim extends JFrame {
 	public AlteraSim(DigitalCircuitEditor ge) throws MultipleOutputsInInputException {
 		this();
 		diagram = ge.createDiagram();
-		debugger = new DiagSimDebugger(ge, diagram);
+		debugger = new LogSimDebugger(ge, diagram);
 		editor = ge;
 		loadSettings();
 		if(ge.getAlteraSimPinBinds() != null) {

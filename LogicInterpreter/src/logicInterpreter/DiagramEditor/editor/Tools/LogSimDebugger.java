@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 
-public class DiagSimDebugger extends JFrame {
+public class LogSimDebugger extends JFrame {
 
 	private JPanel contentPane;
 
@@ -207,7 +207,7 @@ public class DiagSimDebugger extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DiagSimDebugger(DigitalCircuitEditor ge, DiagramBean diag) {
+	public LogSimDebugger(DigitalCircuitEditor ge, DiagramBean diag) {
 		
 		editor = ge;
 		diagram = diag;

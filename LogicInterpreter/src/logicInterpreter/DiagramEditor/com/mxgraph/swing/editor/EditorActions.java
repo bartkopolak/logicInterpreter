@@ -87,7 +87,7 @@ import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.MojGraph;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSim;
 import logicInterpreter.DiagramEditor.editor.Tools.BlockInfo;
-import logicInterpreter.DiagramEditor.editor.Tools.DiagSimDebugger;
+import logicInterpreter.DiagramEditor.editor.Tools.LogSimDebugger;
 import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
@@ -2389,7 +2389,7 @@ public class EditorActions
 			try {
 				DiagramBean diagram = g.createDiagram();
 				diagram.evaluate();
-				DiagSimDebugger sim = new DiagSimDebugger(g, diagram);
+				LogSimDebugger sim = new LogSimDebugger(g, diagram);
 				sim.setVisible(true);
 			} catch (RecurrentLoopException e) {
 				e.printStackTrace();
