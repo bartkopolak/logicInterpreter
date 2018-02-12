@@ -8,9 +8,9 @@ import javax.swing.TransferHandler;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.BlockInfoAction;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.HistoryAction;
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.Nodes.DiagramInputBean;
-import logicInterpreter.Nodes.VCCNode;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
+import logicInterpreter.LogicElementsModels.Nodes.VCCNode;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.util.mxGraphActions;

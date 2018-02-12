@@ -92,10 +92,10 @@ import logicInterpreter.DiagramEditor.editor.Tools.EditorAlerts;
 import logicInterpreter.DiagramEditor.editor.Tools.FuncBlockEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.PaletteEditor;
 import logicInterpreter.DiagramEditor.editor.Tools.TemplateBlockWizard;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.DiagramBean;
 import logicInterpreter.Tools.DiagFileUtils;
 import logicInterpreter.Tools.VHDLCreator;
 

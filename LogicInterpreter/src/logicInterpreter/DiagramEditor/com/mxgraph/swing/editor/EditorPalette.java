@@ -45,7 +45,7 @@ import com.mxgraph.util.mxResources;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.EditAction;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.RemoveAction;
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
-import logicInterpreter.DiagramInterpret.BlockBean;
+import logicInterpreter.LogicElementsModels.BlockBean;
 
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 

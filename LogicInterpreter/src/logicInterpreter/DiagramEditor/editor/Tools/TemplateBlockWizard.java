@@ -14,10 +14,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.DiagramBean;
 import logicInterpreter.Tools.DiagFileUtils;
 
 import java.awt.CardLayout;

@@ -6,14 +6,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
-import logicInterpreter.Nodes.BlockOutputBean;
-import logicInterpreter.Nodes.DiagramInputBean;
-import logicInterpreter.Nodes.DiagramOutputBean;
-import logicInterpreter.Nodes.GNDNode;
-import logicInterpreter.Nodes.OutputBean;
-import logicInterpreter.Nodes.VCCNode;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
+import logicInterpreter.LogicElementsModels.Nodes.DiagramOutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.GNDNode;
+import logicInterpreter.LogicElementsModels.Nodes.OutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.VCCNode;
 
 public class VHDLCreator {
 

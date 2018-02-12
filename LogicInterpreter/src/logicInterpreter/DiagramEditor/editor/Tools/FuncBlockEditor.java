@@ -27,10 +27,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-
-import logicInterpreter.DiagramInterpret.BlockBean;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.LogicElementsModels.BlockBean;
 import logicInterpreter.Tools.DiagFileUtils;
 
 import javax.swing.JScrollPane;
@@ -539,20 +538,34 @@ public class FuncBlockEditor extends JDialog {
 		JLabel lblFunkcja = new JLabel(" Funkcja  ");
 		panel_6.add(lblFunkcja, BorderLayout.WEST);
 		
-		funcField = new JTextField();
-		funcField.setEditable(false);
-		funcField.setMinimumSize(new Dimension(6, 15));
-		panel_6.add(funcField, BorderLayout.CENTER);
-		funcField.setColumns(20);
+		JPanel panel_7 = new JPanel();
+		panel_6.add(panel_7, BorderLayout.EAST);
+		
+		JButton btnNewButton_1 = new JButton("New button");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		panel_7.add(btnNewButton_1);
 		
 		JButton btnNewButton = new JButton("Pokaż funkcję");
+		panel_7.add(btnNewButton);
+		
+		JPanel panel_9 = new JPanel();
+		panel_6.add(panel_9, BorderLayout.CENTER);
+		
+		funcField = new JTextField();
+		panel_9.add(funcField);
+		funcField.setEditable(false);
+		funcField.setMinimumSize(new Dimension(6, 15));
+		funcField.setColumns(20);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String func = FuncMinimizer.minimize(getIntValuesFromTruthTable(table), getInputNames(),true);
 				funcField.setText(func);
 			}
 		});
-		panel_6.add(btnNewButton, BorderLayout.EAST);
 		
 		JPanel panel_4 = new JPanel();
 		panel_2.add(panel_4, BorderLayout.CENTER);

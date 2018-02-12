@@ -22,9 +22,9 @@ import java.awt.GridBagConstraints;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
 import logicInterpreter.Exceptions.RecurrentLoopException;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.DiagramBean;
 
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;

@@ -24,16 +24,16 @@ import org.w3c.dom.Node;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorPalette;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorMenuBar;
 import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorActions.SaveAction;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.Nodes.BlockInputBean;
-import logicInterpreter.Nodes.BlockOutputBean;
-import logicInterpreter.Nodes.DiagramInputBean;
-import logicInterpreter.Nodes.DiagramOutputBean;
-import logicInterpreter.Nodes.GNDNode;
-import logicInterpreter.Nodes.InputBean;
-import logicInterpreter.Nodes.OutputBean;
-import logicInterpreter.Nodes.VCCNode;
-import logicInterpreter.Nodes.Wire;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.Nodes.BlockInputBean;
+import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
+import logicInterpreter.LogicElementsModels.Nodes.DiagramOutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.GNDNode;
+import logicInterpreter.LogicElementsModels.Nodes.InputBean;
+import logicInterpreter.LogicElementsModels.Nodes.OutputBean;
+import logicInterpreter.LogicElementsModels.Nodes.VCCNode;
+import logicInterpreter.LogicElementsModels.Nodes.Wire;
 
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
@@ -252,7 +252,7 @@ public class MainProgram {
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockInputBean(), null, new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new BlockOutputBean(), null ,new String[] {"parent"},null));
 	    mxCodecRegistry.register(new mxObjectCodec(new Wire(), new String[] {"id"}, new String[] {"parent", "to"},null));
-		mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.Nodes.Node()));
+		mxCodecRegistry.register(new mxObjectCodec(new logicInterpreter.LogicElementsModels.Nodes.Node()));
 
 		
 		

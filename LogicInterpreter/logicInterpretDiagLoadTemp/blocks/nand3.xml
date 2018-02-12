@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><block default="true" name="nand3" type="formula"><inputs><input>A</input><input>B</input><input>C</input></inputs><outputs><output function="(A*B*C)'">X</output></outputs></block>

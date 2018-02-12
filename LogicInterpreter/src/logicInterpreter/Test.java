@@ -6,9 +6,9 @@ import java.io.FileNotFoundException;
 import org.xml.sax.SAXException;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
-import logicInterpreter.DiagramInterpret.BlockBean;
-import logicInterpreter.DiagramInterpret.DiagramBean;
-import logicInterpreter.Nodes.BlockOutputBean;
+import logicInterpreter.LogicElementsModels.BlockBean;
+import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.Tools.DiagFileUtils;
 
 /*
