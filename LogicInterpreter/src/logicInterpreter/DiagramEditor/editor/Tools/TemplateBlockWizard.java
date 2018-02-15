@@ -17,7 +17,7 @@ import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.Tools.DiagFileUtils;
 
 import java.awt.CardLayout;
@@ -65,7 +65,7 @@ public class TemplateBlockWizard extends JFrame {
 	private JPanel mainpanel;
 
 	private DigitalCircuitEditor editor;
-	private DiagramBean diagram;
+	private CircuitSchemaBean diagram;
 	private String palettePath = null;
 	/**
 	 * Launch the application.
@@ -308,7 +308,7 @@ public class TemplateBlockWizard extends JFrame {
  * @param palettePath - ściezka palety, do którego ma być zapisany blok wzorzec, gdy podana, jest ona wówczas zaznaczona na liście palet
  * 					<br> gdy jest null, paleta wybierana jest z listy przez użytkownika.
  */
-	public TemplateBlockWizard(String type, DigitalCircuitEditor editor, DiagramBean diagram, String palettePath) {
+	public TemplateBlockWizard(String type, DigitalCircuitEditor editor, CircuitSchemaBean diagram, String palettePath) {
 		this.editor = editor;
 		this.diagram = diagram;
 		this.palettePath = palettePath;

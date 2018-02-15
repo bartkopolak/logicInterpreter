@@ -166,8 +166,7 @@ public class EditorToolBar extends JToolBar
 		final mxGraphView view = basicGraphEditor.getGraphComponent().getGraph()
 				.getView();
 		final JComboBox zoomCombo = new JComboBox(new Object[] { "400%",
-				"200%", "150%", "100%", "75%", "50%", mxResources.get("page"),
-				mxResources.get("width"), mxResources.get("actualSize") });
+				"200%", "150%", "100%", "75%", "50%", mxResources.get("actualSize") });
 		zoomCombo.setEditable(true);
 		zoomCombo.setMinimumSize(new Dimension(75, 0));
 		zoomCombo.setPreferredSize(new Dimension(75, 0));
@@ -222,19 +221,8 @@ public class EditorToolBar extends JToolBar
 				{
 					String zoom = zoomCombo.getSelectedItem().toString();
 
-					if (zoom.equals(mxResources.get("page")))
-					{
-						graphComponent.setPageVisible(true);
-						graphComponent
-								.setZoomPolicy(mxGraphComponent.ZOOM_POLICY_PAGE);
-					}
-					else if (zoom.equals(mxResources.get("width")))
-					{
-						graphComponent.setPageVisible(true);
-						graphComponent
-								.setZoomPolicy(mxGraphComponent.ZOOM_POLICY_WIDTH);
-					}
-					else if (zoom.equals(mxResources.get("actualSize")))
+					
+					if (zoom.equals(mxResources.get("actualSize")))
 					{
 						graphComponent.zoomActual();
 					}

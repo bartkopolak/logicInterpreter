@@ -7,7 +7,7 @@ import org.xml.sax.SAXException;
 
 import logicInterpreter.BoolInterpret.ThreeStateBoolean;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.Tools.DiagFileUtils;
 

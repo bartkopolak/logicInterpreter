@@ -95,7 +95,7 @@ import logicInterpreter.DiagramEditor.editor.Tools.TemplateBlockWizard;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.Tools.DiagFileUtils;
 import logicInterpreter.Tools.VHDLCreator;
 
@@ -2387,7 +2387,7 @@ public class EditorActions
 			
 			
 			try {
-				DiagramBean diagram = g.createDiagram();
+				CircuitSchemaBean diagram = g.createDiagram();
 				diagram.evaluate();
 				LogSimDebugger sim = new LogSimDebugger(g, diagram);
 				sim.setVisible(true);

@@ -541,7 +541,7 @@ public class FuncBlockEditor extends JDialog {
 		JPanel panel_7 = new JPanel();
 		panel_6.add(panel_7, BorderLayout.EAST);
 		
-		JButton btnNewButton_1 = new JButton("New button");
+		JButton btnNewButton_1 = new JButton("Ustaw funkcję");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				

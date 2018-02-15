@@ -56,7 +56,7 @@ import logicInterpreter.Exceptions.NoInputFoundException;
 import logicInterpreter.Exceptions.NoSuchTypeException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockInputBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
@@ -193,7 +193,7 @@ public class DiagFileUtils {
 					source = ((File)file).getParent() + "/" + doc.getElementsByTagName("src").item(0).getTextContent();
 				else
 					source = "temp/" + doc.getElementsByTagName("src").item(0).getTextContent(); 
-				DiagramBean diagram = parseXMLDiagram(new File(source));
+				CircuitSchemaBean diagram = parseXMLDiagram(new File(source));
 				block.setDiagram(diagram);
 				for (int i = 0; i < diagram.getInputList().size(); i++) {
 					DiagramInputBean input = diagram.getInput(i);
@@ -235,8 +235,8 @@ public class DiagFileUtils {
 	}
 	static List<String> antiRecurrencyList = new ArrayList<String>();
 	//TODO: wyjątki
-	public static DiagramBean parseXMLDiagram(File file) throws Exception{
-		DiagramBean diagram = new DiagramBean();
+	public static CircuitSchemaBean parseXMLDiagram(File file) throws Exception{
+		CircuitSchemaBean diagram = new CircuitSchemaBean();
 		try {
 			validateXML(new File("xmls/validateSchemas/DiagramSchema.xsd"), file);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -396,7 +396,7 @@ public class DiagFileUtils {
 	 * @throws ParserConfigurationException
 	 * @throws TransformerException 
 	 */
-	public static String createDiagramXML(DiagramBean diagram) throws ParserConfigurationException, TransformerException {
+	public static String createDiagramXML(CircuitSchemaBean diagram) throws ParserConfigurationException, TransformerException {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 		
@@ -709,11 +709,11 @@ public class DiagFileUtils {
 	 * @throws IOException
 	 * @throws MultipleOutputsInInputException 
 	 */
-	public static boolean createDiagramFile(DigitalCircuitEditor editor, DiagramBean diag, OutputStream stream) throws IOException, MultipleOutputsInInputException {
+	public static boolean createDiagramFile(DigitalCircuitEditor editor, CircuitSchemaBean diag, OutputStream stream) throws IOException, MultipleOutputsInInputException {
 		try {
 			{
 				mxCodec codec = new mxCodec();
-				DiagramBean diagram;
+				CircuitSchemaBean diagram;
 				ZipOutputStream zipout;
 				
 				if(stream instanceof ZipOutputStream)
@@ -767,7 +767,7 @@ public class DiagFileUtils {
 					zipout.write(data);
 					zipout.closeEntry();
 					if(block.getDiagram() != null) {
-						DiagramBean blockDiagram = block.getDiagram();
+						CircuitSchemaBean blockDiagram = block.getDiagram();
 						ZipEntry diagramEntry = new ZipEntry("blocks/"+block.getName()+".diagram.xml");
 						zipout.putNextEntry(diagramEntry);
 						byte[] diagdata = DiagFileUtils.createDiagramXML(blockDiagram).getBytes();
@@ -814,7 +814,7 @@ public class DiagFileUtils {
 	}
 	
 	public static void readDiagramFile(DigitalCircuitEditor editor, String filename) throws Exception {
-		DiagramBean diagram = null;
+		CircuitSchemaBean diagram = null;
 		ZipFile zip = new ZipFile(filename);
 		String tempPath = System.getProperty("java.io.tmpdir");
 		
@@ -918,7 +918,7 @@ public class DiagFileUtils {
 		}
 	
 	
-	public String createVHDL(DiagramBean diagram) {
+	public String createVHDL(CircuitSchemaBean diagram) {
 		StringBuffer sb = new StringBuffer();
 		
 		

@@ -15,7 +15,7 @@ import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor.AdditionalEdgeForOutputNode;
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramOutputBean;
@@ -49,7 +49,7 @@ public class LogSimDebugger extends JFrame {
 	private JScrollPane scrollPane_inp;
 	private JScrollPane scrollPane_out;
 	private DigitalCircuitEditor editor;
-	private DiagramBean diagram;
+	private CircuitSchemaBean diagram;
 	private boolean evalOnChange = true;
 	private ArrayList<JLabel> outputValLabels = new ArrayList<JLabel>();
 	
@@ -207,7 +207,7 @@ public class LogSimDebugger extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public LogSimDebugger(DigitalCircuitEditor ge, DiagramBean diag) {
+	public LogSimDebugger(DigitalCircuitEditor ge, CircuitSchemaBean diag) {
 		
 		editor = ge;
 		diagram = diag;

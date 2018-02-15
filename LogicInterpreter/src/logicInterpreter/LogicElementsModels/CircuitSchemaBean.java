@@ -14,7 +14,7 @@ import logicInterpreter.LogicElementsModels.Nodes.DiagramOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.InputBean;
 import logicInterpreter.LogicElementsModels.Nodes.OutputBean;
 
-public class DiagramBean implements Serializable {
+public class CircuitSchemaBean implements Serializable {
 
 	/**
 	 * Obiekt modelujący układ cyfrowy
@@ -26,7 +26,7 @@ public class DiagramBean implements Serializable {
 	private final List<BlockBean> blocks = new ArrayList<BlockBean>();
 	private final List<List<BlockBean>> flowList = new ArrayList<List<BlockBean>>();
 
-	public DiagramBean() {
+	public CircuitSchemaBean() {
 
 	}
 
@@ -353,12 +353,12 @@ public class DiagramBean implements Serializable {
 	 * 
 	 * @return true - jeśli występuje zapętlenie
 	 */
-	public boolean checkRecurrentLoops(List<DiagramBean> prevDiagrams) {
+	public boolean checkRecurrentLoops(List<CircuitSchemaBean> prevDiagrams) {
 		if (prevDiagrams == null)
-			prevDiagrams = new ArrayList<DiagramBean>();
+			prevDiagrams = new ArrayList<CircuitSchemaBean>();
 		prevDiagrams.add(this);
 		for (BlockBean b : blocks) {
-			DiagramBean blockDiagram = b.getDiagram();
+			CircuitSchemaBean blockDiagram = b.getDiagram();
 			if (blockDiagram != null) {
 				if (prevDiagrams.indexOf(blockDiagram) != -1)
 					return true;

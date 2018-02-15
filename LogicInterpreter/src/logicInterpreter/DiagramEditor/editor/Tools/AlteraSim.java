@@ -22,7 +22,7 @@ import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.SevenSegmentDi
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.Switch;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.Exceptions.RecurrentLoopException;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockInputBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
@@ -73,7 +73,7 @@ public class AlteraSim extends JFrame {
 
 	private LogSimDebugger debugger;
 	private JPanel contentPane;
-	DiagramBean diagram;
+	CircuitSchemaBean diagram;
 	List<JComboBox<JCheckBox>> selectedInputs = new ArrayList<JComboBox<JCheckBox>>();	//wybrana metoda wejscia na plytce z listy combobox
 	List<JComboBox<JCheckBox>> selectedOutputs = new ArrayList<JComboBox<JCheckBox>>(); //wybrana metoda wyjscia na plytce z listy combobox
 	JTabbedPane tabbedPane;

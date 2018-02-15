@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import logicInterpreter.DiagramEditor.editor.DigitalCircuitEditor;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramOutputBean;
@@ -17,8 +17,8 @@ import logicInterpreter.LogicElementsModels.Nodes.VCCNode;
 
 public class VHDLCreator {
 
-	DiagramBean diagram;
-	public VHDLCreator(DiagramBean diagram) {
+	CircuitSchemaBean diagram;
+	public VHDLCreator(CircuitSchemaBean diagram) {
 		this.diagram = diagram;
 	}
 
@@ -96,7 +96,7 @@ public class VHDLCreator {
 		return sb.toString();
 	}
 	
-	private int portMap(DiagramBean diagram, StringBuffer sb, String signalPrefix) {
+	private int portMap(CircuitSchemaBean diagram, StringBuffer sb, String signalPrefix) {
 		int mapCount = 0;
 		int sigCount = 0;
 		ArrayList<SignalOutputPair> signals = new ArrayList<SignalOutputPair>();
@@ -168,7 +168,7 @@ public class VHDLCreator {
 		return sigCount;
 	}
 	
-	private String createDiagramArchitecture(DiagramBean diagram, String signalPrefix) {
+	private String createDiagramArchitecture(CircuitSchemaBean diagram, String signalPrefix) {
 		StringBuffer sb = new StringBuffer();
 		ArrayList<BlockBean> templBlocks = diagram.getAllTemplateBlocks(null, false);
 		for(int i=0;i<templBlocks.size(); i++) {
@@ -212,7 +212,7 @@ public class VHDLCreator {
 		else if(block.getType().equals(BlockBean.TYPE_DIAGRAM)) {
 			
 			if(block.getDiagram() != null) {
-				DiagramBean diagram = block.getDiagram();
+				CircuitSchemaBean diagram = block.getDiagram();
 				String signalPrefix = "c_" + block.getVHDLName() +"_";
 				sb.append(createDiagramArchitecture(diagram, signalPrefix));
 				

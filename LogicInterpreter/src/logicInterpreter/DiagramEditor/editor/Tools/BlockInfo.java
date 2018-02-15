@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 
 import logicInterpreter.Exceptions.RecurrentLoopException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -112,7 +112,7 @@ public class BlockInfo extends JDialog {
 			c.gridx = 0;
 			c.weighty = 0;
 			diagramInfoPanel.setLayout(gbl_infoPanel);
-			DiagramBean diagram = block.getDiagram();
+			CircuitSchemaBean diagram = block.getDiagram();
 			JLabel diagramName = new JLabel(""+diagram.getName());
 			JLabel templateName = new JLabel("Wzorzec: "+ block.getTemplateBlock().getName() + " (" + block.getTemplateBlock().getFile().getAbsolutePath() +")");
 			diagramInfoPanel.add(diagramName,c);

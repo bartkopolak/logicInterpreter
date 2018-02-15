@@ -50,7 +50,7 @@ import logicInterpreter.DiagramEditor.com.mxgraph.swing.editor.EditorPopupMenu;
 import logicInterpreter.DiagramEditor.editor.Tools.AlteraSimItems.PinBind;
 import logicInterpreter.Exceptions.MultipleOutputsInInputException;
 import logicInterpreter.LogicElementsModels.BlockBean;
-import logicInterpreter.LogicElementsModels.DiagramBean;
+import logicInterpreter.LogicElementsModels.CircuitSchemaBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockInputBean;
 import logicInterpreter.LogicElementsModels.Nodes.BlockOutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.DiagramInputBean;
@@ -433,10 +433,10 @@ public class DigitalCircuitEditor extends BasicGraphEditor {
 		
 	}
 
-	public DiagramBean createDiagram() throws MultipleOutputsInInputException {
+	public CircuitSchemaBean createDiagram() throws MultipleOutputsInInputException {
 		
 		mxGraph graph = getGraphComponent().getGraph();
-		DiagramBean diagram = new DiagramBean();
+		CircuitSchemaBean diagram = new CircuitSchemaBean();
 		ArrayList<Object> cellsList;
 		{
 		Collection<Object> cellsCol = mxGraphModel.filterDescendants(graph.getModel(),

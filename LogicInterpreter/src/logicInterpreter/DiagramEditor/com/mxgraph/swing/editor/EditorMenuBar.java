@@ -218,16 +218,14 @@ public class EditorMenuBar extends JMenuBar
 								new StylesheetAction(
 										"/com/mxgraph/examples/swing/resources/default-style.xml")));
 */
-		// Creates the options menu
+		/*	// Creates the options menu
 		menu = add(new JMenu(mxResources.get("options")));
 
 		submenu = (JMenu) menu.add(new JMenu(mxResources.get("display")));
 		item = submenu.add(new TogglePropertyItem(graphComponent, mxResources
 				.get("centerPage"), "CenterPage", true, new ActionListener()
 		{
-			/**
-			 * 
-			 */
+
 			public void actionPerformed(ActionEvent e)
 			{
 				if (graphComponent.isPageVisible()
@@ -252,7 +250,7 @@ public class EditorMenuBar extends JMenuBar
 
 
 		// Creates the window menu
-		/*
+
 		menu = add(new JMenu(mxResources.get("window")));
 
 		UIManager.LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();

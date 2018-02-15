@@ -29,7 +29,7 @@ public class BlockBean implements Serializable{
 	private final List<BlockInputBean> inputs = new ArrayList<BlockInputBean>();	//lista wejść podukładu
 	private final List<BlockOutputBean> outputs = new ArrayList<BlockOutputBean>();	//lista wyjść
 	private String type;
-	private DiagramBean diagram = null; //uzywany tylko gdy typ to diagram
+	private CircuitSchemaBean diagram = null; //uzywany tylko gdy typ to diagram
 	private boolean defaultB = false;
 	private File file = null;
 	private BlockBean templateBlock = null;
@@ -65,7 +65,7 @@ public class BlockBean implements Serializable{
 	 * Jeśli blok jest innego typu, zwraca null<br>
 	 * @return obiekt diagramu przypisany do bloczka, null jeśli typ jest inny od diagram
 	 */
-	public DiagramBean getDiagram() {
+	public CircuitSchemaBean getDiagram() {
 		if(type.equals("diagram")){
 			return diagram;
 		}
@@ -78,7 +78,7 @@ public class BlockBean implements Serializable{
 	 * Jeśli blok jest innego typu, nic się nie dzieje.
 	 * @param diagram - obiekt układu logicznego
 	 */
-	public void setDiagram(DiagramBean diagram) {
+	public void setDiagram(CircuitSchemaBean diagram) {
 		if(type.equals("diagram")){
 			this.diagram = diagram;
 		}
