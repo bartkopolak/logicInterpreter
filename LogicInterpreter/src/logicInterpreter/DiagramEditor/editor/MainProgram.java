@@ -12,6 +12,8 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
 import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -34,6 +36,7 @@ import logicInterpreter.LogicElementsModels.Nodes.InputBean;
 import logicInterpreter.LogicElementsModels.Nodes.OutputBean;
 import logicInterpreter.LogicElementsModels.Nodes.VCCNode;
 import logicInterpreter.LogicElementsModels.Nodes.Wire;
+import logicInterpreter.Tools.LoggerClass;
 
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
@@ -232,6 +235,7 @@ public class MainProgram {
 		
 	
 	public MainProgram() {
+		//LoggerClass.init();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
